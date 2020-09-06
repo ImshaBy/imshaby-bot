@@ -1,3 +1,7 @@
+
+# Token file
+serverless.env.yml
+*.token
 # Logs
 logs
 *.log
