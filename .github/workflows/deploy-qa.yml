@@ -29,6 +29,15 @@ jobs:
         node-version: ${{ matrix.node-version }}
         registry-url: 'https://npm.pkg.github.com'
     - run: npm ci
+    - run: npm run build
+    - name: List files
+      run: ls -la
+    - name: Copy to server
+      run: |
+        rsync -avz -e "ssh -p 3022 -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no" / 61007-1897@${{ secrets.SSH_HOST }}:~/temp
+        ssh -p 3022 -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -t 61007-1897@${{ secrets.SSH_HOST }} "cd ~/temp && npm install && npm run build"
+
+
 
     # - name: Set-up env variables
     #   run:  cp src/environments/environment.${{env.TARGET}}.ts src/environments/environment.ts
@@ -36,7 +45,7 @@ jobs:
     # - name: Check env variables
     #   run: cat src/environments/environment.ts
 
-    - run: npm run build
+    # - run: npm run build
 
 #    - run: npm publish -- for creation package
 
