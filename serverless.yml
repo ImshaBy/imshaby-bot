@@ -1,7 +1,8 @@
-service: telegram-notify-bot-serverless
+service: telegram-notify-imshaby-serverless
 
 plugins:
   - serverless-offline
+  - serverless-dotenv-plugin
 
 provider:
   name: aws
@@ -13,11 +14,21 @@ provider:
   endpointType: regional
 
   environment:
-    BOT_TOKEN: ${file(./serverless.env.yml):TELEGRAM_TOKEN, ''}
+    # BOT_TOKEN: ${file(./serverless.env.yml):TELEGRAM_TOKEN, ''}
+
+package:
+  exclude:
+    - src/**
+    - .env
+
+
+custom:
+  dotenv:
+    logging: false
 
 functions:
-  hello:
-    handler: handler.hello
+  bot-webhook:
+    handler: handler.webhook
     events:
       - http:
           path: webhook
