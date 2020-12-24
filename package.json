@@ -10,7 +10,7 @@
     "watch-node": "nodemon dist/index.js",
     "tslint": "tslint -c tslint.json -p tsconfig.json",
     "serve-debug": "nodemon --inspect dist/index.js",
-    "start:prod": "node dist/index.js",
+    "start:prod": "NODE_ENV=production node dist/index.js",
     "start:dev": "NODE_ENV=development nodemon src/index.ts",
     "start:debug": "NODE_ENV=debug nodemon --inspect-rbk src/index.ts",
     "build": "npm run build-ts && npm run tslint",
