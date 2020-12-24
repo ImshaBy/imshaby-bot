@@ -1,6 +1,8 @@
 'use strict';
 
-const { bot } = require('./bot.js');
+const { bot } = require('./dist/bot.js');
+const { getConnection } = require('./dist/mongo.js');
+
 
 const getResponseHeaders = () => {
   return {
@@ -8,24 +10,39 @@ const getResponseHeaders = () => {
   };
 }
 
-module.exports.hello = async event => {
+module.exports.webhook = async event => {
   try {
 
     const body = JSON.parse(event.body);
+    console.log("details - message");
+
     console.log(body);
+
+    console.log(bot);
+
+    await getConnection('lambda');
 
     await bot.handleUpdate(body);
 
-    return {
-      statusCode: 200,
-      headers: getResponseHeaders(),
-      body: JSON.stringify(
-        {
-          message: 'Ok',
-        })
-    };
+    console.log("After handle update!");
+    const promise = new Promise(function(resolve, reject) {
+      setTimeout(() => {
+        resolve;
+      }, 2000);
+    });
+    return promise;
+
+    // return {
+    //   statusCode: 200,
+    //   headers: getResponseHeaders(),
+    //   body: JSON.stringify(
+    //     {
+    //       message: 'Ok',
+    //     })
+    // };
 
   } catch (err) {
+    console.log("Catch case Error: ", err);
 
     console.log("Error: ", err);
     return {
@@ -43,6 +60,8 @@ module.exports.setWebhook = async event => {
   try {
 
       let url = 'https://' + event.headers.Host + '/' + event.requestContext.stage + '/webhook';
+
+      console.log("Hook :" + url);
 
       await bot.telegram.setWebhook(url);
 
