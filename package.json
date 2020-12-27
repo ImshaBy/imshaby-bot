@@ -3,9 +3,10 @@
   "version": "0.1.0",
   "description": "With this bot you won't skip the moment when your favorite movies are available on the torrents!",
   "author": "Dmitrii Baranov",
-  "main": "handler.js",
+  "main": "dist/index.js",
   "scripts": {
     "start": "npm run serve",
+    "serve": "node dist/index.js",
     "serve-qa": "NODE_ENV=qa node dist/index.js",
     "watch-node": "nodemon dist/index.js",
     "tslint": "tslint -c tslint.json -p tsconfig.json",
