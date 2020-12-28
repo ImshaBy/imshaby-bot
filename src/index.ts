@@ -42,8 +42,10 @@ function startBotServer (bot: Telegraf<Context>) {
     res.end(req.params.msg);
   });
 
-  const server = createServer(
-    app.use((req, res) => res.status(200).end())
+  const server = createServer( () => {
+    app.use(bot.webhookCallback(`${process.env.WEBHOOK_PATH}`));
+    app.use((req, res) => res.status(200).end());
+    }
   );
 
   // app.use(bot.webhookCallback('/'));
@@ -54,7 +56,6 @@ function startBotServer (bot: Telegraf<Context>) {
 
 
   server.listen(process.env.PORT, () => {
-    app.use(bot.webhookCallback(`${process.env.WEBHOOK_PATH}`));
     bot.telegram.setWebhook(`${process.env.WEBHOOK_URL}${process.env.WEBHOOK_PATH}`);
     // bot.launch({
     //   webhook: {
