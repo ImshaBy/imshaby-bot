@@ -11,6 +11,5 @@ export const languageChangeAction = async (ctx: Context) => {
 
   await sleep(3);
   await ctx.reply(ctx.i18n.t('scenes.start.bot_description'), accountConfirmKeyboard);
-
-  await ctx.answerCbQuery();
+  // await ctx.answerCbQuery();
 };
