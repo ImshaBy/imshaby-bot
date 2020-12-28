@@ -46,7 +46,8 @@ function startBotServer (bot: Telegraf<Context>) {
     logger.error(undefined, 'seting callback');
     app.use(bot.webhookCallback(`${process.env.WEBHOOK_PATH}`));
     app.use((req, res) => res.status(200).end());
-    }
+    bot.telegram.setWebhook(`${process.env.WEBHOOK_URL}${process.env.WEBHOOK_PATH}`);
+  }
   );
 
   // app.use(bot.webhookCallback('/'));
@@ -57,9 +58,7 @@ function startBotServer (bot: Telegraf<Context>) {
 
 
   server.listen(process.env.PORT, () => {
-    logger.error(undefined, `webhook: ${process.env.WEBHOOK_URL}${process.env.WEBHOOK_PATH}`);
-
-    bot.telegram.setWebhook(`${process.env.WEBHOOK_URL}${process.env.WEBHOOK_PATH}`);
+    logger.info(undefined, 'request from bot');
     // bot.launch({
     //   webhook: {
     //     domain: `${process.env.WEBHOOK_URL}`,
