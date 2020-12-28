@@ -38,17 +38,19 @@ function startBotServer (bot: Telegraf<Context>) {
   logger.info(undefined, 'Starting a bot within express server');
 
   const app = express();
-  app.get('/test/:msg', function (req, res) {
+  app.get('/test/:msg', function (req: any, res: any) {
     res.end(req.params.msg);
   });
 
-  const server = createServer( () => {
-    logger.error(undefined, 'seting callback');
-    app.use(bot.webhookCallback(`${process.env.WEBHOOK_PATH}`));
-    app.use((req, res) => res.status(200).end());
-    bot.telegram.setWebhook(`${process.env.WEBHOOK_URL}${process.env.WEBHOOK_PATH}`);
-  }
-  );
+  app.use(bot.webhookCallback(`${process.env.WEBHOOK_PATH}`));
+
+  // const server = createServer( () => {
+  //   logger.error(undefined, 'seting callback');
+  //   app.use(bot.webhookCallback(`${process.env.WEBHOOK_PATH}`));
+  //   app.use((req, res) => res.status(200).end());
+  //   bot.telegram.setWebhook(`${process.env.WEBHOOK_URL}${process.env.WEBHOOK_PATH}`);
+  // }
+  // );
 
   // app.use(bot.webhookCallback('/'));
 
@@ -56,17 +58,10 @@ function startBotServer (bot: Telegraf<Context>) {
   //   logger.info(undefined, 'webhook is set up!')
   // );
 
-
-  server.listen(process.env.PORT, () => {
-    logger.info(undefined, 'request from bot');
-    // bot.launch({
-    //   webhook: {
-    //     domain: `${process.env.WEBHOOK_URL}`,
-    //     port: 80
-    //   }
-    // });
+  app.listen(process.env.PORT, () => {
+    console.log(`Example app listening on port ${process.env.PORT}! Settin up webhoo for telegram:`);
+    bot.telegram.setWebhook(`${process.env.WEBHOOK_URL}${process.env.WEBHOOK_PATH}`);
   });
-
 
 
   // axios.get()

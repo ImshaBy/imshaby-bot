@@ -1,6 +1,4 @@
 import { Context, Extra, Markup } from 'telegraf';
-import rp from 'request-promise';
-
 
 /**
  * Displays menu with a list of movies
