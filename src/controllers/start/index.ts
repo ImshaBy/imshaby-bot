@@ -104,7 +104,7 @@ async function saveOrUpdateUser(user: IUser, parishKey: string, ctx: Context) {
     ctx.i18n.locale('ru');
 
     await ctx.reply(ctx.i18n.t('scenes.start.bot_description'), accountConfirmKeyboard);
-    await ctx.answerCbQuery();
+    // await ctx.answerCbQuery();
   } else {
     await ctx.reply(ctx.i18n.t('scenes.start.no_parish_key'));
   }
