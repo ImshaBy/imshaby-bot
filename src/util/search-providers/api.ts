@@ -1,7 +1,5 @@
-import * as rp from 'request-promise';
-import { IMassDay, IParishLookupParameters, IParishResult } from '../parish-lookup';
+import { IMassDay, IParishResult } from '../parish-lookup';
 import logger from '../logger';
-import { SrvRecord } from 'dns';
 import axios from 'axios';
 
 const axiosInstance = axios.create({
@@ -75,7 +73,8 @@ export async function parishesLookupByKey(parishKey: string): Promise<IParishRes
   try {
     // response = await rp.get(options);
     response = await axiosInstance.get(url).then(res => res.data);
-    logger.info(undefined, response);
+
+    // logger.info(undefined, response);
     // const parishes = JSON.parse(response);
     return Object.values(response)
       .map((item: any) => ({
