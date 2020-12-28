@@ -38,9 +38,15 @@ function startBotServer (bot: Telegraf<Context>) {
   logger.info(undefined, 'Starting a bot within express server');
 
   const app = express();
+
+  app.get('/', function (req: any, res: any) {
+    res.status(200).end();
+  });
+
   app.get('/test/:msg', function (req: any, res: any) {
     res.end(req.params.msg);
   });
+
 
   app.use(bot.webhookCallback(`${process.env.WEBHOOK_PATH}`));
 
