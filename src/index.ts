@@ -46,11 +46,28 @@ function startBotServer (bot: Telegraf<Context>) {
     app.use((req, res) => res.status(200).end())
   );
 
-  // app.use(bot.webhookCallback('/secret-path'))
+  // app.use(bot.webhookCallback('/'));
+
+  // axios.get(`https://api.telegram.org/bot${process.env.TELEGRAM_TOKEN}/setWebhook?url=${process.env.WEBHOOK_URL}`).then(() =>
+  //   logger.info(undefined, 'webhook is set up!')
+  // );
+
 
   server.listen(process.env.PORT, () => {
-    bot.launch();
+    app.use(bot.webhookCallback(`${process.env.WEBHOOK_PATH}`));
+    bot.telegram.setWebhook(`${process.env.WEBHOOK_URL}${process.env.WEBHOOK_PATH}`);
+    // bot.launch({
+    //   webhook: {
+    //     domain: `${process.env.WEBHOOK_URL}`,
+    //     port: 80
+    //   }
+    // });
   });
+
+
+
+  // axios.get()
+
 
   cron.schedule(process.env.SCHEDULE, checkNeeedToUpdateParishes);
 }
