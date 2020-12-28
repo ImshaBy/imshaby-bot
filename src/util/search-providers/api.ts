@@ -75,7 +75,7 @@ export async function parishesLookupByKey(parishKey: string): Promise<IParishRes
   try {
     // response = await rp.get(options);
     response = await axiosInstance.get(url).then(res => res.data);
-
+    logger.info(undefined, response);
     // const parishes = JSON.parse(response);
     return Object.values(response)
       .map((item: any) => ({
@@ -93,7 +93,7 @@ export async function parishesLookupByKey(parishKey: string): Promise<IParishRes
         imgPath: item.imgPath
       }));
   } catch (e) {
-    logger.error(undefined, 'Error during fetching parish details by key %O. %O', parishKey, e);
+    logger.error(undefined, 'Error during fetching parish details by key %O. Error:  %O', parishKey, e);
   }
   return [];
 }
