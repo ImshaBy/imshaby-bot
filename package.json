@@ -6,7 +6,7 @@
   "main": "dist/index.js",
   "scripts": {
     "start": "npm run serve",
-    "serve": "npm run build-ts && npm run start:prod",
+    "serve": "rm -r dist && npm run build-ts && npm run start:prod",
     "serve-qa": "NODE_ENV=qa node dist/index.js",
     "watch-node": "nodemon dist/index.js",
     "tslint": "tslint -c tslint.json -p tsconfig.json",
