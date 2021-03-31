@@ -23,7 +23,7 @@ export async function checkNeeedToUpdateParishes() {
   }
 }
 
-export async function notifyGroupChatAboutParishChange(chatId: string, msg: string){
+export async function notifyGroupChatAboutParishChange(chatId: string, msg: string) {
   try {
     if (chatId && msg) {
       await telegram.sendMessage(chatId, msg, {parse_mode: 'HTML'});
@@ -33,7 +33,6 @@ export async function notifyGroupChatAboutParishChange(chatId: string, msg: stri
   } finally {
     // TODO: check if user blocked the bot and delete him from the DB
   }
-
 }
 
 async function notifyAndUpdateUsersByParishKey(parishKey: string) {
