@@ -1,8 +1,13 @@
+require('dotenv').config();
 import logger from './logger';
 import { sleep } from './common';
 import User from '../models/User';
 import telegram from '../telegram';
-import Movie, { IMovie } from '../models/Movie';
+import {  Extra, Markup, Context } from 'telegraf';
+
+const markup = Extra.HTML;
+
+
 import { getAllNeedToUpdateParishKeys } from './search-providers/api';
 
 
@@ -18,6 +23,17 @@ export async function checkNeeedToUpdateParishes() {
   }
 }
 
+export async function notifyGroupChatAboutParishChange(chatId: string, msg: string) {
+  try {
+    if (chatId && msg) {
+      await telegram.sendMessage(chatId, msg, {parse_mode: 'HTML'});
+    }
+  } catch (e) {
+    logger.error(undefined, "Can't notify user about  reason: %O", e);
+  } finally {
+    // TODO: check if user blocked the bot and delete him from the DB
+  }
+}
 
 async function notifyAndUpdateUsersByParishKey(parishKey: string) {
   const usersToNotify = await User.find({
