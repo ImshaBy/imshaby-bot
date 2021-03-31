@@ -15,6 +15,7 @@
       "refresh_button": "🚀 Yes, it's correct!",
       "masses_actual": "There are  ${massCount} mass configuration found. All masses are update and actualized accordingly! God bless you!",
       "change_button": "❌ No, I need to change mass schedule!",
+      "hook_msg": "<b>${name}</b> applied changes to schedule!",
 
       "chosen_parish": "You've chosen parish: ${title}",
       "list_of_parishes": "This is list of your parishes:",

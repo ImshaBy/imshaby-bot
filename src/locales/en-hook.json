@@ -1,0 +1,5 @@
+{
+  "parish": {
+      "hook_msg": "<b>{{name}}</b> applied changes to schedule!"
+  }
+}
