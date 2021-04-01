@@ -2,7 +2,7 @@ name: QA BOT API env (bot.qa.imsha.by)
 
 on:
   push:
-    branches: [ develop, fb-telegraf-infra ]
+    branches: [ develop ]
 jobs:
   build:
 
@@ -33,7 +33,7 @@ jobs:
       run: ls -la
     - name: Update on server
       run: |
-        ssh -p 3022 -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -t 61007-1897@${{ secrets.SSH_HOST }} "cd ~/ROOT && git pull && npm ci && npm run serve"
+        ssh -p 3022 -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -t 61007-1897@${{ secrets.SSH_HOST }} "cd ~/ROOT && git pull && npm ci && npm run build-ts && pm2 restart dist/index.js"
 
 
 
