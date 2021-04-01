@@ -2,17 +2,16 @@ name: QA BOT API env (bot.qa.imsha.by)
 
 on:
   push:
-    branches: [ develop ]
+    branches: [ develop, fb-telegraf-infra ]
 jobs:
   build:
 
     runs-on: ubuntu-latest
     env:
       TARGET: qa
-      NODE_AUTH_TOKEN: ${{ secrets.GIT_TOKEN }}
     strategy:
       matrix:
-        node-version: [10.x]
+        node-version: [14.x]
 
     steps:
     - uses: actions/checkout@v2
@@ -32,10 +31,9 @@ jobs:
     - run: npm run build
     - name: List files
       run: ls -la
-    - name: Copy to server
+    - name: Update on server
       run: |
-        rsync -avz -e "ssh -p 3022 -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no" / 61007-1897@${{ secrets.SSH_HOST }}:~/temp
-        ssh -p 3022 -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -t 61007-1897@${{ secrets.SSH_HOST }} "cd ~/temp && npm install && npm run build"
+        ssh -p 3022 -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -t 61007-1897@${{ secrets.SSH_HOST }} "cd ~/ROOT && git pull && npm ci && npm run serve"
 
 
 
