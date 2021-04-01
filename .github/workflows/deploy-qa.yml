@@ -33,7 +33,6 @@ jobs:
       run: ls -la
     - name: Update on server
       run: |
-        rsync -avz -e "ssh -p 3022 -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no" / 61007-1897@${{ secrets.SSH_HOST }}:~/temp
         ssh -p 3022 -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -t 61007-1897@${{ secrets.SSH_HOST }} "cd ~/ROOT && git pull && npm ci && npm run serve"
 
 
