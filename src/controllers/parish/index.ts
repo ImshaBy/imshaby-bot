@@ -23,7 +23,7 @@ parish.enter(async (ctx: Context) => {
     await ctx.reply(ctx.i18n.t('scenes.parishes.list_of_parishes'), getParishesMenu(userParishes));
     await ctx.reply(ctx.i18n.t('scenes.parishes.ask_for_details'), backKeyboard);
   } else {
-    await ctx.reply('No parishes', backKeyboard);
+    await ctx.reply('Error', backKeyboard);
   }
 });
 
