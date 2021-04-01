@@ -112,12 +112,12 @@ function createServer() {
     res.status(200).end();
   });
 
-  app.post('/chat/parish', checkJwt, function (req: any, res: any) {
+  app.post('/chat/parish',  function (req: any, res: any) {
     notifyGroupChatAboutParishChange(req.query.chatId, getParishUpdateMsg(req, `${req.body.parish.name}`));
     res.status(200).end();
   });
 
-  app.post('/chat/city', checkJwt, function (req: any, res: any) {
+  app.post('/chat/city', function (req: any, res: any) {
     notifyGroupChatAboutParishChange(req.query.chatId, getParishUpdateMsg(req, `${req.body.parish.name}`));
     res.status(200).end();
   });
