@@ -9,7 +9,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       TARGET: qa
-      NODE_AUTH_TOKEN: ${{ secrets.GIT_TOKEN }}
     strategy:
       matrix:
         node-version: [14.x]
