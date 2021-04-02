@@ -85,11 +85,14 @@ function startDevelopmen(bot: Telegraf<Context>) {
 function startProdution (bot: Telegraf<Context>) {
   const app = createServer();
 
-  app.use(bot.webhookCallback(`${process.env.WEBHOOK_PATH}`));
+  // app.use(bot.webhookCallback(`${process.env.WEBHOOK_PATH}`));
 
   app.post(`${process.env.WEBHOOK_PATH}`, (req, res) => {
     console.log(req.body);
-    return bot.handleUpdate(req.body, res);
+    return bot.handleUpdate(req.body, res)
+      .finally(() => {
+        res.send('bot hook success');
+      });
   });
 
   app.listen(process.env.PORT, () => {
