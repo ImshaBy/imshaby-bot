@@ -87,6 +87,11 @@ function startProdution (bot: Telegraf<Context>) {
 
   app.use(bot.webhookCallback(`${process.env.WEBHOOK_PATH}`));
 
+  app.post(`${process.env.WEBHOOK_PATH}`, (req, res) => {
+    console.log(req.body);
+    return bot.handleUpdate(req.body, res);
+  });
+
   app.listen(process.env.PORT, () => {
     console.log(`Example app listening on port ${process.env.PORT}! Settin up webhoo for telegram:`);
     bot.telegram.setWebhook(`${process.env.WEBHOOK_URL}${process.env.WEBHOOK_PATH}`);
