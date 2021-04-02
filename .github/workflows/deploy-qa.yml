@@ -2,7 +2,7 @@ name: QA BOT API env (bot.qa.imsha.by)
 
 on:
   push:
-    branches: [ develop, fb-telegraf-infra]
+    branches: [ develop]
 jobs:
   build:
 
@@ -31,18 +31,13 @@ jobs:
     - run: npm run build
     - name: List files
       run: ls -la
-    - name: Copy & Update on server
+    - name: Copy to server
       run: |
         rsync -avz -e "ssh -p 3022 -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no" dist 61007-1897@${{ secrets.SSH_HOST }}:~/temp
-        ssh -p 3022 -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -t 61007-1897@${{ secrets.SSH_HOST }} "cd ~/ROOT && git pull && npm ci"
+    - name: Re-install node_modules & re-start server
+      run: |
+        ssh -p 3022 -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -t 61007-1897@${{ secrets.SSH_HOST }} "cd ~/ROOT && git pull && npm ci && rm -rf dist && mv ~/temp/dist ~/ROOT/ && pm2 restart dist/index.js"
 
-
-
-    # - name: Set-up env variables
-    #   run:  cp src/environments/environment.${{env.TARGET}}.ts src/environments/environment.ts
-
-    # - name: Check env variables
-    #   run: cat src/environments/environment.ts
 
     # - run: npm run build
 

@@ -111,7 +111,8 @@ function createServer() {
     console.log(`Private url is triggered `);
     res.status(200).end();
   });
-  app.get('/public',  function (req: any, res: any) {
+
+  app.get('/',  function (req: any, res: any) {
     console.log(`public url is triggered `);
     res.status(200).end();
   });
