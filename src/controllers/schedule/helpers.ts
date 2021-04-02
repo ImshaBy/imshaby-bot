@@ -19,8 +19,9 @@ export async function getUserParishes(ctx: Context): Promise<IParishResult[]> {
 
   const parishes: IParishResult[] = [];
   try {
+    logger.debug(ctx, 'Retrieving parishes for user %s', ctx.session.user);
     logger.debug(ctx, 'Retrieving parishes for user id: %s', ctx.session.user._id);
-    logger.debug(ctx, 'Retrievied parishes for user id: %s', ctx.session.user.observableParishKeys);
+    logger.debug(ctx, 'Retrievied parishes : %s', ctx.session.user.observableParishKeys);
 
     for ( const parishKey of ctx.session.user.observableParishKeys) {
       logger.debug(ctx, parishKey);
