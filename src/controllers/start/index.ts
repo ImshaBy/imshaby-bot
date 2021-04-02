@@ -6,7 +6,7 @@ import { getLanguageKeyboard } from './helpers';
 import logger from '../../util/logger';
 import User, { IUser } from '../../models/User';
 import { getMainKeyboard } from '../../util/keyboards';
-import { saveToSession } from '../../util/session';
+import { saveToSession, deleteFromSession } from '../../util/session';
 import { getUserParishes } from '../schedule/helpers';
 import { parishesLookupByKey } from '../../util/search-providers';
 import { getAccountConfirmKeyboard } from './helpers';
@@ -79,6 +79,7 @@ async function saveOrUpdateUser(user: IUser, parishKey: string, ctx: Context) {
       );
       logger.info(ctx, 'New parish key: ' + parishKey + ' has been added to existing user: ' + user._id);
       await ctx.reply('New parish key: ' + parishKey + ' has been added');
+      deleteFromSession(ctx, 'parishes');
     }
     saveToSession(ctx, 'user', user );
     const accountConfirmKeyboard = getAccountConfirmKeyboard(ctx);
