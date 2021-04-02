@@ -79,7 +79,7 @@ async function saveOrUpdateUser(user: IUser, parishKey: string, ctx: Context) {
       );
       logger.info(ctx, 'New parish key: ' + parishKey + ' has been added to existing user: ' + user._id);
       await ctx.reply('New parish key: ' + parishKey + ' has been added');
-      deleteFromSession(ctx, 'parishes');
+      saveToSession(ctx, 'parishes', []);
     }
     saveToSession(ctx, 'user', user );
     const accountConfirmKeyboard = getAccountConfirmKeyboard(ctx);

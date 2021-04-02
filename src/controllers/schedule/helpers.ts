@@ -15,7 +15,7 @@ import { sheduleByParishId, parishesLookupByKey } from '../../util/search-provid
  */
 
 export async function getUserParishes(ctx: Context): Promise<IParishResult[]> {
-  if (ctx.session.parishes) return ctx.session.parishes as IParishResult[];
+  if (ctx.session.parishes && ctx.session.parishes.length > 0 ) return ctx.session.parishes as IParishResult[];
 
   const parishes: IParishResult[] = [];
   try {
