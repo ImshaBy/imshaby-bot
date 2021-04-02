@@ -16,7 +16,9 @@ import { sheduleByParishId, parishesLookupByKey } from '../../util/search-provid
 
 export async function getUserParishes(ctx: Context): Promise<IParishResult[]> {
   logger.info(ctx, 'Retrieving parishes from cache: %s', ctx.session.parishes );
-  if (ctx.session.parishes && ctx.session.parishes.length > 0 ) return ctx.session.parishes as IParishResult[];
+  logger.info(ctx, 'Retrieving parish keys from user: %s', ctx.session.user.observableParishKeys );
+
+  if (ctx.session.parishes ) return ctx.session.parishes as IParishResult[];
 
   const parishes: IParishResult[] = [];
   try {
