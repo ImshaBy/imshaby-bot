@@ -88,10 +88,10 @@ function startProdution (bot: Telegraf<Context>) {
   // app.use(bot.webhookCallback(`${process.env.WEBHOOK_PATH}`));
 
   app.post(`${process.env.WEBHOOK_PATH}`, (req, res) => {
-    console.log(req.body);
+    // console.log(req.body);
     return bot.handleUpdate(req.body, res)
       .finally(() => {
-        res.send('bot hook success');
+        // res.send('bot hook success');
       });
   });
 
@@ -121,7 +121,6 @@ function createServer() {
   });
 
   app.get('/',  function (req: any, res: any) {
-    console.log(`public url is triggered `);
     res.status(200).end();
   });
 
