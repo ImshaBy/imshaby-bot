@@ -91,7 +91,7 @@ function startProdution (bot: Telegraf<Context>) {
     // console.log(req.body);
     return bot.handleUpdate(req.body, res)
       .finally(() => {
-        // res.send('bot hook success');
+
       });
   });
 
