@@ -23,7 +23,7 @@ export async function write(ctx: Context, recipient: string, message: string) {
       return;
     }
 
-    const users = await User.find({ }); //TODO: Filter by language
+    const users = await User.find({ }); // TODO: Filter by language
 
     users.forEach((user, index) => {
       setTimeout(() => {
