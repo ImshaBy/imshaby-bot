@@ -23,7 +23,7 @@ export async function write(ctx: Context, recipient: string, message: string) {
       return;
     }
 
-    const users = await User.find({ }); // Filter by language
+    const users = await User.find({ }); //TODO: Filter by language
 
     users.forEach((user, index) => {
       setTimeout(() => {
@@ -67,7 +67,7 @@ export async function getStats(ctx: Context) {
  */
 export async function getHelp(ctx: Context) {
   await ctx.reply(
-    'write | [user_id | all] | message - write message to user\n' +
+    'write | [user_id | all.ru | all.en] | message - write message to user\n' +
       'stats - get stats about users\n' +
       'help - get help menu'
   );
