@@ -51,9 +51,9 @@ export async function getStats(ctx: Context) {
   const day = date.getDate();
   const epochTime = new Date(year, month, day).getTime();
 
-  const allUsers = await User.count({});
-  const createdToday = await User.find({ created: { $gte: epochTime } }).count();
-  const activeToday = await User.find({ lastActivity: { $gte: epochTime } }).count();
+  const allUsers = await User.countDocuments({});
+  const createdToday = await User.find({ created: { $gte: epochTime } }).countDocuments();
+  const activeToday = await User.find({ lastActivity: { $gte: epochTime } }).countDocuments();
   await ctx.reply(
     `Amount of users: ${allUsers}\n` +
       `New users: ${createdToday}\n` +
