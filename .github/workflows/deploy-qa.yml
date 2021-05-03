@@ -36,7 +36,7 @@ jobs:
         rsync -avz -e "ssh -p 3022 -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no" dist 61007-1897@${{ secrets.SSH_HOST }}:~/temp
     - name: Re-install node_modules & re-start server
       run: |
-        ssh -p 3022 -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -t 61007-1897@${{ secrets.SSH_HOST }} "cd ~/ROOT && git pull && npm ci && rm -rf dist && mv ~/temp/dist ~/ROOT/ && pm2 restart dist/index.js"
+        ssh -p 3022 -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -t 61007-1897@${{ secrets.SSH_HOST }} "cd ~/ROOT && git pull && npm ci && rm -rf dist && mv ~/temp/dist ~/ROOT/ && pm2 restart dist/index.js --time"
 
 
     # - run: npm run build

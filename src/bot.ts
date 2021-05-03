@@ -84,7 +84,9 @@ bot.hears(
 bot.hears(/(.*?)/, async (ctx: Context) => {
   logger.debug(ctx, 'Default handler has fired');
   const user = await User.findById(ctx.from.id);
-  await updateLanguage(ctx, user.language);
+  if (user){
+    await updateLanguage(ctx, user.language);
+  }
 
   const { mainKeyboard } = getMainKeyboard(ctx);
   return await ctx.reply(ctx.i18n.t('other.default_handler'), mainKeyboard);
