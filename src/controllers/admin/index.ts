@@ -28,8 +28,8 @@ admin.command('saveme', leave());
 admin.hears(match('keyboards.back_keyboard.back'), leave());
 
 admin.on('text', async (ctx: Context) => {
+  console.log(ctx.message.text);
   const [type, ...params] = ctx.message.text.split(' | ');
-
   switch (type) {
     case 'write':
       await write(ctx, params[0], params[1]);

@@ -83,6 +83,8 @@ bot.hears(
 
 bot.hears(/(.*?)/, async (ctx: Context) => {
   logger.debug(ctx, 'Default handler has fired');
+  logger.debug(ctx, `Message: ${ctx.message.text}`);
+
   const user = await User.findById(ctx.from.id);
   if (user) {
     await updateLanguage(ctx, user.language);
@@ -91,6 +93,10 @@ bot.hears(/(.*?)/, async (ctx: Context) => {
   const { mainKeyboard } = getMainKeyboard(ctx);
   return await ctx.reply(ctx.i18n.t('other.default_handler'), mainKeyboard);
 });
+
+
+bot.on('new_chat_members', async (ctx) => console.log(ctx.message.new_chat_members));
+
 
 bot.catch((error: any) => {
   logger.error(undefined, 'Global error has happened, %O', error);
