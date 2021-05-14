@@ -95,9 +95,14 @@ function startProdution (bot: Telegraf<Context>) {
       });
   });
 
+  // Definition of webhook types needed for the bot
+  let type: string[];
+  type.push('message');
+  type.push('callback_query');
+
   app.listen(process.env.PORT, () => {
     console.log(`Example app listening on port ${process.env.PORT}! Settin up webhoo for telegram:`);
-    bot.telegram.setWebhook(`${process.env.WEBHOOK_URL}${process.env.WEBHOOK_PATH}`);
+    bot.telegram.setWebhook(`${process.env.WEBHOOK_URL}${process.env.WEBHOOK_PATH}`, undefined, undefined, type);
   });
 
   cron.schedule(process.env.SCHEDULE, checkNeeedToUpdateParishes);

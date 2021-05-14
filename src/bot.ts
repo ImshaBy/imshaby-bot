@@ -95,9 +95,6 @@ bot.hears(/(.*?)/, async (ctx: Context) => {
 });
 
 
-bot.on('new_chat_members', async (ctx) => console.log(ctx.message.new_chat_members));
-
-
 bot.catch((error: any) => {
   logger.error(undefined, 'Global error has happened, %O', error);
 });
