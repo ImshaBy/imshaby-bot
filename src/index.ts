@@ -96,9 +96,7 @@ function startProdution (bot: Telegraf<Context>) {
   });
 
   // Definition of webhook types needed for the bot
-  let type: string[];
-  type.push('message');
-  type.push('callback_query');
+  const type: string[] = ['message', 'callback_query'];
 
   app.listen(process.env.PORT, () => {
     console.log(`Example app listening on port ${process.env.PORT}! Settin up webhoo for telegram:`);
