@@ -4,11 +4,14 @@ import { sleep } from './common';
 import User from '../models/User';
 import telegram from '../telegram';
 import {  Extra, Markup, Context } from 'telegraf';
+import { parishesLookupByKey } from '../util/search-providers';
+
 
 const markup = Extra.HTML;
 
 
 import { getAllNeedToUpdateParishKeys } from './search-providers/api';
+import { IParishResult } from './parish-lookup';
 
 
 export async function checkNeeedToUpdateParishes() {
@@ -40,13 +43,20 @@ async function notifyAndUpdateUsersByParishKey(parishKey: string) {
     observableParishKeys : parishKey
   });
 
+  const parish: IParishResult[] = await parishesLookupByKey(parishKey);
+  let parishName = parishKey;
+  if (parish && parish.length > 0) {
+    parishName = parish[0].title;
+  }
   for (const user of usersToNotify) {
     logger.debug(undefined, 'Notifying user %s about mass update for parish key %s', user.username, parishKey);
     // TODO: move text to translations
+
+
     const message =
       user.language === 'en'
-        ? `🎉 Parish ${parishKey} has to be updated!`
-        : `🎉 Парафия ${parishKey} нуждается в обновлении!`;
+        ? `🎉 ${parishName} has to be updated!`
+        : `🎉 ${parishName} мае патрэбу ў аднаўленні раскладу!`;
 
     await sleep(0.5);
     try {

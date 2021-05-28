@@ -25,7 +25,7 @@ schedule.enter(async (ctx: Context) => {
     await ctx.reply('Список парафий: ', getParishesMenus(parishes));
   } else if (parishes.length === 1) {
     await ctx.reply(ctx.i18n.t('scenes.parishes.single_parish'), backKeyboard);
-    saveToSession(ctx, 'parish', parishes[0]);
+   saveToSession(ctx, 'parish', parishes[0]);
     await parishSelectAction(ctx);
   } else {
     await ctx.reply('no parishes');

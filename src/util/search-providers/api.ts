@@ -44,6 +44,7 @@ export async function parishLookup(parishId: string): Promise<IParishResult> {
     needUpdate: item.needUpdate,
     phone: item.phone,
     website: item.website,
+    key: item.key,
     imgPath: item.imgPath
   };
 
@@ -88,6 +89,7 @@ export async function parishesLookupByKey(parishKey: string): Promise<IParishRes
         lastModifiedDate: item.lastModifiedDate,
         needUpdate: item.needUpdate,
         phone: item.phone,
+        key: item.key,
         website: item.website,
         imgPath: item.imgPath
       }));

@@ -17,6 +17,7 @@ export interface IParishResult {
   lastMassActualDate: string;
   lastModifiedDate: string;
   phone: string;
+  key: string;
   email: string;
   website: string;
   updatePeriodInDays: number;

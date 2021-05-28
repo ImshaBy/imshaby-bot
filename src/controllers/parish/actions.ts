@@ -2,8 +2,13 @@ import { Context } from 'telegraf';
 import { getParishControlMenu, getParishesMenu } from './helpers';
 import logger from '../../util/logger';
 import { IParish } from '../../models/Parish';
+import { saveToSession } from '../../util/session';
+import { parishesLookupByKey } from '../../util/search-providers';
 
 export const parishAction = async (ctx: Context) => {
+
+  saveToSession(ctx, 'parish', parishesLookupByKey(ctx.session.parish.key));
+
   let text = ctx.i18n.t('scenes.parishes.chosen_parish', {
     title: ctx.session.parish.title
   });
