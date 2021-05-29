@@ -7,7 +7,8 @@ import { parishesLookupByKey } from '../../util/search-providers';
 
 export const parishAction = async (ctx: Context) => {
 
-  saveToSession(ctx, 'parish', parishesLookupByKey(ctx.session.parish.key));
+  const parishes = await parishesLookupByKey(ctx.session.parish.key);
+  saveToSession(ctx, 'parish', parishes[0]);
 
   let text = ctx.i18n.t('scenes.parishes.chosen_parish', {
     title: ctx.session.parish.title
