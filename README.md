@@ -4,6 +4,7 @@
 
 Hey! My name is Aaron! I'm created to help you administrate masses in your parish to make it actual weekly on www.imsha.by! First of all, thanks for activating me!\n\n Have you ever had a moments when forgot to update you mass schedule? My main goal is to remind you to do it! I will send automatically notification each week (Friday at 08.00 AM) \n\n Bot is available only for parish administrators! \n\n Also you can view parish information. \n\n Last valuable capability I provide - contact to my creators-developers in case you need it!
 
+For deploy
 
 ## How to start
 
