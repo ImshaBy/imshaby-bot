@@ -100,7 +100,7 @@ function startProdution (bot: Telegraf<Context>) {
 
   app.listen(process.env.PORT, () => {
     console.log(`Example app listening on port ${process.env.PORT}! Settin up webhoo for telegram:`);
-    bot.telegram.setWebhook(`${process.env.WEBHOOK_URL}${process.env.WEBHOOK_PATH}`, undefined, undefined, type);
+    bot.telegram.setWebhook(`${process.env.WEBHOOK_URL}${process.env.WEBHOOK_PATH}`, undefined, 100, type);
   });
 
   cron.schedule(process.env.SCHEDULE, checkNeeedToUpdateParishes);
