@@ -28,11 +28,11 @@ export function getParishControlMenu(ctx: Context) {
   return Extra.HTML().markup((m: Markup) =>
     m.inlineKeyboard(
       [
-        m.callbackButton(
-          ctx.i18n.t('scenes.parishes.back_button'),
-          JSON.stringify({ a: 'back', p: undefined }),
-          false
-        ),
+        // m.callbackButton(
+        //   ctx.i18n.t('scenes.parishes.back_button'),
+        //   JSON.stringify({ a: 'back', p: undefined }),
+        //   false
+        // ),
         // TODO: add param for admin url for particular parish
         m.urlButton(
           ctx.i18n.t('scenes.parishes.change_button'),

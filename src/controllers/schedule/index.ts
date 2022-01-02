@@ -22,7 +22,7 @@ schedule.enter(async (ctx: Context) => {
   const parishes: IParishResult[] = await getUserParishes(ctx);
   if (parishes.length > 1) {
     await ctx.reply(ctx.i18n.t('scenes.parishes.need_select_parish'), backKeyboard);
-    await ctx.reply('Список парафий: ', getParishesMenus(parishes));
+    await ctx.reply(ctx.i18n.t('scenes.parishes.parish_list'), getParishesMenus(parishes));
   } else if (parishes.length === 1) {
     await ctx.reply(ctx.i18n.t('scenes.parishes.single_parish'), backKeyboard);
    saveToSession(ctx, 'parish', parishes[0]);

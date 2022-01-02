@@ -41,7 +41,7 @@ export const parishSelectAction = async (ctx: Context) => {
     await ctx.reply(sheduleForDay);
   }
 
-  await ctx.reply(`\n Расписание актуально? `, getParishScheduleControlMenu(ctx));
+  await ctx.reply(ctx.i18n.t('scenes.parishes.cta_update'), getParishScheduleControlMenu(ctx));
 
   // await ctx.answerCbQuery();
 };
