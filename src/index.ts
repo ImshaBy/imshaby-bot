@@ -29,7 +29,7 @@ i18next
  preload: ['en', 'ru']
  });
 
-// Authorization middleware. When used, the
+// Authorization middleware.When used, the
 // Access Token must exist and be verified against
 // the Auth0 JSON Web Key Set
 const checkJwt = jwt({
