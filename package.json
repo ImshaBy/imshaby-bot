@@ -2,7 +2,7 @@
   "name": "telegram-bot",
   "version": "0.1.0",
   "description": "With this bot you won't skip the moment when your favorite movies are available on the torrents!",
-  "author": "Dmitrii Baranov",
+  "author": "Andrei Misan",
   "main": "dist/index.js",
   "scripts": {
     "start": "npm run serve",
@@ -41,6 +41,7 @@
     "string-similarity": "^3.0.0",
     "telegraf": "^3.25.0",
     "telegraf-i18n": "^6.4.0",
+    "telegraf-session-redis": "^5.1.0",
     "winston": "^3.1.0"
   },
   "devDependencies": {

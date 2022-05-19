@@ -5,13 +5,13 @@ import path from 'path';
 import Telegraf, {  Extra, Markup, Context } from 'telegraf';
 import TelegrafI18n, { match } from 'telegraf-i18n';
 import Stage from 'telegraf/stage';
-import session from 'telegraf/session';
 import User from './models/User';
 import logger from './util/logger';
 import about from './controllers/about';
 import startScene from './controllers/start';
 import scheduleScene from './controllers/schedule';
 import parishScene from './controllers/parish';
+import RedisSession from 'telegraf-session-redis';
 
 import settingsScene from './controllers/settings';
 import contactScene from './controllers/contact';
@@ -26,6 +26,12 @@ import { getConnection as mongoConnectionInit } from './mongo';
 
 const bot = new Telegraf(process.env.TELEGRAM_TOKEN);
 
+const session = new RedisSession({
+  store: {
+    host: process.env.TELEGRAM_SESSION_HOST || '127.0.0.1',
+    port: process.env.TELEGRAM_SESSION_PORT || 6379
+  }
+});
 
 mongoConnectionInit(process.env.NODE_ENV);
 
@@ -47,7 +53,7 @@ const i18n = new TelegrafI18n({
   sessionName: 'session'
 });
 
-bot.use(session());
+bot.use(session);
 bot.use(i18n.middleware());
 bot.use(stage.middleware());
 bot.use(getUserInfo);
