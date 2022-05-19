@@ -1,0 +1,43 @@
+service: telegram-notify-imshaby-serverless
+
+plugins:
+  - serverless-offline
+  - serverless-dotenv-plugin
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  stage: prod
+  region: eu-central-1
+  memorySize: 128
+  timeout: 5
+  endpointType: regional
+
+  environment:
+    # BOT_TOKEN: ${file(./serverless.env.yml):TELEGRAM_TOKEN, ''}
+
+package:
+  exclude:
+    - src/**
+    - .env
+
+
+custom:
+  dotenv:
+    logging: false
+
+functions:
+  bot-webhook:
+    handler: handler.webhook
+    events:
+      - http:
+          path: webhook
+          method: post
+          cors: true
+  set-webhook:
+    handler: handler.setWebhook
+    events:
+      - http:
+          path: setWebhook
+          method: post
+          cors: true
