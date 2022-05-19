@@ -28,6 +28,7 @@ const bot = new Telegraf(process.env.TELEGRAM_TOKEN);
 
 const session = new RedisSession({
   store: {
+    password: process.env.TELEGRAM_SESSION_PASS || '',
     host: process.env.TELEGRAM_SESSION_HOST || '127.0.0.1',
     port: process.env.TELEGRAM_SESSION_PORT || 6379
   }
