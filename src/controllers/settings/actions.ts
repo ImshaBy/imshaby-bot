@@ -1,4 +1,3 @@
-import { Context } from 'telegraf';
 import {
   getMainKeyboard,
   getLanguageKeyboard,
@@ -10,11 +9,12 @@ import User from '../../models/User';
 import { updateLanguage } from '../../util/language';
 import { getBackKeyboard } from '../../util/keyboards';
 import { deleteFromSession } from '../../util/session';
+import { SessionContext } from 'telegraf-context';
 
-export const languageSettingsAction = async (ctx: Context) =>
+export const languageSettingsAction = async (ctx: SessionContext) =>
   await ctx.editMessageText(ctx.i18n.t('scenes.settings.pick_language'), getLanguageKeyboard());
 
-export const languageChangeAction = async (ctx: Context) => {
+export const languageChangeAction = async (ctx: SessionContext) => {
   const langData = JSON.parse(ctx.callbackQuery.data);
   await updateLanguage(ctx, langData.p);
   const { backKeyboard } = getBackKeyboard(ctx);
@@ -27,7 +27,7 @@ export const languageChangeAction = async (ctx: Context) => {
   await sendMessageToBeDeletedLater(ctx, 'scenes.settings.what_to_change', backKeyboard);
 };
 
-export const accountSummaryAction = async (ctx: Context) => {
+export const accountSummaryAction = async (ctx: SessionContext) => {
   logger.debug(ctx, 'Checking account summary');
   const user = await User.findById(ctx.from.id);
 
@@ -43,7 +43,7 @@ export const accountSummaryAction = async (ctx: Context) => {
   await ctx.answerCbQuery();
 };
 
-export const closeAccountSummaryAction = async (ctx: Context) => {
+export const closeAccountSummaryAction = async (ctx: SessionContext) => {
   await ctx.editMessageText(ctx.i18n.t('scenes.settings.what_to_change'), getMainKeyboard(ctx));
   await ctx.answerCbQuery();
 };

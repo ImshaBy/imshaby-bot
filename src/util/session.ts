@@ -1,7 +1,9 @@
-import { Context } from 'telegraf';
-import logger from './logger';
 
-type SessionDataField = 'parishes'  | 'settingsScene' | 'language' | 'user' | 'parish';
+import logger from './logger';
+import { SessionContext } from 'telegraf-context';
+
+
+type SessionDataField = 'parishes'  | 'settingsScene' | 'language' | 'user' | 'parish' | 'test';
 
 /**
  * Saving data to the session
@@ -9,9 +11,13 @@ type SessionDataField = 'parishes'  | 'settingsScene' | 'language' | 'user' | 'p
  * @param field - field to store in
  * @param data - data to store
  */
-export function saveToSession(ctx: Context, field: SessionDataField, data: any) {
+export function saveToSession(ctx: SessionContext, field: SessionDataField, data: any) {
   logger.debug(ctx, 'Saving %s to session', field);
   ctx.session[field] = data;
+  logger.debug(ctx, `Contenxt :  ${ctx.session}`);
+
+  // ctx.session
+  // redisSession.saveSession(getSessionKey(ctx), ctx.session);
 }
 
 /**
@@ -19,7 +25,8 @@ export function saveToSession(ctx: Context, field: SessionDataField, data: any) 
  * @param ctx - telegram context
  * @param field - field to delete
  */
-export function deleteFromSession(ctx: Context, field: SessionDataField) {
+export function deleteFromSession(ctx: SessionContext, field: SessionDataField) {
   logger.debug(ctx, 'Deleting %s from session', field);
   delete ctx.session[field];
+  // redisSession.saveSession(getSessionKey(ctx), ctx.session);
 }

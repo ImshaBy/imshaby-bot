@@ -1,5 +1,5 @@
 require('dotenv').config();
-import Telegraf, {  Context } from 'telegraf';
+import Telegraf from 'telegraf';
 import logger from './util/logger';
 import cron from 'node-cron';
 import axios from 'axios';
@@ -52,20 +52,21 @@ const checkJwt = jwt({
 
 import { checkNeeedToUpdateParishes, notifyGroupChatAboutParishChange } from './util/notifier';
 
-import bot from './bot';
+import { botTelegram } from './bot';
 import express from 'express';
+import { SessionContext } from 'telegraf-context';
 
 logger.info(undefined, `Starting at ENV: ${process.env.NODE_ENV}`);
 
 
 if (process.env.NODE_ENV === 'production') {
-  startProdution(bot);
+  startProdution(botTelegram);
 } else {
-  startDevelopmen(bot);
+  startDevelopmen(botTelegram);
 }
 
 
-function startDevelopmen(bot: Telegraf<Context>) {
+function startDevelopmen(bot: Telegraf<SessionContext>) {
   logger.info(undefined, `Starting a bot in development mode : ${process.env.NODE_ENV}`);
 
   const app = createServer();
@@ -82,7 +83,7 @@ function startDevelopmen(bot: Telegraf<Context>) {
 }
 
 
-function startProdution (bot: Telegraf<Context>) {
+function startProdution (bot: Telegraf<SessionContext>) {
   const app = createServer();
 
   // app.use(bot.webhookCallback(`${process.env.WEBHOOK_PATH}`));
@@ -99,7 +100,7 @@ function startProdution (bot: Telegraf<Context>) {
   const type: string[] = ['message', 'callback_query'];
 
   app.listen(process.env.PORT, () => {
-    console.log(`Example app listening on port ${process.env.PORT}! Settin up webhoo for telegram:`);
+    console.log(`Example app listening on port ${process.env.PORT}! Bot ID: ${process.env.TELEGRAM_TOKEN}. Settin up webhook for telegram: ${process.env.WEBHOOK_URL}${process.env.WEBHOOK_PATH}, supported types : ${type}`);
     bot.telegram.setWebhook(`${process.env.WEBHOOK_URL}${process.env.WEBHOOK_PATH}`, undefined, 100, type);
   });
 

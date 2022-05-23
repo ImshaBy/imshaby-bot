@@ -1,10 +1,11 @@
-import { Markup, Context } from 'telegraf';
+import { Markup } from 'telegraf';
+import { SessionContext } from 'telegraf-context';
 
 /**
  * Returns back keyboard and its buttons according to the language
  * @param ctx - telegram context
  */
-export const getBackKeyboard = (ctx: Context) => {
+export const getBackKeyboard = (ctx: SessionContext) => {
   const backKeyboardBack = ctx.i18n.t('keyboards.back_keyboard.back');
   let backKeyboard: any = Markup.keyboard([backKeyboardBack]);
 
@@ -20,7 +21,7 @@ export const getBackKeyboard = (ctx: Context) => {
  * Returns main keyboard and its buttons according to the language
  * @param ctx - telegram context
  */
-export const getMainKeyboard = (ctx: Context) => {
+export const getMainKeyboard = (ctx: SessionContext) => {
   const mainKeyboardSchedule = ctx.i18n.t('keyboards.main_keyboard.schedule');
   const mainKeyboardParish = ctx.i18n.t('keyboards.main_keyboard.parish');
   const mainKeyboardAbout = ctx.i18n.t('keyboards.main_keyboard.about');

@@ -1,6 +1,3 @@
-import { Context } from 'telegraf';
-import logger from './logger';
-import { parishLookup } from './search-providers';
 
 export interface IParishLookupParameters {
   keyword: string;

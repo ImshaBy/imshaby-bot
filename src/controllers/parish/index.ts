@@ -1,4 +1,3 @@
-import { Context } from 'telegraf';
 import { match } from 'telegraf-i18n';
 import Stage from 'telegraf/stage';
 import Scene from 'telegraf/scenes/base';
@@ -10,11 +9,12 @@ import logger from '../../util/logger';
 import { IParish } from '../../models/Parish';
 import { exposeParish } from '../../middlewares/expose-parish';
 import { IParishResult } from '../../util/parish-lookup';
+import { SessionContext } from 'telegraf-context';
 
 const { leave } = Stage;
 const parish = new Scene('parish');
 
-parish.enter(async (ctx: Context) => {
+parish.enter(async (ctx: SessionContext) => {
   logger.debug(ctx, 'Enters parish scene');
   const { backKeyboard } = getBackKeyboard(ctx);
   const userParishes: IParishResult[] = await getUserParishes(ctx);
@@ -27,7 +27,7 @@ parish.enter(async (ctx: Context) => {
   }
 });
 
-parish.leave(async (ctx: Context) => {
+parish.leave(async (ctx: SessionContext) => {
   logger.debug(ctx, 'Leaves parish scene');
   const { mainKeyboard } = getMainKeyboard(ctx);
   await ctx.reply(ctx.i18n.t('shared.what_next'), mainKeyboard);

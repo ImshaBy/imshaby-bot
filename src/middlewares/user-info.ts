@@ -1,5 +1,5 @@
 // Add some general info, like isPremium, language, etc...
-import { Context } from 'telegraf';
+import { SessionContext } from 'telegraf-context';
 import User from '../models/User';
 import { saveToSession } from '../util/session';
 
@@ -9,7 +9,7 @@ import { saveToSession } from '../util/session';
  * @param ctx - telegram context
  * @param next - next function
  */
-export const getUserInfo = async (ctx: Context, next: Function) => {
+export const getUserInfo = async (ctx: SessionContext, next: Function) => {
   if (!ctx.session.language) {
     const user = await User.findById(ctx.from.id);
 

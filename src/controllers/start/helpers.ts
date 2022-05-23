@@ -1,4 +1,5 @@
 import { Context, Extra, Markup } from 'telegraf';
+import { SessionContext } from 'telegraf-context';
 
 /**
  * Displays menu with a list of movies
@@ -28,7 +29,7 @@ export async function getParishInfo(parishKey: String) {
 /**
  * Returns button that user has to click to start working with the bot
  */
-export function getAccountConfirmKeyboard(ctx: Context) {
+export function getAccountConfirmKeyboard(ctx: SessionContext) {
   return Extra.HTML().markup((m: Markup) =>
     m.inlineKeyboard(
       [

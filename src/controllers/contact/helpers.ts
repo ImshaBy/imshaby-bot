@@ -1,11 +1,11 @@
-import { Context } from 'telegraf';
-import telegram from '../../telegram';
+import { SessionContext } from 'telegraf-context';
+import { telegram } from '../../bot';
 
 /**
  * Sends a message to the admin
  * @param ctx - telegram context
  */
-export async function sendMessage(ctx: Context) {
+export async function sendMessage(ctx: SessionContext) {
   const msg = `From: ${JSON.stringify(ctx.from)}.\n\nMessage: ${ctx.message.text}`;
   const adminIds = process.env.ADMIN_IDS;
   const adminIdsArr = adminIds.split(',');
