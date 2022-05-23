@@ -8,7 +8,7 @@ import { saveToSession } from '../../util/session';
 
 import { sheduleByParishId, parishesLookupByKey } from '../../util/search-providers';
 import { SessionContext } from 'telegraf-context';
-import { IUser } from 'src/models/User';
+import { IUser } from '../../models/User';
 
 
 /**

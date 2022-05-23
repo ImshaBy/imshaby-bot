@@ -1,5 +1,5 @@
 import { Redis } from 'ioredis';
-import { Middleware}  from 'telegraf';
+import { Middleware }  from 'telegraf';
 import { SessionContext } from 'telegraf-context';
 import { SessionOptions } from './session-interfaces';
 
