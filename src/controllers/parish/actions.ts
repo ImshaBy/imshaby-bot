@@ -1,11 +1,11 @@
-import { Context } from 'telegraf';
 import { getParishControlMenu, getParishesMenu } from './helpers';
 import logger from '../../util/logger';
 import { IParish } from '../../models/Parish';
 import { saveToSession } from '../../util/session';
 import { parishesLookupByKey } from '../../util/search-providers';
+import { SessionContext } from 'telegraf-context';
 
-export const parishAction = async (ctx: Context) => {
+export const parishAction = async (ctx: SessionContext) => {
 
   const parishes = await parishesLookupByKey(ctx.session.parish.key);
   saveToSession(ctx, 'parish', parishes[0]);
@@ -70,7 +70,7 @@ export const parishAction = async (ctx: Context) => {
   ctx.answerCbQuery();
 };
 
-export const backAction = async (ctx: Context) => {
+export const backAction = async (ctx: SessionContext) => {
   await ctx.editMessageText(
     ctx.i18n.t('scenes.parishes.list_of_parishes'),
     getParishesMenu(ctx.session.parishes)

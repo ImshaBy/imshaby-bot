@@ -11,7 +11,7 @@ import about from './controllers/about';
 import startScene from './controllers/start';
 import scheduleScene from './controllers/schedule';
 import parishScene from './controllers/parish';
-import RedisSession from 'telegraf-session-redis';
+import { TelegrafSessionRedis, SessionOptions } from './middlewares/session-redis';
 
 import settingsScene from './controllers/settings';
 import contactScene from './controllers/contact';
@@ -23,16 +23,33 @@ import { updateUserTimestamp } from './middlewares/update-user-timestamp';
 import { getUserInfo } from './middlewares/user-info';
 import { isAdmin } from './middlewares/is-admin';
 import { getConnection as mongoConnectionInit } from './mongo';
+import { SessionContext } from 'telegraf-context';
+import Redis from 'ioredis';
 
-const bot = new Telegraf(process.env.TELEGRAM_TOKEN);
-
-const session = new RedisSession({
-  store: {
-    // password: process.env.TELEGRAM_SESSION_PASS || '',
-    host: process.env.TELEGRAM_SESSION_HOST || '127.0.0.1',
-    port: process.env.TELEGRAM_SESSION_PORT || 6379
-  }
+const redisClient = new Redis( parseInt(process.env.TELEGRAM_SESSION_PORT || '6379'), process.env.TELEGRAM_SESSION_HOST || '127.0.0.1');
+redisClient.on('connect', function () {
+  logger.info(undefined, 'Connection to Redis is successful');
 });
+
+
+const bot = new Telegraf<SessionContext>(process.env.TELEGRAM_TOKEN);
+
+
+
+//  new Redis({
+//   host: process.env.TELEGRAM_SESSION_HOST || '127.0.0.1',
+//   port: parseInt(process.env.TELEGRAM_SESSION_PORT || '6379')
+// });
+
+const session = new TelegrafSessionRedis({client: redisClient});
+
+// const session = new TelegrafSessionRedis({
+//   store: {
+//     // password: process.env.TELEGRAM_SESSION_PASS || '',
+//     host: process.env.TELEGRAM_SESSION_HOST || '127.0.0.1',
+//     port: process.env.TELEGRAM_SESSION_PORT || 6379
+//   }
+// });
 
 mongoConnectionInit(process.env.NODE_ENV);
 
@@ -54,30 +71,30 @@ const i18n = new TelegrafI18n({
   sessionName: 'session'
 });
 
-bot.use(session);
+bot.use(session.middleware());
 bot.use(i18n.middleware());
 bot.use(stage.middleware());
 bot.use(getUserInfo);
 
 
-bot.start(asyncWrapper(async (ctx: Context) => ctx.scene.enter('start')));
+bot.start(asyncWrapper(async (ctx: SessionContext) => ctx.scene.enter('start')));
 
 bot.hears(
   match('keyboards.main_keyboard.schedule'),
   updateUserTimestamp,
-  asyncWrapper(async (ctx: Context) => await ctx.scene.enter('schedule'))
+  asyncWrapper(async (ctx: SessionContext) => await ctx.scene.enter('schedule'))
 );
 
 bot.hears(
   match('keyboards.main_keyboard.parish'),
   updateUserTimestamp,
-  asyncWrapper(async (ctx: Context) => await ctx.scene.enter('parish'))
+  asyncWrapper(async (ctx: SessionContext) => await ctx.scene.enter('parish'))
 );
 
 bot.hears(
   match('keyboards.main_keyboard.contact'),
   updateUserTimestamp,
-  asyncWrapper(async (ctx: Context) => await ctx.scene.enter('contact'))
+  asyncWrapper(async (ctx: SessionContext) => await ctx.scene.enter('contact'))
 );
 
 bot.hears(match('keyboards.main_keyboard.about'), updateUserTimestamp, asyncWrapper(about));
@@ -85,10 +102,10 @@ bot.hears(match('keyboards.main_keyboard.about'), updateUserTimestamp, asyncWrap
 bot.hears(
   /(.*admin)/,
   isAdmin,
-  asyncWrapper(async (ctx: Context) => await ctx.scene.enter('admin'))
+  asyncWrapper(async (ctx: SessionContext) => await ctx.scene.enter('admin'))
 );
 
-bot.hears(/(.*?)/, async (ctx: Context) => {
+bot.hears(/(.*?)/, async (ctx: SessionContext) => {
   logger.debug(ctx, 'Default handler has fired');
   logger.debug(ctx, `Message: ${ctx.message.text}`);
 
@@ -106,4 +123,4 @@ bot.catch((error: any) => {
   logger.error(undefined, 'Global error has happened, %O', error);
 });
 
-export default bot;
+export const botTelegram = bot, redisSession = session, telegram = bot.telegram;

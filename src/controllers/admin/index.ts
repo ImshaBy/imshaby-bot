@@ -1,15 +1,15 @@
-import { Context } from 'telegraf';
 import Stage from 'telegraf/stage';
 import Scene from 'telegraf/scenes/base';
 import { match } from 'telegraf-i18n';
 import { getMainKeyboard, getBackKeyboard } from '../../util/keyboards';
 import logger from '../../util/logger';
 import { write, getStats, getHelp } from './helpers';
+import { SessionContext } from 'telegraf-context';
 
 const { leave } = Stage;
 const admin = new Scene('admin');
 
-admin.enter(async (ctx: Context) => {
+admin.enter(async (ctx: SessionContext) => {
   logger.debug(ctx, 'Enters admin scene');
   const { backKeyboard } = getBackKeyboard(ctx);
 
@@ -17,7 +17,7 @@ admin.enter(async (ctx: Context) => {
   getHelp(ctx);
 });
 
-admin.leave(async (ctx: Context) => {
+admin.leave(async (ctx: SessionContext) => {
   logger.debug(ctx, 'Leaves admin scene');
   const { mainKeyboard } = getMainKeyboard(ctx);
 
@@ -27,7 +27,7 @@ admin.leave(async (ctx: Context) => {
 admin.command('saveme', leave());
 admin.hears(match('keyboards.back_keyboard.back'), leave());
 
-admin.on('text', async (ctx: Context) => {
+admin.on('text', async (ctx: SessionContext) => {
   console.log(ctx.message.text);
   const [type, ...params] = ctx.message.text.split(' | ');
   switch (type) {

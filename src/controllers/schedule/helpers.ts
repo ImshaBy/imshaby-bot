@@ -1,12 +1,14 @@
 
 import { IMassDay, IParishResult } from '../../util/parish-lookup';
-import { Context, Extra, Markup } from 'telegraf';
+import { Extra, Markup } from 'telegraf';
 import { IParish } from '../../models/Parish';
 
 import logger from '../../util/logger';
 import { saveToSession } from '../../util/session';
 
 import { sheduleByParishId, parishesLookupByKey } from '../../util/search-providers';
+import { SessionContext } from 'telegraf-context';
+import { IUser } from 'src/models/User';
 
 
 /**
@@ -14,10 +16,11 @@ import { sheduleByParishId, parishesLookupByKey } from '../../util/search-provid
  * @param parishes - list of parishes
  */
 
-export async function getUserParishes(ctx: Context): Promise<IParishResult[]> {
+export async function getUserParishes(ctx: SessionContext): Promise<IParishResult[]> {
   logger.info(ctx, 'Retrieving parishes from cache: %s', ctx.session.parishes );
   logger.info(ctx, 'Retrieving parish keys from user: %s', ctx.session.user.observableParishKeys );
-
+  // const user: IUser = JSON.parse(ctx.session.user);
+  // const parishes: IParishResult[] = JSON.parse()
   if (ctx.session.parishes ) return ctx.session.parishes as IParishResult[];
 
   const parishes: IParishResult[] = [];
@@ -59,7 +62,7 @@ export function getParishesMenus(parishes: IParishResult[]) {
     );
   }
 
-export async function getParishScheduleMessage(ctx: Context): Promise<String> {
+export async function getParishScheduleMessage(ctx: SessionContext): Promise<String> {
   const massDays: IMassDay[] = await sheduleByParishId(ctx.session.parish.id);
   const msg = '';
   for ( const massDay of massDays) {
@@ -73,7 +76,7 @@ export async function getParishScheduleMessage(ctx: Context): Promise<String> {
  * Menu to control current movie
  * @param ctx - telegram context
  */
-export function getParishScheduleControlMenu(ctx: Context) {
+export function getParishScheduleControlMenu(ctx: SessionContext) {
   return Extra.HTML().markup((m: Markup) =>
     m.inlineKeyboard(
       [

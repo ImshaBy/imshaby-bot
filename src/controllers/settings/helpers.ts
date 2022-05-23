@@ -1,12 +1,13 @@
-import { Extra, Markup, Context } from 'telegraf';
+import { Extra, Markup } from 'telegraf';
 import { get } from 'lodash';
 import { ExtraReplyMessage } from 'telegraf/typings/telegram-types';
 import { saveToSession } from '../../util/session';
+import { SessionContext } from 'telegraf-context';
 
 /**
  * Returns main settings keyboard
  */
-export function getMainKeyboard(ctx: Context) {
+export function getMainKeyboard(ctx: SessionContext) {
   return Extra.HTML().markup((m: Markup) =>
     m.inlineKeyboard(
       [
@@ -44,7 +45,7 @@ export function getLanguageKeyboard() {
 /**
  * Returns account summary keyboard
  */
-export function getAccountSummaryKeyboard(ctx: Context) {
+export function getAccountSummaryKeyboard(ctx: SessionContext) {
   return Extra.HTML().markup((m: Markup) =>
     m.inlineKeyboard(
       [
@@ -67,7 +68,7 @@ export function getAccountSummaryKeyboard(ctx: Context) {
  * @param extra - extra for the message, e.g. keyboard
  */
 export async function sendMessageToBeDeletedLater(
-  ctx: Context,
+  ctx: SessionContext,
   translationKey: string,
   extra?: ExtraReplyMessage
 ) {

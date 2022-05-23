@@ -1,4 +1,3 @@
-import { Context } from 'telegraf';
 import { match } from 'telegraf-i18n';
 import Stage from 'telegraf/stage';
 import Scene from 'telegraf/scenes/base';
@@ -10,12 +9,13 @@ import { getMainKeyboard, getBackKeyboard } from '../../util/keyboards';
 import { exposeParish } from '../../middlewares/expose-parish';
 import { IParishResult } from '../../util/parish-lookup';
 import { saveToSession } from '../../util/session';
+import { SessionContext } from 'telegraf-context';
 
 
 const { leave } = Stage;
 const schedule = new Scene('schedule');
 
-schedule.enter(async (ctx: Context) => {
+schedule.enter(async (ctx: SessionContext) => {
   logger.debug(ctx, 'Enters Schedule scene');
   const { backKeyboard } = getBackKeyboard(ctx);
 
@@ -35,7 +35,7 @@ schedule.enter(async (ctx: Context) => {
 
 schedule.hears(match('keyboards.back_keyboard.back'), leave());
 
-schedule.leave(async (ctx: Context) => {
+schedule.leave(async (ctx: SessionContext) => {
   const { mainKeyboard } = getMainKeyboard(ctx);
 
   await ctx.reply(ctx.i18n.t('shared.what_next'), mainKeyboard);

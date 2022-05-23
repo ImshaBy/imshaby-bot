@@ -1,6 +1,7 @@
 import { IParishResult } from '../../util/parish-lookup';
 import { Extra, Markup, Context } from 'telegraf';
 import { IParish } from '../../models/Parish';
+import { SessionContext } from 'telegraf-context';
 /**
  * Displays menu with a list of movies
  * @param movies - list of movies
@@ -24,7 +25,7 @@ export function getParishesMenu(parishes: IParishResult[]) {
  * Menu to control current movie
  * @param ctx - telegram context
  */
-export function getParishControlMenu(ctx: Context) {
+export function getParishControlMenu(ctx: SessionContext) {
   return Extra.HTML().markup((m: Markup) =>
     m.inlineKeyboard(
       [

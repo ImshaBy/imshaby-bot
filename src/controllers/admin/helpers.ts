@@ -1,6 +1,6 @@
-import { Context } from 'telegraf';
+import { telegram } from '../../bot';
+import { SessionContext } from 'telegraf-context';
 import User from '../../models/User';
-import telegram from '../../telegram';
 
 /**
  * Write message to a specific user or to all existing users
@@ -8,7 +8,7 @@ import telegram from '../../telegram';
  * @param recipient - id or 'all.language'
  * @param message - text to write
  */
-export async function write(ctx: Context, recipient: string, message: string) {
+export async function write(ctx: SessionContext, recipient: string, message: string) {
   if (!Number.isNaN(+recipient) && recipient.length >= 6) {
     // Write to a single user
     await telegram.sendMessage(Number(recipient), message);
@@ -44,7 +44,7 @@ export async function write(ctx: Context, recipient: string, message: string) {
  * Get users statistics
  * @param ctx - telegram context
  */
-export async function getStats(ctx: Context) {
+export async function getStats(ctx: SessionContext) {
   const date = new Date();
   const year = date.getFullYear();
   const month = date.getMonth();
@@ -65,7 +65,7 @@ export async function getStats(ctx: Context) {
  * Display help menu
  * @param ctx - telegram context
  */
-export async function getHelp(ctx: Context) {
+export async function getHelp(ctx: SessionContext) {
   await ctx.reply(
     'write | [user_id | all.ru | all.en] | message - write message to user\n' +
       'stats - get stats about users\n' +

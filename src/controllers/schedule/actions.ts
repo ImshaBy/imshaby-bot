@@ -1,4 +1,5 @@
-import { Context, Extra, Markup } from 'telegraf';
+import { Extra, Markup } from 'telegraf';
+import { SessionContext } from 'telegraf-context';
 import { Sticker } from 'telegraf/typings/telegram-types';
 import schedule from '.';
 import { sheduleByParishId, makeMassesActual } from '../../util/search-providers';
@@ -8,7 +9,7 @@ const arrayOfWeekdays = ['ВС', 'ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СБ']
 const arrayOfMonths = ['Января', 'Февраля', 'Марта', 'Апреля', 'Мая', 'Июня', 'Июля', 'Августа', 'Сентября', 'Октября', 'Ноября', 'Декабря'];
 
 
-export const refreshScheduleAction = async (ctx: Context) => {
+export const refreshScheduleAction = async (ctx: SessionContext) => {
 
   const response = await makeMassesActual(ctx.session.parish.id);
   const updateMassesCount = Object.values(response.entities).length;
@@ -21,7 +22,7 @@ export const refreshScheduleAction = async (ctx: Context) => {
   // ctx.scene.leave();
 };
 
-export const parishSelectAction = async (ctx: Context) => {
+export const parishSelectAction = async (ctx: SessionContext) => {
   const parishName = ctx.i18n.t('scenes.parishes.chosen_parish', {
     title: ctx.session.parish.title
   });

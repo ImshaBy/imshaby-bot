@@ -1,4 +1,4 @@
-import { Context } from 'telegraf';
+import { SessionContext } from 'telegraf-context';
 import logger from './logger';
 
 /**
@@ -6,7 +6,7 @@ import logger from './logger';
  * @param fn - function to enter a stage
  */
 const asyncWrapper = (fn: Function) => {
-  return async function(ctx: Context, next: Function) {
+  return async function(ctx: SessionContext, next: Function) {
     try {
       return await fn(ctx);
     } catch (error) {

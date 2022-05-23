@@ -1,4 +1,4 @@
-import { Context } from 'telegraf';
+import { SessionContext } from 'telegraf-context';
 import util from 'util';
 import winston, { format } from 'winston';
 
@@ -8,7 +8,7 @@ import winston, { format } from 'winston';
  * @param msg  - message
  * @param data - object to log
  */
-function prepareMessage(ctx: Context, msg: string, ...data: any[]) {
+function prepareMessage(ctx: SessionContext, msg: string, ...data: any[]) {
   const formattedMessage = data.length ? util.format(msg, ...data) : msg;
 
   if (ctx && ctx.from) {
@@ -38,11 +38,11 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 const loggerWithCtx = {
-  debug: (ctx: Context, msg: string, ...data: any[]) =>
+  debug: (ctx: SessionContext, msg: string, ...data: any[]) =>
     logger.debug(prepareMessage(ctx, msg, ...data)),
-  error: (ctx: Context, msg: string, ...data: any[]) =>
+  error: (ctx: SessionContext, msg: string, ...data: any[]) =>
     logger.error(prepareMessage(ctx, msg, ...data)),
-  info: (ctx: Context, msg: string, ...data: any[]) =>
+  info: (ctx: SessionContext, msg: string, ...data: any[]) =>
     logger.info(prepareMessage(ctx, msg, ...data))
 };
 

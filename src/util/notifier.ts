@@ -2,8 +2,8 @@ require('dotenv').config();
 import logger from './logger';
 import { sleep } from './common';
 import User from '../models/User';
-import telegram from '../telegram';
-import {  Extra, Markup, Context } from 'telegraf';
+import { botTelegram } from '../bot';
+import {  Extra, Markup } from 'telegraf';
 import { parishesLookupByKey } from '../util/search-providers';
 
 
@@ -29,7 +29,7 @@ export async function checkNeeedToUpdateParishes() {
 export async function notifyGroupChatAboutParishChange(chatId: string, msg: string) {
   try {
     if (chatId && msg) {
-      await telegram.sendMessage(chatId, msg, {parse_mode: 'HTML'});
+      await botTelegram.telegram.sendMessage(chatId, msg, {parse_mode: 'HTML'});
     }
   } catch (e) {
     logger.error(undefined, "Can't notify user about  reason: %O", e);
@@ -60,7 +60,7 @@ async function notifyAndUpdateUsersByParishKey(parishKey: string) {
 
     await sleep(0.5);
     try {
-      await telegram.sendMessage(user._id, message);
+      await botTelegram.telegram.sendMessage(user._id, message);
     } catch (e) {
       logger.error(undefined, "Can't notify user about  reason: %O", e);
     } finally {

@@ -1,4 +1,4 @@
-import { Context } from 'telegraf';
+import { SessionContext } from 'telegraf-context';
 import User from '../models/User';
 import logger from './logger';
 import { saveToSession } from './session';
@@ -8,7 +8,7 @@ import { saveToSession } from './session';
  * @param ctx - telegram context
  * @param newLang - new language
  */
-export async function updateLanguage(ctx: Context, newLang: 'en' | 'ru') {
+export async function updateLanguage(ctx: SessionContext, newLang: 'en' | 'ru') {
   logger.debug(ctx, 'Updating language for user to %s', newLang);
   await User.findOneAndUpdate(
     { _id: ctx.from.id + ''},
