@@ -30,10 +30,10 @@ export class TelegrafSessionRedis {
     }
     try {
       const session = JSON.parse(json);
-      logger.debug(null, 'session state', key, session);
+      logger.debug(undefined, 'session state', key, session);
       return session;
     } catch (error) {
-      logger.debug(null, 'Parse session state failed', error);
+      logger.debug(undefined, 'Parse session state failed', error);
     }
     return {};
   }
