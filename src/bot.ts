@@ -79,6 +79,11 @@ bot.use(getUserInfo);
 
 bot.start(asyncWrapper(async (ctx: SessionContext) => ctx.scene.enter('start')));
 
+bot.on('new_chat_members', (msg) => {
+   console.log('!!!!!!GROUP ENVENT:new member have joined %s(%s)', msg.chat.title, msg.chat.id);
+  }
+);
+
 bot.hears(
   match('keyboards.main_keyboard.schedule'),
   updateUserTimestamp,
