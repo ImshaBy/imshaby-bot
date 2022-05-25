@@ -80,11 +80,13 @@ bot.use(getUserInfo);
 bot.start(asyncWrapper(async (ctx: SessionContext) => ctx.scene.enter('start')));
 
 const newChatMemberHandler = async (ctx: SessionContext) => {
+  console.log('!!!!!!GROUP ENVENT:new member have joined %s(%s), %s', ctx.chat.title, ctx.chat.id, ctx.chat);
+
   const names = ctx.message.new_chat_members
     // .filter(({ is_bot }) => !is_bot)
     .map(({ first_name, last_name }) => `${first_name} ${last_name}`);
 
-  await ctx.deleteMessage();
+  // await ctx.deleteMessage();
 
   ctx.replyWithMarkdown(`Welcome ${names.join(', ')}!`);
 };
