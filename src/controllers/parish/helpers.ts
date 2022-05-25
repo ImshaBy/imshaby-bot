@@ -22,7 +22,7 @@ export function getParishesMenu(parishes: IParishResult[]) {
 }
 
 /**
- * Menu to control current movie
+ * Menu to control current parish
  * @param ctx - telegram context
  */
 export function getParishControlMenu(ctx: SessionContext) {
@@ -35,11 +35,11 @@ export function getParishControlMenu(ctx: SessionContext) {
         //   false
         // ),
         // TODO: add param for admin url for particular parish
-        m.urlButton(
-          ctx.i18n.t('scenes.parishes.change_button'),
-          `${process.env.ADMIN_URL}`,
-          false
-        )
+        // m.urlButton(
+        //   ctx.i18n.t('scenes.parishes.change_button'),
+        //   `${process.env.ADMIN_URL}`,
+        //   false
+        // )
       ],
       {}
     )

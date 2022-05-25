@@ -84,12 +84,13 @@ export function getParishScheduleControlMenu(ctx: SessionContext) {
           ctx.i18n.t('scenes.parishes.refresh_button'),
           JSON.stringify({ a: 'refreshSchedule', p: ctx.session.parish._id }),
           false
-        ),
-        m.urlButton(
-          ctx.i18n.t('scenes.parishes.change_button'),
-          `${process.env.ADMIN_URL}`,
-          false
         )
+        // ,
+        // m.urlButton(
+        //   ctx.i18n.t('scenes.parishes.change_button'),
+        //   `${process.env.ADMIN_URL}`,
+        //   false
+        // )
       ],
       {}
     )
