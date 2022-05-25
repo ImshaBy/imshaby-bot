@@ -79,10 +79,32 @@ bot.use(getUserInfo);
 
 bot.start(asyncWrapper(async (ctx: SessionContext) => ctx.scene.enter('start')));
 
-bot.on('new_chat_members', (msg) => {
-   console.log('!!!!!!GROUP ENVENT:new member have joined %s(%s)', msg.chat.title, msg.chat.id);
-  }
-);
+const newChatMemberHandler = async (ctx: SessionContext) => {
+  const names = ctx.message.new_chat_members
+    // .filter(({ is_bot }) => !is_bot)
+    .map(({ first_name, last_name }) => `${first_name} ${last_name}`);
+
+  await ctx.deleteMessage();
+
+  ctx.replyWithMarkdown(`Welcome ${names.join(', ')}!`);
+};
+
+
+bot.on('new_chat_members', newChatMemberHandler);
+
+// bot.on('new_chat_members', (msg: SessionContext) => {
+//    console.log('!!!!!!GROUP ENVENT:new member have joined %s(%s), %s', msg.chat.title, msg.chat.id, msg.chat);
+//    if (msg.message.new_chat_members != undefined) {
+//     console.log("if statement");
+//     console.log(msg.message.new_chat_member.username);
+//     console.log(msg.new_chat_member.id);
+//   } else {
+//       console.log("else statement");
+//       console.log("new_chat_members is not defined");
+//   }
+
+//   }
+// );
 
 bot.hears(
   match('keyboards.main_keyboard.schedule'),
