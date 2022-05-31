@@ -25,7 +25,9 @@ parish.enter(async (ctx: SessionContext) => {
     const message = await ctx.reply(ctx.i18n.t('scenes.parishes.list_of_parishes'), getParishesMenu(userParishes));
     logger.info(ctx, `Message ID for parish ${JSON.stringify(message)}`);
     // ctx.session.cleanUpMessages.push(message_id);
-    await ctx.reply(ctx.i18n.t('scenes.parishes.ask_for_details'), backKeyboard);
+    const message2 = await ctx.reply(ctx.i18n.t('scenes.parishes.ask_for_details'), backKeyboard);
+    logger.info(ctx, `Message 2 for parish ${JSON.stringify(message2)}`);
+
   } else {
     await ctx.reply('Error', backKeyboard);
   }
