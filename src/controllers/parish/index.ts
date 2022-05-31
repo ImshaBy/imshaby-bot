@@ -23,14 +23,10 @@ parish.enter(async (ctx: SessionContext) => {
 
   if (userParishes && userParishes.length) {
     const message = await ctx.reply(ctx.i18n.t('scenes.parishes.list_of_parishes'), getParishesMenu(userParishes));
-    logger.info(ctx, `Message ID for parish ${JSON.stringify(message)}`);
-    logger.info(ctx, `Message from context  for parish ${ctx.message?.message_id}`);
-
+    logger.debug(ctx, `Message ID for parish ${JSON.stringify(message)}`);
+    // dirty hack as telegram doesn't respond with proper message from last ctx.reply
     ctx.session.cleanUpMessages.push(ctx.message?.message_id + 1);
     const message2 = await ctx.reply(ctx.i18n.t('scenes.parishes.ask_for_details'), backKeyboard);
-    logger.info(ctx, `Message 2 for parish ${JSON.stringify(message2)}`);
-    logger.info(ctx, `Message from context2  for parish ${ctx.message?.message_id}`);
-
   } else {
     await ctx.reply('Error', backKeyboard);
   }

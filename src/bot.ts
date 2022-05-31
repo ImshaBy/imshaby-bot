@@ -138,6 +138,8 @@ bot.hears(/(.*?)/, async (ctx: SessionContext) => {
   logger.debug(ctx, 'Default handler has fired');
   logger.debug(ctx, `Message: ${ctx.message.text}`);
 
+  logger.info(ctx, `Incorrect message ${JSON.stringify(ctx.message)}`);
+
   const user = await User.findById(ctx.from.id);
   if (user) {
     await updateLanguage(ctx, user.language);
