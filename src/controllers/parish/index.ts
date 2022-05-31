@@ -22,8 +22,8 @@ parish.enter(async (ctx: SessionContext) => {
   const userParishes: IParishResult[] = await getUserParishes(ctx);
 
   if (userParishes && userParishes.length) {
-    const {message_id} = await ctx.reply(ctx.i18n.t('scenes.parishes.list_of_parishes'), getParishesMenu(userParishes));
-    logger.info(ctx, `Message ID for parish ${message_id}`);
+    const {message_id, reply_to_message} = await ctx.reply(ctx.i18n.t('scenes.parishes.list_of_parishes'), getParishesMenu(userParishes));
+    logger.info(ctx, `Message ID for parish ${message_id}, ${reply_to_message.message_id}`);
     ctx.session.cleanUpMessages.push(message_id);
     await ctx.reply(ctx.i18n.t('scenes.parishes.ask_for_details'), backKeyboard);
   } else {
