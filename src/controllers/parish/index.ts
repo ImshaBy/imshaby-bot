@@ -26,7 +26,7 @@ parish.enter(async (ctx: SessionContext) => {
     logger.info(ctx, `Message ID for parish ${JSON.stringify(message)}`);
     logger.info(ctx, `Message from context  for parish ${ctx.message?.message_id}`);
 
-    // ctx.session.cleanUpMessages.push(message_id);
+    ctx.session.cleanUpMessages.push(ctx.message?.message_id);
     const message2 = await ctx.reply(ctx.i18n.t('scenes.parishes.ask_for_details'), backKeyboard);
     logger.info(ctx, `Message 2 for parish ${JSON.stringify(message2)}`);
     logger.info(ctx, `Message from context2  for parish ${ctx.message?.message_id}`);
