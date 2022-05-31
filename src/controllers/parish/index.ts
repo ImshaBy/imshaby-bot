@@ -23,7 +23,7 @@ parish.enter(async (ctx: SessionContext) => {
 
   if (userParishes && userParishes.length) {
     const {message_id} = await ctx.reply(ctx.i18n.t('scenes.parishes.list_of_parishes'), getParishesMenu(userParishes));
-    await ctx.session.cleanUpMessages.push(message_id);
+    ctx.session.cleanUpMessages.push(message_id);
     await ctx.reply(ctx.i18n.t('scenes.parishes.ask_for_details'), backKeyboard);
   } else {
     await ctx.reply('Error', backKeyboard);
