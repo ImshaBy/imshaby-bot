@@ -3,7 +3,7 @@ import logger from './logger';
 import { SessionContext } from 'telegraf-context';
 
 
-type SessionDataField = 'parishes'  | 'settingsScene' | 'language' | 'user' | 'parish' | 'test';
+type SessionDataField = 'parishes'  | 'settingsScene' | 'language' | 'user' | 'parish' | 'cleanUpMessages';
 
 /**
  * Saving data to the session
@@ -18,6 +18,12 @@ export function saveToSession(ctx: SessionContext, field: SessionDataField, data
 
   // ctx.session
   // redisSession.saveSession(getSessionKey(ctx), ctx.session);
+}
+
+export function cleanUpMessages(ctx: SessionContext){
+  while (ctx.session.cleanUpMessages && ctx.session.cleanUpMessages.length) {
+    ctx.deleteMessage(ctx.session.cleanUpMessages.pop());
+  }
 }
 
 /**

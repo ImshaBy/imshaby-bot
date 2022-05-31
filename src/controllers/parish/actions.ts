@@ -28,23 +28,22 @@ export const parishAction = async (ctx: SessionContext) => {
     text += '\n' + broadcastUrl;
   }
 
-  if (ctx.session.parish.phone) {
-    const phone = ctx.i18n.t('scenes.parish.phone', {
-      phone: ctx.session.parish.phone
-    });
-    // ctx.reply(`${phone}`);
-    text += '\n' + phone;
+  // if (ctx.session.parish.phone) {
+  //   const phone = ctx.i18n.t('scenes.parish.phone', {
+  //     phone: ctx.session.parish.phone
+  //   });
+  //   text += '\n' + phone;
 
-  }
+  // }
 
-  if (ctx.session.parish.email) {
-    const email = ctx.i18n.t('scenes.parish.email', {
-      email: ctx.session.parish.email
-    });
-    // ctx.reply(`${email}`);
-    text += '\n' + email;
+  // if (ctx.session.parish.email) {
+  //   const email = ctx.i18n.t('scenes.parish.email', {
+  //     email: ctx.session.parish.email
+  //   });
+  //   // ctx.reply(`${email}`);
+  //   text += '\n' + email;
 
-  }
+  // }
 
   if (ctx.session.parish.website) {
     const website = ctx.i18n.t('scenes.parish.website', {

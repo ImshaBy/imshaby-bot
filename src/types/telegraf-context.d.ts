@@ -10,7 +10,7 @@ interface SessionContext extends Context  {
 
     session: {
       __scenes: any,
-      test : any,
+      cleanUpMessages : number[],
       parishes: IParish[];
       parish: IParish;
       settingsScene: {

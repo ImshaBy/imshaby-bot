@@ -42,7 +42,7 @@ export const parishSelectAction = async (ctx: SessionContext) => {
     await ctx.reply(sheduleForDay);
   }
 
-  await ctx.reply(ctx.i18n.t('scenes.parishes.cta_update'), getParishScheduleControlMenu(ctx));
-
+  const {message_id} = await ctx.reply(ctx.i18n.t('scenes.parishes.cta_update'), getParishScheduleControlMenu(ctx));
+  await ctx.session.cleanUpMessages.push(message_id);
   // await ctx.answerCbQuery();
 };
