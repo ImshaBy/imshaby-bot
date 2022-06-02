@@ -22,6 +22,7 @@ import { updateLanguage } from './util/language';
 import { updateUserTimestamp } from './middlewares/update-user-timestamp';
 import { getUserInfo } from './middlewares/user-info';
 import { isAdmin } from './middlewares/is-admin';
+import { isSupportedChatType } from './middlewares/is-group-message';
 import { getConnection as mongoConnectionInit } from './mongo';
 import { SessionContext } from 'telegraf-context';
 import Redis from 'ioredis';
@@ -110,18 +111,21 @@ bot.on('new_chat_members', newChatMemberHandler);
 
 bot.hears(
   match('keyboards.main_keyboard.schedule'),
+  isSupportedChatType,
   updateUserTimestamp,
   asyncWrapper(async (ctx: SessionContext) => await ctx.scene.enter('schedule'))
 );
 
 bot.hears(
   match('keyboards.main_keyboard.parish'),
+  isSupportedChatType,
   updateUserTimestamp,
   asyncWrapper(async (ctx: SessionContext) => await ctx.scene.enter('parish'))
 );
 
 bot.hears(
   match('keyboards.main_keyboard.contact'),
+  isSupportedChatType,
   updateUserTimestamp,
   asyncWrapper(async (ctx: SessionContext) => await ctx.scene.enter('contact'))
 );
@@ -130,15 +134,16 @@ bot.hears(match('keyboards.main_keyboard.about'), updateUserTimestamp, asyncWrap
 
 bot.hears(
   /(.*admin)/,
+  isSupportedChatType,
   isAdmin,
   asyncWrapper(async (ctx: SessionContext) => await ctx.scene.enter('admin'))
 );
 
-bot.hears(/(.*?)/, async (ctx: SessionContext) => {
+bot.hears(/(.*?)/, isSupportedChatType, async (ctx: SessionContext) => {
   logger.debug(ctx, 'Default handler has fired');
   logger.debug(ctx, `Message: ${ctx.message.text}`);
 
-  logger.info(ctx, `Incorrect message ${JSON.stringify(ctx.message)}`);
+  logger.info(ctx, `Incorrect message ${JSON.stringify(ctx.message.chat.type)}`);
 
   const user = await User.findById(ctx.from.id);
   if (user) {
