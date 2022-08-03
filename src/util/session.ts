@@ -21,7 +21,7 @@ export function saveToSession(ctx: SessionContext, field: SessionDataField, data
 }
 
 export function cleanUpMessages(ctx: SessionContext) {
-  try{
+  try {
     while (ctx.session.cleanUpMessages && ctx.session.cleanUpMessages.length) {
       ctx.deleteMessage(ctx.session.cleanUpMessages.pop());
     }
