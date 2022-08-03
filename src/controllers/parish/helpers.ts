@@ -33,7 +33,8 @@ export function getParishControlMenu(ctx: SessionContext) {
         //   ctx.i18n.t('scenes.parishes.back_button'),
         //   JSON.stringify({ a: 'back', p: undefined }),
         //   false
-        // ),
+        // )
+        // ,
         // TODO: add param for admin url for particular parish
         // m.urlButton(
         //   ctx.i18n.t('scenes.parishes.change_button'),

@@ -23,6 +23,7 @@ export async function getUserParishes(ctx: SessionContext): Promise<IParishResul
   // const parishes: IParishResult[] = JSON.parse()
   if (ctx.session.parishes ) return ctx.session.parishes as IParishResult[];
 
+
   const parishes: IParishResult[] = [];
   try {
     logger.debug(ctx, 'Retrieving parishes for user %s', ctx.session.user);

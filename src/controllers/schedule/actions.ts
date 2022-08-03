@@ -5,14 +5,15 @@ import schedule from '.';
 import { sheduleByParishId, makeMassesActual } from '../../util/search-providers';
 import { getParishScheduleControlMenu, getParishScheduleMessage } from './helpers';
 
-const arrayOfWeekdays = ['ВС', 'ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СБ'];
-const arrayOfMonths = ['Января', 'Февраля', 'Марта', 'Апреля', 'Мая', 'Июня', 'Июля', 'Августа', 'Сентября', 'Октября', 'Ноября', 'Декабря'];
+const arrayOfWeekdays = ['Нд', 'Пн', 'Аў', 'Ср', 'Чц', 'Пт', 'Сб'];
+const arrayOfMonths = ['Студзеня', 'Лютага', 'Сакавіка', 'Красавіка', 'Мая', 'Чэрвеня', 'Ліпеня', 'Жніўня', 'Верасня', 'Кастрычніка', 'Лістапада', 'Снежня'];
 
 
 export const refreshScheduleAction = async (ctx: SessionContext) => {
 
   const response = await makeMassesActual(ctx.session.parish.id);
   const updateMassesCount = Object.values(response.entities).length;
+
 
   const successMsg = ctx.i18n.t('scenes.parishes.masses_actual', {
     massCount: updateMassesCount
@@ -22,12 +23,14 @@ export const refreshScheduleAction = async (ctx: SessionContext) => {
   // ctx.scene.leave();
 };
 
+
 export const parishSelectAction = async (ctx: SessionContext) => {
   const parishName = ctx.i18n.t('scenes.parishes.chosen_parish', {
     title: ctx.session.parish.title
   });
 
-  await ctx.reply(`\n ${parishName}`);
+  let replyMsg = `\n ${parishName}`;
+  // await ctx.reply(`\n ${parishName}`);
 
   const massDays = await sheduleByParishId(ctx.session.parish.id);
 
@@ -39,8 +42,13 @@ export const parishSelectAction = async (ctx: SessionContext) => {
     massDay.massHours.forEach(function(hour) {
       sheduleForDay += ` ${hour}`;
     });
-    await ctx.reply(sheduleForDay);
+    replyMsg  += `\n ${sheduleForDay}`;
+
+    // await ctx.reply(sheduleForDay);
   }
+  await ctx.reply(replyMsg);
+
+
 
   const {message_id} = await ctx.reply(ctx.i18n.t('scenes.parishes.cta_update'), getParishScheduleControlMenu(ctx));
   await ctx.session.cleanUpMessages.push(message_id);

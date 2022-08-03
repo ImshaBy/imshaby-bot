@@ -21,8 +21,12 @@ export function saveToSession(ctx: SessionContext, field: SessionDataField, data
 }
 
 export function cleanUpMessages(ctx: SessionContext) {
-  while (ctx.session.cleanUpMessages && ctx.session.cleanUpMessages.length) {
-    ctx.deleteMessage(ctx.session.cleanUpMessages.pop());
+  try{
+    while (ctx.session.cleanUpMessages && ctx.session.cleanUpMessages.length) {
+      ctx.deleteMessage(ctx.session.cleanUpMessages.pop());
+    }
+  } catch (e) {
+    logger.error(ctx, `Runtime error during clean up message:  ${e}`);
   }
 }
 
