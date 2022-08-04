@@ -17,7 +17,7 @@
       "change_button": "❌ No, I need to change mass schedule!",
       "hook_msg": "<b>${name}</b> applied changes to schedule!",
 
-      "chosen_parish": "You've chosen parish: ${title}",
+      "chosen_parish": "${title}",
       "list_of_parishes": "This is list of your parishes:",
       "back_button": "◀️ Back",
       "ask_for_details": "Please click on button above to expand on parish details!"
