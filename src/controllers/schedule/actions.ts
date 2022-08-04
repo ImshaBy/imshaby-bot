@@ -19,8 +19,11 @@ export const refreshScheduleAction = async (ctx: SessionContext) => {
     massCount: updateMassesCount
   });
 
-  await ctx.reply(`${successMsg}`);
-  // ctx.scene.leave();
+  await ctx.editMessageText(`${successMsg}`);
+  await ctx.answerCbQuery();
+
+  // await ctx.reply(`${successMsg}`);
+
 };
 
 
