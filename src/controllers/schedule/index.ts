@@ -25,7 +25,7 @@ schedule.enter(async (ctx: SessionContext) => {
    const {message_id} =  await ctx.reply(ctx.i18n.t('scenes.parishes.parish_list'), getParishesMenus(parishes));
     await ctx.session.cleanUpMessages.push(message_id);
   } else if (parishes.length === 1) {
-    // await ctx.reply(ctx.i18n.t('scenes.parishes.single_parish'), backKeyboard);
+    await ctx.reply(ctx.i18n.t('scenes.parishes.single_parish'), backKeyboard);
    saveToSession(ctx, 'parish', parishes[0]);
     await parishSelectAction(ctx);
   } else {

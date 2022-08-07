@@ -51,6 +51,7 @@ export const parishSelectAction = async (ctx: SessionContext) => {
   }
   await ctx.reply(replyMsg);
 
+  // await ctx.editMessageText(replyMsg);
 
 
   const {message_id} = await ctx.reply(ctx.i18n.t('scenes.parishes.cta_update'), getParishScheduleControlMenu(ctx));

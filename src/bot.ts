@@ -26,6 +26,7 @@ import { isSupportedChatType } from './middlewares/is-group-message';
 import { getConnection as mongoConnectionInit } from './mongo';
 import { SessionContext } from 'telegraf-context';
 import Redis from 'ioredis';
+import { cleanUpMessages } from './util/session';
 
 const redisClient = new Redis( parseInt(process.env.TELEGRAM_SESSION_PORT || '6379'), process.env.TELEGRAM_SESSION_HOST || '127.0.0.1');
 redisClient.on('connect', function () {
@@ -145,11 +146,11 @@ bot.hears(/(.*?)/, isSupportedChatType, async (ctx: SessionContext) => {
 
   logger.info(ctx, `Incorrect message ${JSON.stringify(ctx.message.chat.type)}`);
 
-  const user = await User.findById(ctx.from.id);
-  if (user) {
-    await updateLanguage(ctx, user.language);
-  }
-
+  // const user = await User.findById(ctx.from.id);
+  // if (user) {
+  //   await updateLanguage(ctx, user.language);
+  // }
+  cleanUpMessages(ctx);
   const { mainKeyboard } = getMainKeyboard(ctx);
   return await ctx.reply(ctx.i18n.t('other.default_handler'), mainKeyboard);
 });
