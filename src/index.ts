@@ -71,6 +71,14 @@ function startDevelopmen(bot: Telegraf<SessionContext>) {
 
   const app = createServer();
 
+  app.post(`${process.env.WEBHOOK_PATH}`, (req, res) => {
+    // console.log(req.body);
+    return bot.handleUpdate(req.body, res)
+      .finally(() => {
+
+      });
+  });
+
   app.listen(process.env.PORT, () => {
     console.log(`Server listening on port ${process.env.PORT}!`);
   });

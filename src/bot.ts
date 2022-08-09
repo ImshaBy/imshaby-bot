@@ -66,7 +66,7 @@ const stage = new Stage([
   adminScene
 ]);
 const i18n = new TelegrafI18n({
-  defaultLanguage: 'en',
+  defaultLanguage: 'ru',
   directory: path.resolve(__dirname, 'locales'),
   useSession: true,
   allowMissing: false,
