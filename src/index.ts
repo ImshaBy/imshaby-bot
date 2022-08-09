@@ -71,6 +71,14 @@ function startDevelopmen(bot: Telegraf<SessionContext>) {
 
   const app = createServer();
 
+  app.post(`${process.env.WEBHOOK_PATH}`, (req, res) => {
+    // console.log(req.body);
+    return bot.handleUpdate(req.body, res)
+      .finally(() => {
+
+      });
+  });
+
   app.listen(process.env.PORT, () => {
     console.log(`Server listening on port ${process.env.PORT}!`);
   });
@@ -97,7 +105,7 @@ function startProdution (bot: Telegraf<SessionContext>) {
   });
 
   // Definition of webhook types needed for the bot
-  const type: string[] = ['message', 'callback_query'];
+  const type: string[] = ['message', 'callback_query', 'chat_join_request'];
 
   app.listen(process.env.PORT, () => {
     console.log(`Example app listening on port ${process.env.PORT}! Bot ID: ${process.env.TELEGRAM_TOKEN}. Settin up webhook for telegram: ${process.env.WEBHOOK_URL}${process.env.WEBHOOK_PATH}, supported types : ${type}`);

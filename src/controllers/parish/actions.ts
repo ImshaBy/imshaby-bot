@@ -1,11 +1,12 @@
 import { getParishControlMenu, getParishesMenu } from './helpers';
 import logger from '../../util/logger';
-import { IParish } from '../../models/Parish';
+import { getBackKeyboard } from '../../util/keyboards';
 import { saveToSession } from '../../util/session';
 import { parishesLookupByKey } from '../../util/search-providers';
 import { SessionContext } from 'telegraf-context';
 
-export const parishAction = async (ctx: SessionContext) => {
+
+export const parishAction = async (ctx: SessionContext, noEdit: boolean) => {
 
   const parishes = await parishesLookupByKey(ctx.session.parish.key);
   saveToSession(ctx, 'parish', parishes[0]);
@@ -28,23 +29,22 @@ export const parishAction = async (ctx: SessionContext) => {
     text += '\n' + broadcastUrl;
   }
 
-  if (ctx.session.parish.phone) {
-    const phone = ctx.i18n.t('scenes.parish.phone', {
-      phone: ctx.session.parish.phone
-    });
-    // ctx.reply(`${phone}`);
-    text += '\n' + phone;
+  // if (ctx.session.parish.phone) {
+  //   const phone = ctx.i18n.t('scenes.parish.phone', {
+  //     phone: ctx.session.parish.phone
+  //   });
+  //   text += '\n' + phone;
 
-  }
+  // }
 
-  if (ctx.session.parish.email) {
-    const email = ctx.i18n.t('scenes.parish.email', {
-      email: ctx.session.parish.email
-    });
-    // ctx.reply(`${email}`);
-    text += '\n' + email;
+  // if (ctx.session.parish.email) {
+  //   const email = ctx.i18n.t('scenes.parish.email', {
+  //     email: ctx.session.parish.email
+  //   });
+  //   // ctx.reply(`${email}`);
+  //   text += '\n' + email;
 
-  }
+  // }
 
   if (ctx.session.parish.website) {
     const website = ctx.i18n.t('scenes.parish.website', {
@@ -62,12 +62,21 @@ export const parishAction = async (ctx: SessionContext) => {
   text += '\n' + updatePeriodInDays;
 
 
-  ctx.editMessageText(
-    `${text} <a href="${ctx.session.parish.imgPath}">.</a>`,
-    getParishControlMenu(ctx)
-  );
+  if (noEdit) {
 
-  ctx.answerCbQuery();
+    // no buttons, single parish use cases, no need to replace buttons
+    const { backKeyboard } = getBackKeyboard(ctx);
+    ctx.reply(
+      `${text} <a href="${ctx.session.parish.imgPath}">.</a>`,
+      getParishControlMenu(ctx)
+    );
+  } else {
+    ctx.reply(
+      `${text} <a href="${ctx.session.parish.imgPath}">.</a>`,
+      getParishControlMenu(ctx)
+    );
+    // ctx.answerCbQuery();
+  }
 };
 
 export const backAction = async (ctx: SessionContext) => {
@@ -78,3 +87,4 @@ export const backAction = async (ctx: SessionContext) => {
 
   await ctx.answerCbQuery();
 };
+

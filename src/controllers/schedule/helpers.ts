@@ -23,6 +23,7 @@ export async function getUserParishes(ctx: SessionContext): Promise<IParishResul
   // const parishes: IParishResult[] = JSON.parse()
   if (ctx.session.parishes ) return ctx.session.parishes as IParishResult[];
 
+
   const parishes: IParishResult[] = [];
   try {
     logger.debug(ctx, 'Retrieving parishes for user %s', ctx.session.user);
@@ -84,12 +85,13 @@ export function getParishScheduleControlMenu(ctx: SessionContext) {
           ctx.i18n.t('scenes.parishes.refresh_button'),
           JSON.stringify({ a: 'refreshSchedule', p: ctx.session.parish._id }),
           false
-        ),
-        m.urlButton(
-          ctx.i18n.t('scenes.parishes.change_button'),
-          `${process.env.ADMIN_URL}`,
-          false
         )
+        // ,
+        // m.urlButton(
+        //   ctx.i18n.t('scenes.parishes.change_button'),
+        //   `${process.env.ADMIN_URL}`,
+        //   false
+        // )
       ],
       {}
     )
