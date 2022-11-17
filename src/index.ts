@@ -63,6 +63,60 @@ if (process.env.NODE_ENV === 'production') {
   startProdution(botTelegram);
 } else {
   startDevelopmen(botTelegram);
+  // startDevelopmentWithoutBot();
+}
+
+function startDevelopmentWithoutBot() {
+  logger.info(undefined, `Starting express server without bot: ${process.env.NODE_ENV}`);
+
+  const app = createServer();
+
+  app.listen(process.env.PORT, () => {
+    console.log(`Server listening on port ${process.env.PORT}!`);
+  });
+
+  // app.post('/build-site',  async function (req: any, res: any) {
+  //   // console.log(`${JSON.stringify(req.body)}`);
+
+  //   await invokeGitHubAction(req.headers['workflow-type'], req.body);
+  //   console.log(`CMS hook is triggered`);
+  //   res.status(200).end();
+  // });
+
+}
+
+async function invokeGitHubAction(event: string, client_payload: string) {
+
+  const gitActionMessage = {
+    'event_type': event,
+    'client_payload': client_payload
+  };
+
+  try {
+    const res = await axios.post(`https://api.github.com/repos/${process.env.REPO_OWNER}/${process.env.REPO_NAME}/dispatches`, gitActionMessage, {
+      headers: {
+        'Accept': 'application/vnd.github.v3+json',
+        'Authorization': `token ${process.env.GITHUB_TOKEN}`
+      }
+    }).then((response) => {
+      console.log(response.status);
+      console.log(response.data);
+    });
+  } catch (err) {
+      if (err.response) {
+          // The client was given an error response (5xx, 4xx)
+          console.error('Error response from server:');
+
+          console.error(err.response);
+      } else if (err.request) {
+        console.error('No response from server, request is:');
+          // The client never received a response, and the request was never left
+        console.error(err.request);
+      } else {
+          // Anything else
+        console.error('Error', err.message);
+      }
+  }
 }
 
 
@@ -143,6 +197,14 @@ function createServer() {
 
   app.post('/chat/city', function (req: any, res: any) {
     notifyGroupChatAboutParishChange(req.query.chatId, getParishUpdateMsg(req, `${req.body.parish.name}`));
+    res.status(200).end();
+  });
+
+  app.post('/build-site',  async function (req: any, res: any) {
+    // console.log(`${JSON.stringify(req.body)}`);
+
+    await invokeGitHubAction(req.headers['workflow-type'], req.body);
+    console.log(`CMS hook is triggered`);
     res.status(200).end();
   });
 
