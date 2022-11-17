@@ -61,10 +61,10 @@ logger.info(undefined, `Starting at ENV: ${process.env.NODE_ENV}`);
 
 
 if (process.env.NODE_ENV === 'production') {
-  // startProdution(botTelegram);
+  startProdution(botTelegram);
 } else {
-  // startDevelopmen(botTelegram);
-  startDevelopmentWithoutBot();
+  startDevelopmen(botTelegram);
+  // startDevelopmentWithoutBot();
 }
 
 function startDevelopmentWithoutBot() {
@@ -136,6 +136,9 @@ function startProdution (bot: Telegraf<SessionContext>) {
     console.log(`Example app listening on port ${process.env.PORT}! Bot ID: ${process.env.TELEGRAM_TOKEN}. Settin up webhook for telegram: ${process.env.WEBHOOK_URL}${process.env.WEBHOOK_PATH}, supported types : ${type}`);
     bot.telegram.setWebhook(`${process.env.WEBHOOK_URL}${process.env.WEBHOOK_PATH}`, undefined, 100, type);
   });
+
+
+  console.log(`${process.env.SCHEDULE_BUILD} - cron site build config`);
 
   cron.schedule(process.env.SCHEDULE, checkNeeedToUpdateParishes);
   cron.schedule(process.env.SCHEDULE_BUILD, checkNeeedToRebuildSite);
