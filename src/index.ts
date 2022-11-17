@@ -61,10 +61,10 @@ logger.info(undefined, `Starting at ENV: ${process.env.NODE_ENV}`);
 
 
 if (process.env.NODE_ENV === 'production') {
-  startProdution(botTelegram);
+  // startProdution(botTelegram);
 } else {
-  startDevelopmen(botTelegram);
-  // startDevelopmentWithoutBot();
+  // startDevelopmen(botTelegram);
+  startDevelopmentWithoutBot();
 }
 
 function startDevelopmentWithoutBot() {
@@ -75,6 +75,9 @@ function startDevelopmentWithoutBot() {
   app.listen(process.env.PORT, () => {
     console.log(`Server listening on port ${process.env.PORT}!`);
   });
+
+  console.log(`${process.env.SCHEDULE_BUILD} - cron site build config`);
+  cron.schedule(process.env.SCHEDULE_BUILD, checkNeeedToRebuildSite);
 
   // app.post('/build-site',  async function (req: any, res: any) {
   //   // console.log(`${JSON.stringify(req.body)}`);
