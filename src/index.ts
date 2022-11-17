@@ -61,10 +61,10 @@ logger.info(undefined, `Starting at ENV: ${process.env.NODE_ENV}`);
 
 
 if (process.env.NODE_ENV === 'production') {
-  // startProdution(botTelegram);
+  startProdution(botTelegram);
 } else {
-  // startDevelopmen(botTelegram);
-  startDevelopmentWithoutBot();
+  startDevelopmen(botTelegram);
+  // startDevelopmentWithoutBot();
 }
 
 function startDevelopmentWithoutBot() {
