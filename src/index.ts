@@ -61,10 +61,10 @@ logger.info(undefined, `Starting at ENV: ${process.env.NODE_ENV}`);
 
 
 if (process.env.NODE_ENV === 'production') {
-  startProdution(botTelegram);
+  // startProdution(botTelegram);
 } else {
-  startDevelopmen(botTelegram);
-  // startDevelopmentWithoutBot();
+  // startDevelopmen(botTelegram);
+  startDevelopmentWithoutBot();
 }
 
 function startDevelopmentWithoutBot() {
@@ -188,13 +188,7 @@ function createServer() {
   });
 
   app.get('/build-site/messages',  function (req: any, res: any) {
-    res.data = getBuildMessages();
-    res.status(200).end();
-  });
-
-  app.get('/build-site/messages/count',  function (req: any, res: any) {
-    res.data = getBuildMessages().length;
-    res.status(200).end();
+    res.json({'count': getBuildMessages().length, 'messages': getBuildMessages()});
   });
 
   return app;
