@@ -3,6 +3,7 @@ import Telegraf from 'telegraf';
 import logger from './util/logger';
 import cron from 'node-cron';
 import axios from 'axios';
+import { invokeGitHubAction, addBuildMessage, checkNeeedToRebuildSite, getBuildMessages } from './util/githooker';
 
 import jwt from 'express-jwt';
 import jwtAuthz from 'express-jwt-authz';
@@ -85,41 +86,6 @@ function startDevelopmentWithoutBot() {
 
 }
 
-async function invokeGitHubAction(event: string, client_payload: string) {
-
-  const gitActionMessage = {
-    'event_type': event,
-    'client_payload': client_payload
-  };
-
-  try {
-    const res = await axios.post(`https://api.github.com/repos/${process.env.REPO_OWNER}/${process.env.REPO_NAME}/dispatches`, gitActionMessage, {
-      headers: {
-        'Accept': 'application/vnd.github.v3+json',
-        'Authorization': `token ${process.env.GITHUB_TOKEN}`
-      }
-    }).then((response) => {
-      console.log(response.status);
-      console.log(response.data);
-    });
-  } catch (err) {
-      if (err.response) {
-          // The client was given an error response (5xx, 4xx)
-          console.error('Error response from server:');
-
-          console.error(err.response);
-      } else if (err.request) {
-        console.error('No response from server, request is:');
-          // The client never received a response, and the request was never left
-        console.error(err.request);
-      } else {
-          // Anything else
-        console.error('Error', err.message);
-      }
-  }
-}
-
-
 function startDevelopmen(bot: Telegraf<SessionContext>) {
   logger.info(undefined, `Starting a bot in development mode : ${process.env.NODE_ENV}`);
 
@@ -142,6 +108,8 @@ function startDevelopmen(bot: Telegraf<SessionContext>) {
   );
 
   cron.schedule(process.env.SCHEDULE, checkNeeedToUpdateParishes);
+  cron.schedule(process.env.SCHEDULE_BUILD, checkNeeedToRebuildSite);
+
 }
 
 
@@ -167,6 +135,8 @@ function startProdution (bot: Telegraf<SessionContext>) {
   });
 
   cron.schedule(process.env.SCHEDULE, checkNeeedToUpdateParishes);
+  cron.schedule(process.env.SCHEDULE_BUILD, checkNeeedToRebuildSite);
+
 }
 
 
@@ -202,9 +172,22 @@ function createServer() {
 
   app.post('/build-site',  async function (req: any, res: any) {
     // console.log(`${JSON.stringify(req.body)}`);
-
-    await invokeGitHubAction(req.headers['workflow-type'], req.body);
+    if ( req.headers['x-build-now']) {
+      await invokeGitHubAction(req.headers['workflow-type'], req.body);
+    } else {
+      await addBuildMessage(JSON.stringify({'event' : req.headers['workflow-type'], 'client_payload' : req.body}));
+    }
     console.log(`CMS hook is triggered`);
+    res.status(200).end();
+  });
+
+  app.get('/build-site/messages',  function (req: any, res: any) {
+    res.data = getBuildMessages();
+    res.status(200).end();
+  });
+
+  app.get('/build-site/messages/count',  function (req: any, res: any) {
+    res.data = getBuildMessages().length;
     res.status(200).end();
   });
 

@@ -140,6 +140,7 @@ bot.hears(
   asyncWrapper(async (ctx: SessionContext) => await ctx.scene.enter('admin'))
 );
 
+
 bot.hears(/(.*?)/, isSupportedChatType, async (ctx: SessionContext) => {
   logger.debug(ctx, 'Default handler has fired');
   logger.debug(ctx, `Message: ${ctx.message.text}`);
