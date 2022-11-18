@@ -116,6 +116,10 @@ bot.hears(
   updateUserTimestamp,
   asyncWrapper(async (ctx: SessionContext) => await ctx.scene.enter('schedule'))
 );
+bot.command('update',  isSupportedChatType, updateUserTimestamp, asyncWrapper(async (ctx: SessionContext) => await ctx.scene.enter('schedule')));
+
+
+// bot.command('oldschool', (ctx) => ctx.reply('Hello'));
 
 bot.hears(
   match('keyboards.main_keyboard.parish'),
@@ -123,6 +127,7 @@ bot.hears(
   updateUserTimestamp,
   asyncWrapper(async (ctx: SessionContext) => await ctx.scene.enter('parish'))
 );
+bot.command('parish',  isSupportedChatType, updateUserTimestamp, asyncWrapper(async (ctx: SessionContext) => await ctx.scene.enter('parish')));
 
 bot.hears(
   match('keyboards.main_keyboard.contact'),
@@ -130,8 +135,10 @@ bot.hears(
   updateUserTimestamp,
   asyncWrapper(async (ctx: SessionContext) => await ctx.scene.enter('contact'))
 );
+bot.command('contact',  isSupportedChatType, updateUserTimestamp, asyncWrapper(async (ctx: SessionContext) => await ctx.scene.enter('contact')));
 
 bot.hears(match('keyboards.main_keyboard.about'), updateUserTimestamp, asyncWrapper(about));
+bot.command('info', updateUserTimestamp, asyncWrapper(about) );
 
 bot.hears(
   /(.*admin)/,
