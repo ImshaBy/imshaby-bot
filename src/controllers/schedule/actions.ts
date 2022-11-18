@@ -12,14 +12,19 @@ const arrayOfMonths = ['Студзеня', 'Лютага', 'Сакавіка', '
 export const refreshScheduleAction = async (ctx: SessionContext) => {
 
   const response = await makeMassesActual(ctx.session.parish.id);
-  const updateMassesCount = Object.values(response.entities).length;
+  if (response) {
+    const updateMassesCount = Object.values(response.entities).length;
 
 
-  const successMsg = ctx.i18n.t('scenes.parishes.masses_actual', {
-    massCount: updateMassesCount
-  });
+    const successMsg = ctx.i18n.t('scenes.parishes.masses_actual', {
+      massCount: updateMassesCount
+    });
 
-  await ctx.editMessageText(`${successMsg}`);
+    await ctx.editMessageText(`${successMsg}`);
+  } else {
+    await ctx.editMessageText(`Error`);
+  }
+
   await ctx.answerCbQuery();
 
   // await ctx.reply(`${successMsg}`);
