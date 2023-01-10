@@ -3,7 +3,7 @@ import Scene from 'telegraf/scenes/base';
 import { match } from 'telegraf-i18n';
 import { getMainKeyboard, getBackKeyboard } from '../../util/keyboards';
 import logger from '../../util/logger';
-import { write, getStats, getHelp } from './helpers';
+import { write, getStats, getHelp, addUser } from './helpers';
 import { SessionContext } from 'telegraf-context';
 
 const { leave } = Stage;
@@ -39,6 +39,9 @@ admin.on('text', async (ctx: SessionContext) => {
       break;
     case 'help':
       await getHelp(ctx);
+      break;
+    case 'user':
+      await addUser(ctx, params[0], params[1], params.slice(2));
       break;
     default:
       ctx.reply('Command was not specified');

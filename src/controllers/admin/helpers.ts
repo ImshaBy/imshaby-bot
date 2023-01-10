@@ -1,6 +1,7 @@
 import { telegram } from '../../bot';
 import { SessionContext } from 'telegraf-context';
 import User from '../../models/User';
+import { registerUser } from '../../util/identity-provider';
 
 /**
  * Write message to a specific user or to all existing users
@@ -69,6 +70,20 @@ export async function getHelp(ctx: SessionContext) {
   await ctx.reply(
     'write | [user_id | all.ru | all.en] | message - write message to user\n' +
       'stats - get stats about users\n' +
-      'help - get help menu'
+      'help - get help menu\n' +
+      'user | email | defaultParish | [...otherParishes] - add new user to the Admin panel' 
   );
+}
+
+export async function addUser(ctx: SessionContext, email: string, defaultParish: string, parishes?: string[]) {
+  const user = await registerUser(
+    email,
+    defaultParish,
+    parishes
+  );
+  if (user) {
+    await ctx.reply(`Successfully created user with \nEmail: ${email}\nParishes: ${defaultParish}, ${parishes ? parishes : ''}`);
+  } else {
+    await ctx.reply('User not created due to error');
+  }
 }
