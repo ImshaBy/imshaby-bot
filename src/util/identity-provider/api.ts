@@ -10,7 +10,7 @@ const axiosInstance = axios.create({
   }
 });
 
-export async function registerUser(email: any, defaultParish: any, parishes?: string[]) {
+export async function registerUser(email: string, defaultParish: string, parishes?: string[]) {
   const url = '/user';
   const body = {
     'applicationId': process.env.APPLICATIONID,
