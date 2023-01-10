@@ -13,18 +13,18 @@ const axiosInstance = axios.create({
 export async function registerUser(email: any, defaultParish: any, parishes?: string[]) {
   const url = '/user';
   const body = {
-    "applicationId": process.env.APPLICATIONID,
-    "user": {
-      "password": process.env.DEFAULTPASSWORD,
-      "email": email,
-      "data": {
-        "defaultParish": defaultParish,
-        "parishes": parishes ? parishes.map((parish, index) => ({
+    'applicationId': process.env.APPLICATIONID,
+    'user': {
+      'password': process.env.DEFAULTPASSWORD,
+      'email': email,
+      'data': {
+        'defaultParish': defaultParish,
+        'parishes': parishes ? parishes.map((parish, index) => ({
           [index]: parish
         })) : []
       }
     }
-  }
+  };
 
   let response;
 
@@ -34,7 +34,7 @@ export async function registerUser(email: any, defaultParish: any, parishes?: st
       body
     ).then(res => res.data);
   } catch (e) {
-    logger.error(undefined, 'Error during register new user %O.', email);
+    logger.error(undefined, 'Error during creating new user %O.', email);
     return undefined;
   }
   const user = response;

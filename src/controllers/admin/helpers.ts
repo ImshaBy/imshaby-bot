@@ -71,7 +71,7 @@ export async function getHelp(ctx: SessionContext) {
     'write | [user_id | all.ru | all.en] | message - write message to user\n' +
       'stats - get stats about users\n' +
       'help - get help menu\n' +
-      'user | email | defaultParish | [...otherParishes] - add new user to the Admin panel' 
+      'user | email | defaultParish | [...otherParishes] - add new user to the Admin panel'
   );
 }
 
