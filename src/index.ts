@@ -119,8 +119,6 @@ function startDevelopmen(bot: Telegraf<SessionContext>) {
 function startProdution (bot: Telegraf<SessionContext>) {
   const app = createServer();
 
-  // app.use(bot.webhookCallback(`${process.env.WEBHOOK_PATH}`));
-
   app.post(`${process.env.WEBHOOK_PATH}`, (req, res) => {
     // console.log(req.body);
     return bot.handleUpdate(req.body, res)

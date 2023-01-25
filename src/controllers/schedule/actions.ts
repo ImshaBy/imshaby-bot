@@ -14,8 +14,6 @@ export const refreshScheduleAction = async (ctx: SessionContext) => {
   const response = await makeMassesActual(ctx.session.parish.id);
   if (response) {
     const updateMassesCount = Object.values(response.entities).length;
-
-
     const successMsg = ctx.i18n.t('scenes.parishes.masses_actual', {
       massCount: updateMassesCount
     });
