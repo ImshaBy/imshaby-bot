@@ -58,7 +58,7 @@ jobs:
               PubkeyAcceptedAlgorithms +ssh-rsa
 
       - name: Deploy with rsync
-        run: rsync -avz  --rsh='ssh -o StrictHostKeyChecking=no -i ~/.ssh/git-to-jelastic -p3022' --delete-before out/ 63835-1897@gate.mycloud.by:~/temp
+        run: rsync -avz  --rsh='ssh -o StrictHostKeyChecking=no -i ~/.ssh/git-to-jelastic -p3022' --delete-before dist/ 63835-1897@gate.mycloud.by:~/temp
 
       - name: Re-install node_modules & re-start server
         run: |
