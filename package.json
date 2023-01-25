@@ -14,7 +14,7 @@
     "start:prod": "node dist/index.js",
     "start:dev": "NODE_ENV=development nodemon src/index.ts",
     "start:debug": "NODE_ENV=debug nodemon --inspect-rbk src/index.ts",
-    "build": "npm run version-ts && npm run build-ts && npm run tslint",
+    "build": "node -v && npm run version-ts && npm run build-ts && npm run tslint",
     "build-ts": "tsc",
     "watch-ts": "tsc -w",
     "version-ts": "tsc -v",
