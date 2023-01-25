@@ -1,4 +1,6 @@
-require('dotenv').config();
+import * as dotenv from 'dotenv'
+dotenv.config()
+
 import logger from './logger';
 import { sleep } from './common';
 import cron from 'node-cron';

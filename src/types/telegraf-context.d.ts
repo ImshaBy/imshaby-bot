@@ -9,15 +9,15 @@ interface SessionContext extends Context  {
     scene: any;
 
     session: {
-      __scenes: any,
-      cleanUpMessages : number[],
-      parishes: IParish[];
-      parish: IParish;
-      settingsScene: {
-        messagesToDelete: any[];
-      };
-      language: 'en' | 'ru' | any;
-      user: IUser;
+        __scenes: any;
+        cleanUpMessages: number[];
+        parishes: IParish[];
+        parish: IParish;
+        settingsScene: {
+            messagesToDelete: any[];
+        };
+        language: 'en' | 'ru' | any;
+        user: IUser;
     };
     webhookReply: boolean;
 }

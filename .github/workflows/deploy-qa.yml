@@ -18,10 +18,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Use NodeJS v.15.3
+      - name: Use NodeJS v.14.19.1
         uses: actions/setup-node@v1
         with:
-            node-version: 15.3.0
+          node-version: 14.19.1
+
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
         run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT

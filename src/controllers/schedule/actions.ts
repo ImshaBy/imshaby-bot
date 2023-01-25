@@ -25,39 +25,39 @@ export const refreshScheduleAction = async (ctx: SessionContext) => {
 
   await ctx.answerCbQuery();
 
-  // await ctx.reply(`${successMsg}`);
+    // await ctx.reply(`${successMsg}`);
 
 };
 
 
 export const parishSelectAction = async (ctx: SessionContext) => {
-  const parishName = ctx.i18n.t('scenes.parishes.chosen_parish', {
-    title: ctx.session.parish.title
-  });
-
-  let replyMsg = `\n ${parishName}`;
-  // await ctx.reply(`\n ${parishName}`);
-
-  const massDays = await sheduleByParishId(ctx.session.parish.id);
-
-  for ( const massDay of massDays) {
-    const parts = massDay.date.split('/');
-    const massDate: Date = new Date(Number.parseInt(parts[2]), Number.parseInt (parts[0]) - 1, Number.parseInt(parts[1]));
-
-    let sheduleForDay = `${arrayOfWeekdays[massDate.getDay()]}, ${massDate.getDate()} ${arrayOfMonths[massDate.getMonth()]}` + ': ';
-    massDay.massHours.forEach(function(hour) {
-      sheduleForDay += ` ${hour}`;
+    const parishName = ctx.i18n.t('scenes.parishes.chosen_parish', {
+        title: ctx.session.parish.title
     });
-    replyMsg  += `\n ${sheduleForDay}`;
+
+    let replyMsg = `\n ${parishName}`;
+    // await ctx.reply(`\n ${parishName}`);
+
+    const massDays = await sheduleByParishId(ctx.session.parish.id);
+
+    for ( const massDay of massDays) {
+        const parts = massDay.date.split('/');
+        const massDate: Date = new Date(Number.parseInt(parts[2]), Number.parseInt (parts[0]) - 1, Number.parseInt(parts[1]));
+
+        let sheduleForDay = `${arrayOfWeekdays[massDate.getDay()]}, ${massDate.getDate()} ${arrayOfMonths[massDate.getMonth()]}` + ': ';
+        massDay.massHours.forEach(function(hour) {
+            sheduleForDay += ` ${hour}`;
+        });
+        replyMsg  += `\n ${sheduleForDay}`;
 
     // await ctx.reply(sheduleForDay);
-  }
-  await ctx.reply(replyMsg);
+    }
+    await ctx.reply(replyMsg);
 
-  // await ctx.editMessageText(replyMsg);
+    // await ctx.editMessageText(replyMsg);
 
 
-  const {message_id} = await ctx.reply(ctx.i18n.t('scenes.parishes.cta_update'), getParishScheduleControlMenu(ctx));
-  await ctx.session.cleanUpMessages.push(message_id);
-  // await ctx.answerCbQuery();
+    const {message_id} = await ctx.reply(ctx.i18n.t('scenes.parishes.cta_update'), getParishScheduleControlMenu(ctx));
+    await ctx.session.cleanUpMessages.push(message_id);
+    // await ctx.answerCbQuery();
 };
