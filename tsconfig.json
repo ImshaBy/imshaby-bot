@@ -12,7 +12,6 @@
     "resolveJsonModule": true,
     "lib": ["es2017"],
     "forceConsistentCasingInFileNames": true,
-    "noEmit": true,
     "paths": {
       "*": ["node_modules/*", "src/types/*"]
     }
