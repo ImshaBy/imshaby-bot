@@ -1,10 +1,8 @@
 name: PROD env (Bot Server)
 on:
   push:
-    # branches: [ dev ]
     tags:
       - v*
-
 jobs:
   build:
 
@@ -59,9 +57,25 @@ jobs:
               HostkeyAlgorithms +ssh-rsa
               PubkeyAcceptedAlgorithms +ssh-rsa
 
-      - name: Deploy with rsync
-        run: rsync -avz  --rsh='ssh -o StrictHostKeyChecking=no -i ~/.ssh/git-to-jelastic -p3022' --delete-before out/ 63832-1897@gate.mycloud.by:~/temp
+      - name: Deploy dist with rsync
+        run: rsync -avz  --rsh='ssh -o StrictHostKeyChecking=no -i ~/.ssh/git-to-jelastic -p3022' --delete-before dist/ 63832-1897@gate.mycloud.by:~/ROOT/dist
 
-      - name: Re-install node_modules & re-start server
+      - name: Deploy node-modules with rsync
+        run: rsync -avz  --rsh='ssh -o StrictHostKeyChecking=no -i ~/.ssh/git-to-jelastic -p3022' --delete-before node_modules/ 63832-1897@gate.mycloud.by:~/ROOT/node_modules
+
+
+      - name: Re-start server
         run: |
-          ssh -p 3022 -i ~/.ssh/git-to-jelastic -o StrictHostKeyChecking=no -t 63832-1897@gate.mycloud.by "cd ~/ROOT && git pull && npm ci && rm -rf dist && mv ~/temp/dist ~/ROOT/ && pm2 restart dist/index.js --time"
+          ssh -p 3022 -i ~/.ssh/git-to-jelastic -o StrictHostKeyChecking=no -t 63832-1897@gate.mycloud.by "pm2 restart 0 --time"
+
+
+    # - run: npm run build
+
+#    - run: npm publish -- for creation package
+
+
+    # - name: List files
+    #   run: ls -la
+    # - name: Copy to server
+    #   run: rsync -avz --delete-before -e "ssh -p 3022 -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no" dist/ 58336-1897@${{ secrets.SSH_HOST }}:~/ROOT
+
