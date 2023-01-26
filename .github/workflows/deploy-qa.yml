@@ -62,7 +62,7 @@ jobs:
 
       - name: Re-install node_modules & re-start server
         run: |
-          ssh -p 3022 -i ~/.ssh/git-to-jelastic -o StrictHostKeyChecking=no -t 63835-1897@gate.mycloud.by "cd ~/ROOT && git pull && yarn intall && rm -rf dist && mv ~/temp/dist ~/ROOT/ && pm2 restart dist/index.js --time"
+          ssh -p 3022 -i ~/.ssh/git-to-jelastic -o StrictHostKeyChecking=no -t 63835-1897@gate.mycloud.by "cd ~/ROOT && git pull && yarn install && rm -rf dist && mv ~/temp/dist ~/ROOT/ && pm2 restart dist/index.js --time"
 
 
     # - run: npm run build
