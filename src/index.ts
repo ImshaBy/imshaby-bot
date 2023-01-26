@@ -59,6 +59,7 @@ import { checkNeeedToUpdateParishes, notifyGroupChatAboutParishChange } from './
 
 import { botTelegram } from './bot';
 import express from 'express';
+import bodyParser from 'body-parser';
 import { SessionContext } from 'telegraf-context';
 
 logger.info(undefined, `Starting at ENV: ${process.env.NODE_ENV}`);
@@ -150,7 +151,7 @@ function createServer() {
   logger.info(undefined, 'Starting a bot within express server');
 
   const app = express();
-  app.use(express.json());
+  app.use(bodyParser.json);
   app.use(i18nextMiddleware.handle(
     i18next, {
       removeLngFromUrl: false
