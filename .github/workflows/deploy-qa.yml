@@ -64,9 +64,9 @@ jobs:
         run: rsync -avz  --rsh='ssh -o StrictHostKeyChecking=no -i ~/.ssh/git-to-jelastic -p3022' --delete-before node_modules/ 63835-1897@gate.mycloud.by:~/ROOT/passive/node_modules
 
 
-     # - name: Re-install node_modules & re-start server
-     #   run: |
-     #     ssh -p 3022 -i ~/.ssh/git-to-jelastic -o StrictHostKeyChecking=no -t 63835-1897@gate.mycloud.by "pm2 stop 0 --time && rm -rf ~/ROOT/dist && rm -rf ~/ROOT/node_modules && cp -rf ~/temp/dist ~/ROOT && cp -rf ~/temp/node_modules ~/ROOT && pm2 start ~/ROOT/dist/index.js --time"
+      - name: Re-install node_modules & re-start server
+        run: |
+          ssh -p 3022 -i ~/.ssh/git-to-jelastic -o StrictHostKeyChecking=no -t 63835-1897@gate.mycloud.by "pm2 restart 0 --time"
 
 
     # - run: npm run build
