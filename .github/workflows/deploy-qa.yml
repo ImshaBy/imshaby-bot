@@ -58,10 +58,10 @@ jobs:
               PubkeyAcceptedAlgorithms +ssh-rsa
 
       - name: Deploy dist with rsync
-        run: rsync -avz  --rsh='ssh -o StrictHostKeyChecking=no -i ~/.ssh/git-to-jelastic -p3022' --delete-before dist/ 63835-1897@gate.mycloud.by:~/ROOT/passive/dist
+        run: rsync -avz  --rsh='ssh -o StrictHostKeyChecking=no -i ~/.ssh/git-to-jelastic -p3022' --delete-before dist/ 63835-1897@gate.mycloud.by:~/ROOT/dist
 
       - name: Deploy node-modules with rsync
-        run: rsync -avz  --rsh='ssh -o StrictHostKeyChecking=no -i ~/.ssh/git-to-jelastic -p3022' --delete-before node_modules/ 63835-1897@gate.mycloud.by:~/ROOT/passive/node_modules
+        run: rsync -avz  --rsh='ssh -o StrictHostKeyChecking=no -i ~/.ssh/git-to-jelastic -p3022' --delete-before node_modules/ 63835-1897@gate.mycloud.by:~/ROOT/node_modules
 
 
       - name: Re-install node_modules & re-start server
