@@ -57,12 +57,16 @@ jobs:
               HostkeyAlgorithms +ssh-rsa
               PubkeyAcceptedAlgorithms +ssh-rsa
 
-    #  - name: Deploy with rsync
-    #   run: rsync -avz  --rsh='ssh -o StrictHostKeyChecking=no -i ~/.ssh/git-to-jelastic -p3022' --delete-before dist/ 63835-1897@gate.mycloud.by:~/temp
+      - name: Deploy dist with rsync
+       run: rsync -avz  --rsh='ssh -o StrictHostKeyChecking=no -i ~/.ssh/git-to-jelastic -p3022' --delete-before dist/ 63835-1897@gate.mycloud.by:~/ROOT/passive/dist
 
-      - name: Re-install node_modules & re-start server
-        run: |
-          ssh -p 3022 -i ~/.ssh/git-to-jelastic -o StrictHostKeyChecking=no -t 63835-1897@gate.mycloud.by "cd ~/ROOT && git pull && yarn install && yarn build && pm2 start dist/index.js --time"
+      - name: Deploy node-modules with rsync
+       run: rsync -avz  --rsh='ssh -o StrictHostKeyChecking=no -i ~/.ssh/git-to-jelastic -p3022' --delete-before node_modules/ 63835-1897@gate.mycloud.by:~/ROOT/passive/node_modules
+
+
+     # - name: Re-install node_modules & re-start server
+     #   run: |
+     #     ssh -p 3022 -i ~/.ssh/git-to-jelastic -o StrictHostKeyChecking=no -t 63835-1897@gate.mycloud.by "pm2 stop 0 --time && rm -rf ~/ROOT/dist && rm -rf ~/ROOT/node_modules && cp -rf ~/temp/dist ~/ROOT && cp -rf ~/temp/node_modules ~/ROOT && pm2 start ~/ROOT/dist/index.js --time"
 
 
     # - run: npm run build
