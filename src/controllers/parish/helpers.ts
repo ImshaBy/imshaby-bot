@@ -9,7 +9,7 @@ import { InlineKeyboardMarkup } from 'telegraf/typings/telegram-types';
  * @param movies - list of movies
  */
 export function getParishesMenu(parishes: IParishResult[]) {
-    return Extra.HTML().markup((m: Markup<InlineKeyboardMarkup>) =>
+    return Extra.HTML().markup((m: Markup) =>
         m.inlineKeyboard(
             parishes.map(item => [
                 m.callbackButton(
@@ -29,7 +29,7 @@ export function getParishesMenu(parishes: IParishResult[]) {
  * @param ctx - telegram context
  */
 export function getParishControlMenu(ctx: SessionContext) {
-    return Extra.HTML().markup((m: Markup<InlineKeyboardMarkup>) =>
+    return Extra.HTML().markup((m: Markup) =>
         m.inlineKeyboard(
             [
                 // m.callbackButton(

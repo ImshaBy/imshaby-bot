@@ -11,7 +11,7 @@ import { InlineKeyboardMarkup } from 'telegraf/typings/telegram-types';
  * Returns language keyboard
  */
 export function getLanguageKeyboard() {
-    return Extra.HTML().markup((m: Markup<InlineKeyboardMarkup>) =>
+    return Extra.HTML().markup((m: Markup) =>
         m.inlineKeyboard(
             [
                 m.callbackButton('English', JSON.stringify({ a: 'languageChange', p: 'en' }), false),
@@ -27,7 +27,7 @@ export function getLanguageKeyboard() {
  * Returns button that user has to click to start working with the bot
  */
 export function getAccountConfirmKeyboard(ctx: SessionContext) {
-    return Extra.HTML().markup((m: Markup<InlineKeyboardMarkup>) =>
+    return Extra.HTML().markup((m: Markup) =>
         m.inlineKeyboard(
             [
                 m.callbackButton(

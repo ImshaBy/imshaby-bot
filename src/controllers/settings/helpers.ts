@@ -1,6 +1,6 @@
 import { Extra, Markup } from 'telegraf';
 import { get } from 'lodash';
-import { ExtraSendMessage, InlineKeyboardMarkup } from 'telegraf/typings/telegram-types';
+import { ExtraReplyMessage } from 'telegraf/typings/telegram-types';
 import { saveToSession } from '../../util/session';
 import { SessionContext } from 'telegraf-context';
 
@@ -8,7 +8,7 @@ import { SessionContext } from 'telegraf-context';
  * Returns main settings keyboard
  */
 export function getMainKeyboard(ctx: SessionContext) {
-    return Extra.HTML().markup((m: Markup<InlineKeyboardMarkup>) =>
+    return Extra.HTML().markup((m: Markup) =>
         m.inlineKeyboard(
             [
                 m.callbackButton(
@@ -31,7 +31,7 @@ export function getMainKeyboard(ctx: SessionContext) {
  * Returns language keyboard
  */
 export function getLanguageKeyboard() {
-    return Extra.HTML().markup((m: Markup<InlineKeyboardMarkup>) =>
+    return Extra.HTML().markup((m: Markup) =>
         m.inlineKeyboard(
             [
                 m.callbackButton('English', JSON.stringify({ a: 'languageChange', p: 'en' }), false),
@@ -46,7 +46,7 @@ export function getLanguageKeyboard() {
  * Returns account summary keyboard
  */
 export function getAccountSummaryKeyboard(ctx: SessionContext) {
-    return Extra.HTML().markup((m: Markup<InlineKeyboardMarkup>) =>
+    return Extra.HTML().markup((m: Markup) =>
         m.inlineKeyboard(
             [
                 m.callbackButton(
@@ -71,7 +71,7 @@ export function getAccountSummaryKeyboard(ctx: SessionContext) {
 export async function sendMessageToBeDeletedLater(
     ctx: SessionContext,
     translationKey: string,
-    extra?: ExtraSendMessage
+    extra?: ExtraReplyMessage
 ) {
     ctx.webhookReply = false;
     const message = await ctx.reply(ctx.i18n.t(translationKey), extra);

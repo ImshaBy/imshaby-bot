@@ -51,7 +51,7 @@ export async function getUserParishes(ctx: SessionContext): Promise<IParishResul
  */
 
 export function getParishesMenus(parishes: IParishResult[]) {
-    return Extra.HTML().markup((m: Markup<InlineKeyboardMarkup>) =>
+    return Extra.HTML().markup((m: Markup) =>
         m.inlineKeyboard(
             parishes.map(parish => [
                 m.callbackButton(
@@ -81,7 +81,7 @@ export async function getParishScheduleMessage(ctx: SessionContext): Promise<str
  * @param ctx - telegram context
  */
 export function getParishScheduleControlMenu(ctx: SessionContext) {
-    return Extra.HTML().markup((m: Markup<InlineKeyboardMarkup>) =>
+    return Extra.HTML().markup((m: Markup) =>
         m.inlineKeyboard(
             [
                 m.callbackButton(
