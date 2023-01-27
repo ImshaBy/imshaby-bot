@@ -151,7 +151,7 @@ function createServer() {
   logger.info(undefined, 'Starting a bot within express server');
 
   const app = express();
-  app.use(bodyParser.json);
+  app.use(bodyParser.json());
   app.use(i18nextMiddleware.handle(
     i18next, {
       removeLngFromUrl: false
@@ -164,7 +164,8 @@ function createServer() {
   });
 
   app.get('/',  function (req: any, res: any) {
-    res.status(200).end();
+    console.log(`Public root url is triggered `);
+    res.json({'status': 'ok'});
   });
 
   app.post('/chat/parish',  function (req: any, res: any) {
