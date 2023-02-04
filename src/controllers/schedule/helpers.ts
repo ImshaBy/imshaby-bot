@@ -19,8 +19,8 @@ import { InlineKeyboardMarkup } from 'telegraf/typings/telegram-types';
  */
 
 export async function getUserParishes(ctx: SessionContext): Promise<IParishResult[]> {
-    logger.info(ctx, 'Retrieving parishes from cache: %s', ctx.session.parishes );
-    logger.info(ctx, 'Retrieving parish keys from user: %s', ctx.session.user.observableParishKeys );
+    logger.debug(ctx, 'Retrieving parishes from cache: %s', ctx.session.parishes );
+    logger.debug(ctx, 'Retrieving parish keys from user: %s', ctx.session.user.observableParishKeys );
     // const user: IUser = JSON.parse(ctx.session.user);
     // const parishes: IParishResult[] = JSON.parse()
     if (ctx.session.parishes ) return ctx.session.parishes as IParishResult[];

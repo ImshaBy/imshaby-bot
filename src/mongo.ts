@@ -25,7 +25,7 @@ mongoose.connection.on('error', err => {
 });
 
 mongoose.connection.on('open', async () =>  {
-    logger.info(undefined, 'Connection to DB is passed!');
+    logger.info(undefined, 'Connection to Mongo DB is passed!');
 });
 
 

@@ -62,17 +62,11 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import { SessionContext } from 'telegraf-context';
 
-logger.info(undefined, `Starting at ENV: ${process.env.NODE_ENV}`);
 
+startBotServer (process.env.NODE_ENV,  botTelegram);
+// startServertWithoutBot();
 
-if (process.env.NODE_ENV === 'production') {
-    startProdution(botTelegram);
-} else {
-  startDevelopmen(botTelegram);
-  // startDevelopmentWithoutBot();
-}
-
-function startDevelopmentWithoutBot() {
+function startServerWithoutBot() {
   logger.info(undefined, `Starting express server without bot: ${process.env.NODE_ENV}`);
 
   const app = createServer();
@@ -91,64 +85,38 @@ function startDevelopmentWithoutBot() {
   //   console.log(`CMS hook is triggered`);
   //   res.status(200).end();
   // });
+}
+
+function startBotServer(env: string, bot: Telegraf<SessionContext>){
+  logger.info(undefined, `Starting a bot server in following mode : ${env}`);
+  const app = createServer();
+  app.post(`${process.env.WEBHOOK_PATH}`, (req, res) => {
+        return bot.handleUpdate(req.body, res)
+  });
+  app.listen(process.env.PORT, () => {
+    connectTelegramBot(env, bot);
+  });
+  cron.schedule(process.env.SCHEDULE, checkNeeedToUpdateParishes);
+  cron.schedule(process.env.SCHEDULE_BUILD, checkNeeedToRebuildSite);
+
 
 }
 
-function startDevelopmen(bot: Telegraf<SessionContext>) {
-    logger.info(undefined, `Starting a bot in development mode : ${process.env.NODE_ENV}`);
 
-    const app = createServer();
-
-    app.post(`${process.env.WEBHOOK_PATH}`, (req, res) => {
-    // console.log(req.body);
-        return bot.handleUpdate(req.body, res)
-    });
-
-    app.listen(process.env.PORT, () => {
-        console.log(`Server listening on port ${process.env.PORT}!`);
-    });
-
+function connectTelegramBot(env: string, bot: Telegraf<SessionContext>){
+  if (env === 'production') {
+    const type: string[] = ['message', 'callback_query', 'chat_join_request'];
+    logger.info(undefined, `App listening on port ${process.env.PORT}! Bot ID: ${process.env.TELEGRAM_TOKEN}. Settin up webhook for telegram: ${process.env.WEBHOOK_URL}${process.env.WEBHOOK_PATH}, supported types : ${type}`);
+    bot.telegram.setWebhook(`${process.env.WEBHOOK_URL}${process.env.WEBHOOK_PATH}`);
+  } else {
     axios.get(`https://api.telegram.org/bot${process.env.TELEGRAM_TOKEN}/deleteWebhook`).then(() =>
         bot.startPolling()
     );
-
-  axios.get(`https://api.telegram.org/bot${process.env.TELEGRAM_TOKEN}/deleteWebhook`).then(() =>
-    bot.startPolling()
-  );
-
-  cron.schedule(process.env.SCHEDULE, checkNeeedToUpdateParishes);
-  cron.schedule(process.env.SCHEDULE_BUILD, checkNeeedToRebuildSite);
-
-}
-
-
-function startProdution (bot: Telegraf<SessionContext>) {
-    const app = createServer();
-
-  app.post(`${process.env.WEBHOOK_PATH}`, (req, res) => {
-    // console.log(req.body);
-        return bot.handleUpdate(req.body, res)
-    });
-
-    // Definition of webhook types needed for the bot
-    const type: string[] = ['message', 'callback_query', 'chat_join_request'];
-
-    app.listen(process.env.PORT, () => {
-        console.log(`Example app listening on port ${process.env.PORT}! Bot ID: ${process.env.TELEGRAM_TOKEN}. Settin up webhook for telegram: ${process.env.WEBHOOK_URL}${process.env.WEBHOOK_PATH}, supported types : ${type}`);
-        bot.telegram.setWebhook(`${process.env.WEBHOOK_URL}${process.env.WEBHOOK_PATH}`);
-    });
-
-
-  console.log(`${process.env.SCHEDULE_BUILD} - cron site build config`);
-
-  cron.schedule(process.env.SCHEDULE, checkNeeedToUpdateParishes);
-  cron.schedule(process.env.SCHEDULE_BUILD, checkNeeedToRebuildSite);
-
+  }
 }
 
 
 function createServer() {
-  logger.info(undefined, 'Starting a bot within express server');
 
   const app = express();
   app.use(bodyParser.json());
@@ -159,12 +127,12 @@ function createServer() {
   ));
 
   app.get('/private', checkJwt, function (req: any, res: any) {
-    console.log(`Private url is triggered `);
+    logger.debug(undefined, `Private url is triggered `);
     res.status(200).end();
   });
 
   app.get('/',  function (req: any, res: any) {
-    console.log(`Public root url is triggered `);
+    logger.debug(undefined, `Public root url is triggered `);
     res.json({'status': 'ok'});
   });
 
@@ -185,7 +153,7 @@ function createServer() {
     } else {
       await addBuildMessage(JSON.stringify({'event' : req.headers['workflow-type'], 'client_payload' : req.body}));
     }
-    console.log(`CMS hook is triggered`);
+    logger.debug(undefined, `CMS hook is triggered`);
     res.status(200).end();
   });
 

@@ -9,7 +9,6 @@ import axios from 'axios';
 const buildSiteMsgs: string[] = [];
 
 export async function checkNeeedToRebuildSite() {
-  console.log(`------> check build messages!!`);
  if ( buildSiteMsgs.length > 0 ) {
     const lastMsg = buildSiteMsgs.pop();
     buildSiteMsgs.length = 0;
