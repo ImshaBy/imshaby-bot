@@ -10,26 +10,26 @@ const { leave } = Stage;
 const contact = new Scene('contact');
 
 contact.enter(async (ctx: SessionContext) => {
-  logger.debug(ctx, 'Enters contact scene');
+    logger.debug(ctx, 'Enters contact scene');
 
-  const { backKeyboard } = getBackKeyboard(ctx);
+    const { backKeyboard } = getBackKeyboard(ctx);
 
-  await ctx.reply(ctx.i18n.t('scenes.contact.write_to_the_creator'), backKeyboard);
+    await ctx.reply(ctx.i18n.t('scenes.contact.write_to_the_creator'), backKeyboard);
 });
 
 contact.leave(async (ctx: SessionContext) => {
-  logger.debug(ctx, 'Leaves contact scene');
-  const { mainKeyboard } = getMainKeyboard(ctx);
-  await ctx.reply(ctx.i18n.t('shared.what_next'), mainKeyboard);
+    logger.debug(ctx, 'Leaves contact scene');
+    const { mainKeyboard } = getMainKeyboard(ctx);
+    await ctx.reply(ctx.i18n.t('shared.what_next'), mainKeyboard);
 });
 
 contact.command('saveme', leave());
 contact.hears(match('keyboards.back_keyboard.back'), leave());
 
 contact.on('text', async (ctx: SessionContext) => {
-  await sendMessage(ctx);
-  const { backKeyboard } = getBackKeyboard(ctx);
-  await ctx.reply(ctx.i18n.t('scenes.contact.message_delivered'), backKeyboard);
+    await sendMessage(ctx);
+    const { backKeyboard } = getBackKeyboard(ctx);
+    await ctx.reply(ctx.i18n.t('scenes.contact.message_delivered'), backKeyboard);
 });
 
 export default contact;

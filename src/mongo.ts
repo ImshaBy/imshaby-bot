@@ -1,4 +1,5 @@
-require('dotenv').config();
+import * as dotenv from 'dotenv'
+dotenv.config()
 
 import mongoose from 'mongoose';
 import logger from './util/logger';
@@ -6,32 +7,28 @@ import logger from './util/logger';
 
 export async function getConnection(hostingType: string) {
 
-  logger.debug(undefined, `get Connection function call`);
+    logger.debug(undefined, 'get Connection function call');
 
-  await mongoose.connect(`${process.env.DATABASE_URI}`, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-      useFindAndModify: false
-  });
-  if (hostingType === 'lambda') {
-    mongoose.set('bufferCommands', false);
-  }
+    await mongoose.connect(`${process.env.DATABASE_URI}`);
+    if (hostingType === 'lambda') {
+        mongoose.set('bufferCommands', false);
+    }
 }
 
 mongoose.connection.on('error', err => {
-  logger.error(
-    undefined,
-    `Error occurred during an attempt to establish connection with the database: %O`,
-    err
-  );
-  process.exit(1);
+    logger.error(
+        undefined,
+        'Error occurred during an attempt to establish connection with the database: %O',
+        err
+    );
+    process.exit(1);
 });
 
 mongoose.connection.on('open', async () =>  {
-  logger.info(undefined, 'Connection to DB is passed!');
+    logger.info(undefined, 'Connection to Mongo DB is passed!');
 });
 
 
 module.exports = {
-  getConnection
+    getConnection
 };

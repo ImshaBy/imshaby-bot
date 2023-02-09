@@ -1,8 +1,6 @@
-name: PROD env (imsha.by)
-
+name: PROD env (Bot Server)
 on:
   push:
-    # branches: [ all-env-cis ]
     tags:
       - v*
 jobs:
@@ -11,34 +9,64 @@ jobs:
     runs-on: ubuntu-latest
     env:
       TARGET: production
-    strategy:
-      matrix:
-        node-version: [14.x]
+      NEXT_PUBLIC_API_URL: https://api2.imsha.by
+      NEXT_PUBLIC_STRAPI_URL: ${{ secrets.NEXT_PUBLIC_STRAPI_URL }}
+      NEXT_PUBLIC_STRAPI_TOKEN: ${{ secrets.NEXT_PUBLIC_STRAPI_TOKEN }}
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Create ssh-key file
-      run: |
-        mkdir ~/.ssh
-        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-        chmod 600 ~/.ssh/id_rsa
-        ssh-keyscan -t rsa github.com
+      - name: Checkout
+        uses: actions/checkout@v2
 
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v1
-      with:
-        node-version: ${{ matrix.node-version }}
-        registry-url: 'https://npm.pkg.github.com'
-    - run: npm ci
-    - run: npm run build
-    - name: List files
-      run: ls -la
-    - name: Copy to server
-      run: |
-        rsync -avz -e "ssh -p 3022 -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no" dist 63832-1897@${{ secrets.SSH_HOST }}:~/temp
-    - name: Re-install node_modules & re-start server
-      run: |
-        ssh -p 3022 -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -t 63832-1897@${{ secrets.SSH_HOST }} "cd ~/ROOT && git pull && npm ci && rm -rf dist && mv ~/temp/dist ~/ROOT/ && pm2 restart dist/index.js --time"
+      - name: Use NodeJS v.14.19.1
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14.19.1
+
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache yarn dependencies
+        uses: actions/cache@v3
+        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+        with:
+          path: |
+            ${{ steps.yarn-cache-dir-path.outputs.dir }}
+            ${{ github.workspace }}/.next/cache
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}-${{ hashFiles('**.[jt]s', '**.[jt]sx') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+            ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}-
+
+      - name: GitHub Action for Yarn install
+        run: yarn install
+
+      - name: Github Action for Yarn build
+        run: yarn build
+
+      - name: Install SSH Key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          name: git-to-jelastic
+          known_hosts: 'just-a-placeholder-so-we-dont-get-errors'
+          config: |
+            Host *
+              IdentityFile ~/.ssh/git-to-jelastic
+              HostkeyAlgorithms +ssh-rsa
+              PubkeyAcceptedAlgorithms +ssh-rsa
+
+      - name: Deploy dist with rsync
+        run: rsync -avz  --rsh='ssh -o StrictHostKeyChecking=no -i ~/.ssh/git-to-jelastic -p3022' --delete-before dist/ 63832-1897@gate.mycloud.by:~/ROOT/dist
+
+      - name: Deploy node-modules with rsync
+        run: rsync -avz  --rsh='ssh -o StrictHostKeyChecking=no -i ~/.ssh/git-to-jelastic -p3022' --delete-before node_modules/ 63832-1897@gate.mycloud.by:~/ROOT/node_modules
+
+
+      - name: Re-start server
+        run: |
+          ssh -p 3022 -i ~/.ssh/git-to-jelastic -o StrictHostKeyChecking=no -t 63832-1897@gate.mycloud.by "pm2 restart 0 --time"
 
 
     # - run: npm run build
