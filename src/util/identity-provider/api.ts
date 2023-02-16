@@ -14,6 +14,7 @@ export async function registerUser(email: string, defaultParish: string, parishe
     const url = '/user';
     const body = {
         'applicationId': process.env.APPLICATIONID,
+        'skipVerification': true,
         'user': {
             'password': process.env.DEFAULTPASSWORD,
             'email': email,
