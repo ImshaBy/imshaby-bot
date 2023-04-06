@@ -27,11 +27,11 @@ export const UserSchema = new mongoose.Schema(
     { _id: false }
 );
 
-UserSchema.pre('find', function() {
-    this.populate('observableParishes');
-}).pre('findOne', function() {
-    this.populate('observableParishes');
-});
+// UserSchema.pre('find', function() {
+//     this.populate('observableParishes');
+// }).pre('findOne', function() {
+//     this.populate('observableParishes');
+// });
 
 const User = mongoose.model<IUser>('User', UserSchema);
 export default User;
