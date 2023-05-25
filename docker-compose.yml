@@ -1,0 +1,23 @@
+version: '3'
+services:
+  bot:
+    container_name: imshaby-bot
+    image: ${DOCKER_IMAGE}
+    restart: unless-stopped
+    environment:
+      ADMIN_PASSWORD: ${TG_ADMIN_PASS}
+      ADMIN_IDS: ${TG_ADMIN_IDS}
+      APIHOST: ${API_HOST}
+      DATABASE_URI: ${DATABASE_URI}
+      PORT: 8080
+      TELEGRAM_TOKEN: ${TG_TOKEN}
+      SCHEDULE: ${SCHEDULE}
+      SCHEDULE_BUILD: ${SCHEDULE_BUILD}
+      TELEGRAM_SESSION_HOST: ${REDIS_HOST}
+      TELEGRAM_SESSION_PORT: ${REDIS_PORT}
+      CHAT_TYPES: private
+      APIBEARER: ${FUSION_API_TOKEN}
+      WEBHOOK_URL: ${WEBHOOK_URL}
+      WEBHOOK_PATH: ${WEBHOOK_PATH}
+    ports:
+      - 8080:8080
