@@ -8,7 +8,7 @@ terraform {
     endpoint   = "storage.yandexcloud.net"
     bucket     = "tf-bucket-imshaby"
     region     = "ru-central1"
-    key        = "imshaby-cms/production/terraform.tfstate"
+    key        = "imshaby-bot/production/terraform.tfstate"
     access_key = "${ACCESS_KEY}"
 
     secret_key = "${SECRET_KEY}"

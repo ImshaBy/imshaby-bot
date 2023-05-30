@@ -1,4 +1,4 @@
-name: PROD env (Bot Server)
+name: PROD env (Yandex Cloud)
 on:
   push:
     branches: [ develop]
