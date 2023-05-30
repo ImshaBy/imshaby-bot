@@ -1,0 +1,11 @@
+#cloud-config
+ssh_pwauth: no
+runcmd:
+  - [ sudo, chmod, 666, /dev/ttyS1]
+users:
+  - name: amisan
+    groups: sudo
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    shell: /bin/bash
+    ssh_authorized_keys:
+      - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIN6W42X886dLzs4yZDIkE0Bcn6RIvfKGx+5qm2h+qx54 minsk\andrei_misan@EPBYMINW2506

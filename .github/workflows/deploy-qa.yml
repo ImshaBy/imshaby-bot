@@ -2,7 +2,7 @@ name: QA BOT API env (bot.qa.imsha.by)
 
 on:
   push:
-    branches: [ develop]
+    branches: [ test]
 jobs:
   build:
 

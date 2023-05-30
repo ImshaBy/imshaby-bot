@@ -1,0 +1,32 @@
+name: PROD env (Bot Server)
+on:
+  push:
+    branches: [ develop]
+    tags:
+      - v*
+jobs:
+  build:
+    enviroment: production
+    runs-on: ubuntu-latest
+    env:
+      TARGET: production
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      # Runs a single command using the runners shell
+      - name: Yandex Cloud CR "Login" Action for GitHub Actions
+        uses: yc-actions/yc-cr-login@v0.1-alpha
+        with:
+          yc-sa-json-credentials: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
+
+
+      - name: Build, tag, and push image to Yandex Cloud Container Registry
+        env:
+          CR_REGISTRY: ${{secrets.CR_REGISTRY}}
+          CR_REPOSITORY: ${{vars.CR_REPOSITORY}}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -f ./Dockerfile.prod -t cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:$IMAGE_TAG .
+          docker push cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:$IMAGE_TAG

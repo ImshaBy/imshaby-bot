@@ -97,6 +97,35 @@ const newChatMemberHandler = async (ctx: SessionContext) => {
 
 bot.on('new_chat_members', newChatMemberHandler);
 
+const testMessageWithButtons = async (ctx: SessionContext) => {
+    bot.telegram.sendMessage('188184218', 'Test message for notification with buttons',
+        Extra.HTML().markup((m: Markup) =>
+            m.inlineKeyboard(
+                [
+                    // m.callbackButton(
+                    //     ctx.i18n.t('scenes.parishes.refresh_button'),
+                    //     JSON.stringify({ a: 'refreshSchedule', p: ctx.session.parish._id }),
+                    //     false
+                    // )
+                    // ,
+                    m.urlButton(
+                    'Admin Panel Url',
+                    `${process.env.ADMIN_URL}`,
+                    false
+                    )
+                ],
+                {}
+            )
+        )
+    );
+};
+
+bot.hears(
+    'test',
+    isSupportedChatType,
+    asyncWrapper(testMessageWithButtons)
+);
+
 bot.hears(
     match('keyboards.main_keyboard.schedule'),
     isSupportedChatType,
