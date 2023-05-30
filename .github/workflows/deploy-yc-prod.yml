@@ -6,8 +6,8 @@ on:
       - v*
 jobs:
   build:
-    enviroment: production
     runs-on: ubuntu-latest
+    environment: production
     env:
       TARGET: production
 
