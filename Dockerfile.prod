@@ -1,4 +1,4 @@
-FROM node:14.21.3 as build
+FROM node:16.20.0 as build
 ARG NODE_ENV=production
 ENV NODE_ENV=${NODE_ENV}
 WORKDIR /opt/
@@ -9,7 +9,7 @@ WORKDIR /opt/app
 COPY ./ .
 RUN yarn build
 
-FROM node:14.21.3
+FROM node:16.20.0
 ARG NODE_ENV=production
 ENV NODE_ENV=${NODE_ENV}
 WORKDIR /opt/

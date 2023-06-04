@@ -1,4 +1,4 @@
-FROM node:14.21.3
+FROM node:16.20.0
 ARG NODE_ENV=development
 ENV NODE_ENV=${NODE_ENV}
 WORKDIR /opt/
