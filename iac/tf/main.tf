@@ -29,6 +29,8 @@ data "yandex_iam_service_account" "deployer" {
 resource "yandex_serverless_container" "bot-container" {
    name               = var.bot_container_name
    memory             = 256
+   cores              = 1
+   core_fraction      = 100
    service_account_id = data.yandex_iam_service_account.deployer.id
    image {
        url = "${DOCKER_IMAGE}"
