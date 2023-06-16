@@ -106,8 +106,7 @@ function startBotServer(env: string, bot: Telegraf<SessionContext>){
 function connectTelegramBot(env: string, bot: Telegraf<SessionContext>){
   if (env === 'production') {
     const type: string[] = ['message', 'callback_query', 'chat_join_request'];
-    logger.info(undefined, `App listening on port ${process.env.PORT}! Bot ID: ${process.env.TELEGRAM_TOKEN}. Settin up webhook for telegram: ${process.env.WEBHOOK_URL}${process.env.WEBHOOK_PATH}, supported types : ${type}`);
-    bot.telegram.setWebhook(`${process.env.WEBHOOK_URL}${process.env.WEBHOOK_PATH}`);
+    logger.info(undefined, `App listening on port ${process.env.PORT}! Bot ID: ${process.env.TELEGRAM_TOKEN}. Webhook for telegram: ${process.env.WEBHOOK_URL}${process.env.WEBHOOK_PATH}, supported types : ${type}`);
   } else {
     axios.get(`https://api.telegram.org/bot${process.env.TELEGRAM_TOKEN}/deleteWebhook`).then(() =>
         bot.startPolling()
