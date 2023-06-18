@@ -52,7 +52,7 @@ async function notifyAndUpdateUsersByParishKey(parishKey: string) {
         // TODO: move text to translations
 
 
-        const message =
+    const message =
       user.language === 'en'
           ? `🎉 ${parishName} has to be updated!`
           : `🎉 ${parishName} мае патрэбу ў аднаўленні раскладу!`;
