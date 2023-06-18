@@ -29,7 +29,14 @@ import { SessionContext } from 'telegraf-context';
 import Redis from 'ioredis';
 import { cleanUpMessages } from './util/session';
 
-const redisClient = new Redis( parseInt(process.env.TELEGRAM_SESSION_PORT || '6379'), process.env.TELEGRAM_SESSION_HOST || '127.0.0.1');
+// const redisClient = new Redis( parseInt(process.env.TELEGRAM_SESSION_PORT || '6379'), process.env.TELEGRAM_SESSION_HOST || '127.0.0.1');
+const redisClient = new Redis({
+    host: process.env.TELEGRAM_SESSION_HOST || '127.0.0.1',
+    port: parseInt(process.env.TELEGRAM_SESSION_PORT || '6379'),
+    username: process.env.TELEGRAM_SESSION_USERNAME,
+    password: process.env.TELEGRAM_SESSION_PASSWORD
+});
+
 redisClient.on('connect', function () {
     logger.info(undefined, 'Connection to Redis is successful');
 });
