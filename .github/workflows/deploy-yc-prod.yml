@@ -1,7 +1,6 @@
 name: PROD env (Yandex Cloud)
 on:
   push:
-    branches: [ master]
     tags:
       - v*
 jobs:
