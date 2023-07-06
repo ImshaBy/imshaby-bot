@@ -11,6 +11,7 @@ import { parishesLookupByKey } from '../util/search-providers';
 
 import { getAllNeedToUpdateParishKeys } from './search-providers/api';
 import { IParishResult } from './parish-lookup';
+import { ExtraEditMessage } from 'telegraf/typings/telegram-types';
 
 
 export async function checkNeeedToUpdateParishes() {
@@ -25,10 +26,16 @@ export async function checkNeeedToUpdateParishes() {
     }
 }
 
-export async function notifyGroupChatAboutParishChange(chatId: string, msg: string) {
+export async function notifyGroupChatAboutParishChange(chatId: string, msg: string, msgThreadId: number) {
     try {
         if (chatId && msg) {
-            await botTelegram.telegram.sendMessage(chatId, msg, {parse_mode: 'HTML'});
+            const options: ExtraEditMessage = { parse_mode: 'HTML' };
+
+            if (process.env.IS_TOPIC_MESSAGE) {
+                options.reply_to_message_id = msgThreadId;
+            }
+
+            await botTelegram.telegram.sendMessage(chatId, msg, options);
         }
     } catch (e) {
         logger.error(undefined, "Can't notify user about  reason: %O", e);
