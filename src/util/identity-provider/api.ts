@@ -11,8 +11,13 @@ const axiosInstance = axios.create({
 });
 
 export async function registerUser(email: string, defaultParish: string, parishes?: string[]) {
-    const url = '/user';
+    const url = '/user/registration';
     const body = {
+        'registration': {
+            'applicationId': process.env.APPLICATIONID,
+            'roles': ['Volunteer'],
+            'username': email,
+        },
         'applicationId': process.env.APPLICATIONID,
         'skipVerification': true,
         'user': {
