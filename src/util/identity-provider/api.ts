@@ -40,7 +40,9 @@ export async function registerUser(email: string, defaultParish: string, parishe
             body
         ).then(res => res.data);
     } catch (e) {
-        logger.error(undefined, 'Error during creating new user %O.', email);
+        logger.debug(undefined, '%0', e);
+        logger.debug(undefined, '%0', e.response.data);
+        logger.error(undefined, 'Error creating new user: %O.', email);
         return undefined;
     }
     const user = response;
