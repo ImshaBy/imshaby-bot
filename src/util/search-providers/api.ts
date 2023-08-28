@@ -8,7 +8,8 @@ const axiosInstance = axios.create({
     headers: {
         'User-Agent': 'telegram-bot',
         'Content-Type': 'application/json',
-        'x-api-key': `${process.env.API_KEY}`
+        'x-api-key': `${process.env.API_KEY}`,
+        'x-show-pending': true,
     }
 });
 
