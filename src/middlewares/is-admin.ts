@@ -1,4 +1,3 @@
-import { SessionContext } from 'telegraf-context';
 
 /**
  * Checks whether user is admin and can access restricted areas
@@ -6,7 +5,7 @@ import { SessionContext } from 'telegraf-context';
  * @param ctx - telegram context
  * @param next - next function
  */
-export const isAdmin = async (ctx: SessionContext, next: () => void) => {
+export const isAdmin = async (ctx: any, next: () => void) => {
     const password = ctx.message.text.split(' ')[1];
     const adminIds = process.env.ADMIN_IDS;
 

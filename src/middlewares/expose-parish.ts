@@ -1,6 +1,5 @@
 import { saveToSession } from '../util/session';
 import { IParish } from '../models/Parish';
-import { SessionContext } from 'telegraf-context';
 
 /**
  * Exposes required parish according to the given callback data
@@ -8,7 +7,7 @@ import { SessionContext } from 'telegraf-context';
  * @param ctx - telegram context
  * @param next - next function
  */
-export function exposeParish(ctx: SessionContext, next: () => void) {
+export function exposeParish(ctx: any, next: () => void) {
     const action = JSON.parse(ctx.callbackQuery.data);
     const selectedParish = (ctx.session.parishes as IParish[]).find((item: IParish) => item.id === action.p);
     saveToSession(ctx, 'parish', selectedParish);

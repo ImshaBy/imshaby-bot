@@ -4,11 +4,11 @@ export interface IUser extends Document {
     _id: string;
     created: number;
     username: string;
+    email: string;
     name: string;
     observableParishKeys: string[];
     lastActivity: number;
     language: 'en' | 'ru';
-    totalParishes: number;
 }
 
 export const UserSchema = new mongoose.Schema(
@@ -17,12 +17,12 @@ export const UserSchema = new mongoose.Schema(
         created: Number,
         username: String,
         name: String,
+        email: String,
         observableParishKeys: [
             String
         ],
         lastActivity: Number,
-        language: String,
-        totalParishes: Number
+        language: String
     },
     { _id: false }
 );

@@ -1,15 +1,12 @@
-import { Extra, Markup } from 'telegraf';
-import { SessionContext } from 'telegraf-context';
-import { Sticker } from 'telegraf/typings/telegram-types';
-import schedule from '.';
-import { sheduleByParishId, makeMassesActual } from '../../util/search-providers';
-import { getParishScheduleControlMenu, getParishScheduleMessage } from './helpers';
+import { sheduleByParishId, makeMassesActual} from '../../providers/search-providers';
+
+import { getParishScheduleControlMenu} from './helpers';
 
 const arrayOfWeekdays = ['Нд', 'Пн', 'Аў', 'Ср', 'Чц', 'Пт', 'Сб'];
 const arrayOfMonths = ['Студзеня', 'Лютага', 'Сакавіка', 'Красавіка', 'Мая', 'Чэрвеня', 'Ліпеня', 'Жніўня', 'Верасня', 'Кастрычніка', 'Лістапада', 'Снежня'];
 
 
-export const refreshScheduleAction = async (ctx: SessionContext) => {
+export const refreshScheduleAction = async (ctx: any) => {
 
   const response = await makeMassesActual(ctx.session.parish.id);
   if (response) {
@@ -30,7 +27,7 @@ export const refreshScheduleAction = async (ctx: SessionContext) => {
 };
 
 
-export const parishSelectAction = async (ctx: SessionContext) => {
+export const parishSelectAction = async (ctx: any) => {
     const parishName = ctx.i18n.t('scenes.parishes.chosen_parish', {
         title: ctx.session.parish.title
     });
@@ -56,8 +53,11 @@ export const parishSelectAction = async (ctx: SessionContext) => {
 
     // await ctx.editMessageText(replyMsg);
 
+    // const authCode = await await getPasswordlessCode(ctx.session.user.name);
 
-    const {message_id} = await ctx.reply(ctx.i18n.t('scenes.parishes.cta_update'), getParishScheduleControlMenu(ctx));
+    const authCode = 'codeMock';
+    const {message_id} = await ctx.reply(ctx.i18n.t('scenes.parishes.cta_update'), getParishScheduleControlMenu(ctx, authCode));
     await ctx.session.cleanUpMessages.push(message_id);
+
     // await ctx.answerCbQuery();
 };

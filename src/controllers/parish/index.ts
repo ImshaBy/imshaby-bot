@@ -1,6 +1,4 @@
 import { match } from 'telegraf-i18n';
-import Stage from 'telegraf/stage';
-import Scene from 'telegraf/scenes/base';
 import { getParishesMenu } from './helpers';
 import { getUserParishes } from '../schedule/helpers';
 import { parishAction, backAction } from './actions';
@@ -8,12 +6,13 @@ import { getMainKeyboard, getBackKeyboard } from '../../util/keyboards';
 import logger from '../../util/logger';
 import { IParish } from '../../models/Parish';
 import { exposeParish } from '../../middlewares/expose-parish';
-import { IParishResult } from '../../util/parish-lookup';
-import { SessionContext } from 'telegraf-context';
+import { IParishResult } from '../../providers/search-providers/parish-lookup';
 import { cleanUpMessages, saveToSession } from '../../util/session';
+import { SessionContext } from 'telegram-context';
+import {Scenes} from 'telegraf';
 
-const { leave } = Stage;
-const parish = new Scene('parish');
+
+const parish = new Scenes.BaseScene<SessionContext>('parish');
 
 parish.enter(async (ctx: SessionContext) => {
     logger.debug(ctx, 'Enters parish scene');
@@ -37,19 +36,21 @@ parish.enter(async (ctx: SessionContext) => {
     }
 });
 
-parish.leave(async (ctx: SessionContext) => {
+parish.leave(async (ctx: any) => {
     logger.debug(ctx, 'Leaves parish scene');
     cleanUpMessages(ctx);
+    await ctx.scene.leave();
 });
 
-parish.command('saveme', leave());
+parish.command('saveme', async (ctx) => await ctx.scene.leave());
 parish.hears(match('keyboards.back_keyboard.back'), async (ctx: SessionContext) => {
     const { mainKeyboard } = getMainKeyboard(ctx);
     cleanUpMessages(ctx);
+    await ctx.scene.leave()
     await ctx.reply(ctx.i18n.t('shared.what_next'), mainKeyboard);
 });
 
-parish.action(/parish/, exposeParish, parishAction);
+parish.action(/parish/, exposeParish, async (ctx: SessionContext) => await parishAction(ctx, false));
 parish.action(/back/, backAction);
 
 export default parish;

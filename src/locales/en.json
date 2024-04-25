@@ -4,7 +4,11 @@
       "welcome_back": "God bless you! Thank you for keeping you parish masses actual! I'm here to help you administrate masses on weekly basis!",
       "bot_description": "<b>🔻 I'm currently in open beta test and under heavy development. Therefore, errors may occur. Do not hesitate to contact the Creator from under ✍️ Contact section\n\n</b> 🔻 My name is Aaron!",
       "no_parish_key": "You are not admin, please ask appropriate parish key from administrator & send it to me: ",
-      "lets_go": "Let's go!"
+      "lets_go": "Let's go!",
+      "new_parish_added": "New parish have been",
+      "no_valid_key": "Invalid parish key, please ask appropriate parish key from administrator & send it to me:",
+      "no_menu_click": "We are not aware of your PARISH. Please ask for parish KEY before using Menu buttons. Please ask appropriate parish key from imsha.by administrator & send it to me:"
+
     },
     "about": {
       "main": "Hey! My name is Aaron! I'm created to help you administrate masses in your parish to make it actual weekly on www.imsha.by! First of all, thanks for activating me!\n\n Have you ever had a moments when forgot to update you mass schedule? My main goal is to remind you to do it! I will send automatically notification each week (Friday at 08.00 AM) \n\n Bot is available only for parish administrators! \n\n Also you can view parish information. \n\n Last valuable capability I provide - contact to my creators-developers in case you need it!"
@@ -51,7 +55,8 @@
       "parish": "⛪ My Parish",
       "settings": "⚙️ Settings",
       "about": "❓ About Aaron",
-      "contact": "✍️ Contact"
+      "contact": "✍️ Contact",
+      "start": "🔑 Start"
     }
   },
   "other": {
