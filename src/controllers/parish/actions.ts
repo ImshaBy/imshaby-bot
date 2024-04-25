@@ -2,9 +2,9 @@ import { getParishControlMenu, getParishesMenu } from './helpers';
 import logger from '../../util/logger';
 import { getBackKeyboard } from '../../util/keyboards';
 import { saveToSession } from '../../util/session';
-import { parishesLookupByKey } from '../../util/search-providers';
-import { SessionContext } from 'telegraf-context';
-import { IParishResult } from '../../util/parish-lookup';
+import { parishesLookupByKey } from '../../providers/search-providers';
+import { IParishResult } from '../../providers/search-providers/parish-lookup';
+import { SessionContext } from 'telegram-context';
 
 
 export const parishAction = async (ctx: SessionContext, noEdit: boolean) => {
@@ -67,20 +67,21 @@ export const parishAction = async (ctx: SessionContext, noEdit: boolean) => {
 
         // no buttons, single parish use cases, no need to replace buttons
         const { backKeyboard } = getBackKeyboard(ctx);
-        ctx.reply(
+        ctx.replyWithHTML(
             `${text} <a href="${ctx.session.parish.imgPath}">.</a>`,
             getParishControlMenu(ctx)
         );
     } else {
-        ctx.reply(
+        ctx.replyWithHTML(
             `${text} <a href="${ctx.session.parish.imgPath}">.</a>`,
             getParishControlMenu(ctx)
         );
     // ctx.answerCbQuery();
     }
+    return ctx;
 };
 
-export const backAction = async (ctx: SessionContext) => {
+export const backAction = async (ctx: any) => {
     await ctx.editMessageText(
         ctx.i18n.t('scenes.parishes.list_of_parishes'),
         getParishesMenu(ctx.session.parishes as IParishResult[])

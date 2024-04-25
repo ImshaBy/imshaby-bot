@@ -1,17 +1,13 @@
-import * as dotenv from 'dotenv'
-dotenv.config()
-
 import logger from './logger';
 import { sleep } from './common';
 import User from '../models/User';
-import { botTelegram } from '../bot';
-import { parishesLookupByKey } from '../util/search-providers';
-
-
-
-import { getAllNeedToUpdateParishKeys } from './search-providers/api';
-import { IParishResult } from './parish-lookup';
-import { ExtraEditMessage } from 'telegraf/typings/telegram-types';
+import {telegram} from '../bot';
+import { parishesLookupByKey } from '../providers/search-providers';
+import { getAllNeedToUpdateParishKeys } from '../providers/search-providers/api';
+import { IParishResult } from '../providers/search-providers/parish-lookup';
+import { CONFIG } from '../config';
+import { FmtString } from 'telegraf/typings/format';
+import { ExtraReplyMessage } from 'telegraf/typings/telegram-types';
 
 
 export async function checkNeeedToUpdateParishes() {
@@ -29,13 +25,13 @@ export async function checkNeeedToUpdateParishes() {
 export async function notifyGroupChatAboutParishChange(chatId: string, msg: string, msgThreadId: number) {
     try {
         if (chatId && msg) {
-            const options: ExtraEditMessage = { parse_mode: 'HTML' };
+            const options: any = { parse_mode: 'HTML' };
 
-            if (process.env.IS_TOPIC_MESSAGE) {
-                options.reply_to_message_id = msgThreadId;
+            if (CONFIG.bot.isTopicChannel) {
+                options.message_thread_id = msgThreadId;
             }
 
-            await botTelegram.telegram.sendMessage(chatId, msg, options);
+            await sendMessageWithErrorHandling(chatId, msg, options);
         }
     } catch (e) {
         logger.error(undefined, "Can't notify user about  reason: %O", e);
@@ -66,11 +62,22 @@ async function notifyAndUpdateUsersByParishKey(parishKey: string) {
 
         await sleep(0.5);
         try {
-            await botTelegram.telegram.sendMessage(user._id, message);
+            async (ctx: any) => await ctx.scene.enter('parish')
+            await sendMessageWithErrorHandling( user._id, message);
         } catch (e) {
             logger.error(undefined, "Can't notify user about  reason: %O", e);
         } finally {
             // TODO: check if user blocked the bot and delete him from the DB
         }
     }
+}
+
+ export async function sendMessageWithErrorHandling (chatId: number | string,
+        text: string | FmtString,
+        extra?: ExtraReplyMessage) {
+        try {
+            return await telegram.sendMessage(chatId, text, extra);
+        } catch(error){
+            logger.error(null, 'telegram send message error, %O', error);
+        }
 }

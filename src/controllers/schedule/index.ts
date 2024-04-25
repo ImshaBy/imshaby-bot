@@ -1,21 +1,18 @@
 import { match } from 'telegraf-i18n';
-import Stage from 'telegraf/stage';
-import Scene from 'telegraf/scenes/base';
+import {Scenes} from 'telegraf';
 import logger from '../../util/logger';
-import User from '../../models/User';
 import { parishSelectAction, refreshScheduleAction } from './actions';
 import { getParishesMenus, getUserParishes } from './helpers';
 import { getMainKeyboard, getBackKeyboard } from '../../util/keyboards';
 import { exposeParish } from '../../middlewares/expose-parish';
-import { IParishResult } from '../../util/parish-lookup';
+import { IParishResult } from '../../providers/search-providers/parish-lookup';
 import { cleanUpMessages, saveToSession } from '../../util/session';
-import { SessionContext } from 'telegraf-context';
+import { SessionContext } from 'telegram-context';
 
 
-const { leave } = Stage;
-const schedule = new Scene('schedule');
+const schedule = new Scenes.BaseScene<SessionContext>('schedule');
 
-schedule.enter(async (ctx: SessionContext) => {
+schedule.enter(async (ctx: any) => {
     logger.debug(ctx, 'Enters Schedule scene');
     const { backKeyboard } = getBackKeyboard(ctx);
     saveToSession(ctx, 'cleanUpMessages', []);
@@ -34,20 +31,22 @@ schedule.enter(async (ctx: SessionContext) => {
 
 });
 
-schedule.hears(match('keyboards.back_keyboard.back'), async (ctx: SessionContext) => {
+schedule.hears(match('keyboards.back_keyboard.back'), async (ctx: any) => {
+    await ctx.scene.leave()
     const { mainKeyboard } = getMainKeyboard(ctx);
     cleanUpMessages(ctx);
     await ctx.reply(ctx.i18n.t('shared.what_next'), mainKeyboard);
 });
 
-schedule.leave(async (ctx: SessionContext) => {
+schedule.leave(async (ctx: any) => {
+    await ctx.scene.leave()
     const { mainKeyboard } = getMainKeyboard(ctx);
     cleanUpMessages(ctx);
 
     // await ctx.reply(ctx.i18n.t('shared.what_next'), mainKeyboard);
 });
 
-schedule.command('saveme', leave());
+schedule.command('saveme', async (ctx) => await ctx.scene.leave());
 
 schedule.action(/parishSelect/, exposeParish, parishSelectAction);
 schedule.action(/refreshSchedule/, refreshScheduleAction);

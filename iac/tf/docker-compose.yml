@@ -1,7 +1,6 @@
 version: '3'
 services:
-  bot:
-    container_name: imshaby-bot
+  imshaby-bot:
     image: ${DOCKER_IMAGE}
     restart: unless-stopped
     environment:
@@ -11,6 +10,7 @@ services:
       DATABASE_URI: ${DATABASE_URI}
       PORT: 8080
       TELEGRAM_TOKEN: ${TG_TOKEN}
+      IS_TOPIC_MESSAGE: true
       SCHEDULE: ${SCHEDULE}
       SCHEDULE_BUILD: ${SCHEDULE_BUILD}
       TELEGRAM_SESSION_HOST: ${REDIS_HOST}
@@ -19,5 +19,6 @@ services:
       APIBEARER: ${FUSION_API_TOKEN}
       WEBHOOK_URL: ${WEBHOOK_URL}
       WEBHOOK_PATH: ${WEBHOOK_PATH}
+      BOT_DROP_PENDING: true
     ports:
-      - 80:8080
+      - 8080:8080

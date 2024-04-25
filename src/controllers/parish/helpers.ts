@@ -1,26 +1,18 @@
-import { IParishResult } from '../../util/parish-lookup';
-import { Extra, Markup, Context } from 'telegraf';
-import { IParish } from '../../models/Parish';
-import { SessionContext } from 'telegraf-context';
-import { InlineKeyboardMarkup } from 'telegraf/typings/telegram-types';
+import { IParishResult } from '../../providers/search-providers/parish-lookup';
+import { Markup, Context } from 'telegraf';
+import {CONFIG} from '../../config';
 /**
- * Displays menu with a list of movies
+ * Displays menu with a list of parishes
  *
- * @param movies - list of movies
+ * @param parishes - list of parishes
  */
 export function getParishesMenu(parishes: IParishResult[]) {
-    return Extra.HTML().markup((m: Markup) =>
-        m.inlineKeyboard(
-            parishes.map(item => [
-                m.callbackButton(
-                    `${item.title}`,
-                    JSON.stringify({ a: 'parish', p: item.id }),
-                    false
-                )
-            ]),
-            {}
-        )
-    );
+    return Markup.inlineKeyboard(
+        parishes.map(item => {
+          return [Markup.button.callback( `${item.title}`,
+                    JSON.stringify({ a: 'parish', p: item.id }), false)];
+        }),
+      );
 }
 
 /**
@@ -28,25 +20,21 @@ export function getParishesMenu(parishes: IParishResult[]) {
  *
  * @param ctx - telegram context
  */
-export function getParishControlMenu(ctx: SessionContext) {
-    return Extra.HTML().markup((m: Markup) =>
-        m.inlineKeyboard(
+export function getParishControlMenu(ctx: any) {
+    return Markup.inlineKeyboard(
             [
-                // m.callbackButton(
-                //   ctx.i18n.t('scenes.parishes.back_button'),
-                //   JSON.stringify({ a: 'back', p: undefined }),
-                //   false
-                // )
-                // ,
+                Markup.button.callback (
+                  ctx.i18n.t('scenes.parishes.back_button'),
+                  JSON.stringify({ a: 'back', p: undefined }),
+                  false
+                ),
                 // TODO: add param for admin url for particular parish
-                // m.urlButton(
-                //   ctx.i18n.t('scenes.parishes.change_button'),
-                //   `${process.env.ADMIN_URL}`,
-                //   false
-                // )
-            ],
-            {}
-        )
+                Markup.button.url(
+                  ctx.i18n.t('scenes.parishes.change_button'),
+                  `${CONFIG.admin.url}`,
+                  false
+                )
+            ]
     );
 }
 

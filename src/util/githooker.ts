@@ -4,6 +4,8 @@ dotenv.config()
 import logger from './logger';
 import { sleep } from './common';
 import cron from 'node-cron';
+import i18next from 'i18next';
+
 import axios from 'axios';
 
 const buildSiteMsgs: string[] = [];
@@ -23,6 +25,20 @@ export async function addBuildMessage(msg: string) {
 
 export function getBuildMessages(): string[] {
   return buildSiteMsgs;
+}
+
+
+export function getParishUpdateMsg(req: any, name: string ) {
+  let lang = '';
+  if (req.query.lng) {
+      lang = req.query.lng;
+  } else {
+      lang = 'ru';
+  }
+  i18next.changeLanguage(lang);
+  return i18next.t('parish.hook_msg', {
+      name: name
+  });
 }
 
 

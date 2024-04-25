@@ -1,15 +1,12 @@
 
-import { IMassDay, IParishResult } from '../../util/parish-lookup';
-import { Extra, Markup } from 'telegraf';
-import { IParish } from '../../models/Parish';
+import { IMassDay, IParishResult } from '../../providers/search-providers/parish-lookup';
+import { Markup } from 'telegraf';
 
 import logger from '../../util/logger';
 import { saveToSession } from '../../util/session';
 
-import { sheduleByParishId, parishesLookupByKey } from '../../util/search-providers';
-import { SessionContext } from 'telegraf-context';
-import { IUser } from '../../models/User';
-import { InlineKeyboardMarkup } from 'telegraf/typings/telegram-types';
+import { sheduleByParishId, parishesLookupByKey, getPasswordlessCode } from '../../providers/search-providers';
+
 
 
 /**
@@ -18,7 +15,7 @@ import { InlineKeyboardMarkup } from 'telegraf/typings/telegram-types';
  * @param parishes - list of parishes
  */
 
-export async function getUserParishes(ctx: SessionContext): Promise<IParishResult[]> {
+export async function getUserParishes(ctx: any): Promise<IParishResult[]> {
     logger.debug(ctx, 'Retrieving parishes from cache: %s', ctx.session.parishes );
     logger.debug(ctx, 'Retrieving parish keys from user: %s', ctx.session.user.observableParishKeys );
     // const user: IUser = JSON.parse(ctx.session.user);
@@ -51,21 +48,18 @@ export async function getUserParishes(ctx: SessionContext): Promise<IParishResul
  */
 
 export function getParishesMenus(parishes: IParishResult[]) {
-    return Extra.HTML().markup((m: Markup) =>
-        m.inlineKeyboard(
+    return Markup.inlineKeyboard(
             parishes.map(parish => [
-                m.callbackButton(
+                Markup.button.callback(
                     `${parish.title}`,
                     JSON.stringify({ a: 'parishSelect', p: parish.id }),
                     false
                 )
-            ]),
-            {}
-        )
+            ])
     );
 }
 
-export async function getParishScheduleMessage(ctx: SessionContext): Promise<string> {
+export async function getParishScheduleMessage(ctx: any): Promise<string> {
     const massDays: IMassDay[] = await sheduleByParishId(ctx.session.parish.id);
     const msg = '';
     for ( const massDay of massDays) {
@@ -80,23 +74,21 @@ export async function getParishScheduleMessage(ctx: SessionContext): Promise<str
  *
  * @param ctx - telegram context
  */
-export function getParishScheduleControlMenu(ctx: SessionContext) {
-    return Extra.HTML().markup((m: Markup) =>
-        m.inlineKeyboard(
+export function getParishScheduleControlMenu(ctx: any, authCode: string) {
+    return Markup.inlineKeyboard(
             [
-                m.callbackButton(
+                Markup.button.callback(
                     ctx.i18n.t('scenes.parishes.refresh_button'),
                     JSON.stringify({ a: 'refreshSchedule', p: ctx.session.parish._id }),
                     false
                 )
                 ,
-                m.urlButton(
+                Markup.button.url(
                   ctx.i18n.t('scenes.parishes.change_button'),
-                  `${process.env.ADMIN_URL}`,
+                  `${process.env.ADMIN_URL}?parish=${ctx.session.parish.key}&code=${authCode}`,
                   false
                 )
-            ],
-            {}
-        )
+            ]
     );
 }
+

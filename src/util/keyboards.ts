@@ -1,16 +1,15 @@
 import { Markup } from 'telegraf';
-import { SessionContext } from 'telegraf-context';
+import logger from '../util/logger';
+
 
 /**
  * Returns back keyboard and its buttons according to the language
  *
  * @param ctx - telegram context
  */
-export const getBackKeyboard = (ctx: SessionContext) => {
+export const getBackKeyboard = (ctx: any) => {
     const backKeyboardBack = ctx.i18n.t('keyboards.back_keyboard.back');
-    let backKeyboard: any = Markup.keyboard([backKeyboardBack]);
-
-    backKeyboard = backKeyboard.resize().extra();
+    let backKeyboard: any = Markup.keyboard([backKeyboardBack]).resize();
 
     return {
         backKeyboard,
@@ -23,22 +22,31 @@ export const getBackKeyboard = (ctx: SessionContext) => {
  *
  * @param ctx - telegram context
  */
-export const getMainKeyboard = (ctx: SessionContext) => {
-    const mainKeyboardSchedule = ctx.i18n.t('keyboards.main_keyboard.schedule');
-    const mainKeyboardParish = ctx.i18n.t('keyboards.main_keyboard.parish');
-    const mainKeyboardAbout = ctx.i18n.t('keyboards.main_keyboard.about');
-    const mainKeyboardContact = ctx.i18n.t('keyboards.main_keyboard.contact');
-    let mainKeyboard: any = Markup.keyboard([
-        [mainKeyboardSchedule, mainKeyboardParish] as any,
-        [mainKeyboardAbout, mainKeyboardContact]
+export const getMainKeyboard = (ctx: any) => {
+    let mainKeyboard: any;
+    if(!ctx.session.user || !ctx.session.user.observableParishKeys){
+        logger.error(ctx, `Can't build keyboard -> no parishkey for user ${ctx.message.chat.id}`);
+        //
+        const startKeybord = ctx.i18n.t('keyboards.main_keyboard.start');
+         mainKeyboard = Markup.keyboard([
+            [startKeybord]
+        ]).resize();
 
-    ]);
-    mainKeyboard = mainKeyboard.resize().extra();
-
-    return {
-        mainKeyboard,
-        mainKeyboardParish,
-        mainKeyboardAbout,
-        mainKeyboardContact
-    };
+    } else {
+        const mainKeyboardSchedule = ctx.i18n.t('keyboards.main_keyboard.schedule');
+        const mainKeyboardParish = ctx.i18n.t('keyboards.main_keyboard.parish');
+        const mainKeyboardAbout = ctx.i18n.t('keyboards.main_keyboard.about');
+        const mainKeyboardContact = ctx.i18n.t('keyboards.main_keyboard.contact');
+        mainKeyboard = Markup.keyboard([
+            [mainKeyboardSchedule, mainKeyboardParish] as any,
+            [mainKeyboardAbout, mainKeyboardContact]
+        ]).resize();
+    }
+    return {mainKeyboard};
+    // return {
+    //     mainKeyboard,
+    //     mainKeyboardParish,
+    //     mainKeyboardAbout,
+    //     mainKeyboardContact
+    // };
 };

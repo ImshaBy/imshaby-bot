@@ -1,15 +1,15 @@
-import * as dotenv from 'dotenv'
-dotenv.config()
+
 
 import mongoose from 'mongoose';
 import logger from './util/logger';
 
+import {CONFIG} from './config';
 
-export async function getConnection(hostingType: string) {
+export async function mongoConnection(hostingType: string) {
 
     logger.debug(undefined, 'get Connection function call');
 
-    await mongoose.connect(`${process.env.DATABASE_URI}`);
+    await mongoose.connect(`${CONFIG.api.dbUri}`);
     if (hostingType === 'lambda') {
         mongoose.set('bufferCommands', false);
     }
@@ -30,5 +30,5 @@ mongoose.connection.on('open', async () =>  {
 
 
 module.exports = {
-    getConnection
+    mongoConnection: mongoConnection
 };

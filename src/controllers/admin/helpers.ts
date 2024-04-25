@@ -1,7 +1,9 @@
-import { telegram } from '../../bot';
-import { SessionContext } from 'telegraf-context';
+import { SessionContext } from 'telegram-context';
+import {telegram} from '../../bot';
 import User from '../../models/User';
-import { registerUser } from '../../util/identity-provider';
+import { registerUser } from '../../providers/identity-provider';
+import { sendMessageWithErrorHandling } from '../../util/notifier';
+import loggerWithCtx from '../../util/logger';
 
 /**
  * Write message to a specific user or to all existing users
@@ -13,7 +15,7 @@ import { registerUser } from '../../util/identity-provider';
 export async function write(ctx: SessionContext, recipient: string, message: string) {
     if (!Number.isNaN(+recipient) && recipient.length >= 6) {
     // Write to a single user
-        await telegram.sendMessage(Number(recipient), message);
+        await sendMessageWithErrorHandling(Number(recipient), message);
         await ctx.reply(`Successfully sent message to: ${recipient}, content: ${message}`);
     } else if (recipient.includes('all')) {
     // Write to everyone
@@ -29,7 +31,14 @@ export async function write(ctx: SessionContext, recipient: string, message: str
 
         users.forEach((user, index) => {
             setTimeout(() => {
-                telegram.sendMessage(Number(user._id), message);
+                  try {
+             sendMessageWithErrorHandling(user._id, message);
+        } catch (e) {
+            loggerWithCtx.error(undefined, "Can't notify user about  reason: %O", e);
+        } finally {
+            // TODO: check if user blocked the bot and delete him from the DB
+        }
+        sendMessageWithErrorHandling(Number(user._id), message);
             }, 200 * (index + 1));
         });
 
@@ -47,7 +56,7 @@ export async function write(ctx: SessionContext, recipient: string, message: str
  *
  * @param ctx - telegram context
  */
-export async function getStats(ctx: SessionContext) {
+export async function getStats(ctx: any) {
     const date = new Date();
     const year = date.getFullYear();
     const month = date.getMonth();
@@ -69,7 +78,7 @@ export async function getStats(ctx: SessionContext) {
  *
  * @param ctx - telegram context
  */
-export async function getHelp(ctx: SessionContext) {
+export async function getHelp(ctx: any) {
     await ctx.reply(
         'write | [user_id | all.ru | all.en] | message - write message to user\n' +
       'stats - get stats about users\n' +
@@ -78,7 +87,7 @@ export async function getHelp(ctx: SessionContext) {
     );
 }
 
-export async function addUser(ctx: SessionContext, email: string, defaultParish: string, parishes?: string[]) {
+export async function addUser(ctx: any, email: string, defaultParish: string, parishes?: string[]) {
     const user = await registerUser(
         email,
         defaultParish,

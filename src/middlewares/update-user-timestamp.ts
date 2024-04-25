@@ -1,4 +1,3 @@
-import { SessionContext } from 'telegraf-context';
 import User from '../models/User';
 
 /**
@@ -7,7 +6,7 @@ import User from '../models/User';
  * @param ctx - telegram context
  * @param next - next function
  */
-export const updateUserTimestamp = async (ctx: SessionContext, next: () => void) => {
+export const updateUserTimestamp = async (ctx: any, next: () => void) => {
     await User.findOneAndUpdate(
         { _id: ctx.from.id + '' },
         { lastActivity: new Date().getTime() },

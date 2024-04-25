@@ -11,6 +11,9 @@ For deploy
 To start using Aaron, simply add her in [Telegram](http://t.me/imshaby_bot) and press /start! It's easy, you'll see yourself!
 
 
+TODO how to run docker!!
+
+
 ## Materials
 
 [ru] WIP
