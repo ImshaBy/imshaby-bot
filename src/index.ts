@@ -19,7 +19,7 @@ export async function main(env: string){
   mongoConnectionInit(env);
 
   
-  const app = createExpressServer(bot.telegram);
+  const app = await createExpressServer(bot.telegram);
 
   launchBot(env, bot, app);
 

@@ -10,6 +10,7 @@ import startScene from './controllers/start';
 import scheduleScene from './controllers/schedule';
 import menu from './controllers/menu';
 import axios from 'axios';
+import {Express} from 'express';
 import parishScene from './controllers/parish';
 import contactScene from './controllers/contact';
 import adminScene from './controllers/admin';
@@ -124,12 +125,12 @@ export function createBot(token: string): Telegraf<SessionContext> {
     return bot;
 }
 
-export function launchBot(env: string, bot: Telegraf<SessionContext>, app: any){
+export function launchBot(env: string, bot: Telegraf<SessionContext>, app: Express){
 
     // WEB HOOK how to set- up?
-    // app.post(`${CONFIG.webhook.path}`, (req: Request, res: Response) => {
-    //     return bot.handleUpdate(req.body, res)
-    // });
+    app.post(`${CONFIG.webhook.path}`, (req: Request, res: Response) => {
+        return bot.handleUpdate(req.body, res)
+    });
 
     // Webhook no need to configure here, because it's established by API after build & deploy
     const botConfig: Telegraf.LaunchOptions = {

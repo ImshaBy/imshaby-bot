@@ -5,6 +5,7 @@ import Backend from 'i18next-fs-backend';
 import i18nextMiddleware from 'i18next-http-middleware';
 import axios from 'axios';
 import express from 'express';
+import {Express} from 'express';
 import bodyParser from 'body-parser';
 import logger from '../util/logger';
 import { checkNeeedToUpdateParishes, notifyGroupChatAboutParishChange } from '../util/notifier';
@@ -28,9 +29,9 @@ i18next
     });
 
 
-export async function createExpressServer(telegram: Telegram) {
+export async function createExpressServer(telegram: Telegram): Promise<Express> {
 
-    const app = express();
+    const app: Express = express();
     app.use(bodyParser.json());
     app.use(i18nextMiddleware.handle(
       i18next, {
