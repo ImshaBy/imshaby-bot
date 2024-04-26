@@ -143,7 +143,7 @@ export function launchBot(env: string, bot: Telegraf<SessionContext>, app: Expre
         // } 
     }
 
-    logger.info(bot.context, `App listening on port ${CONFIG.server.port}! Bot ID: ${CONFIG.bot.token}. Webhook for telegram: ${CONFIG.webhook.url}${CONFIG.webhook.path}, supported types : ${botConfig.allowedUpdates}`);
+    logger.info(bot.context, `Bot ID: ${CONFIG.bot.token}. Webhook for telegram: ${CONFIG.webhook.url}${CONFIG.webhook.path}, supported types : ${botConfig.allowedUpdates}`);
     // launch only development mode (polling updates)
     bot.launch(botConfig);
   }

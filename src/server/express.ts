@@ -11,6 +11,7 @@ import logger from '../util/logger';
 import { checkNeeedToUpdateParishes, notifyGroupChatAboutParishChange } from '../util/notifier';
 import { invokeGitHubAction, addBuildMessage, checkNeeedToRebuildSite, getBuildMessages, getParishUpdateMsg } from '../util/githooker';
 import { Telegram } from 'telegraf';
+import { CONFIG } from '../config';
 
 i18next
     .use(Backend)
@@ -32,6 +33,9 @@ i18next
 export async function createExpressServer(telegram: Telegram): Promise<Express> {
 
     const app: Express = express();
+    app.listen(CONFIG.server.port, function () {
+      logger.info(null, 'Express  app listening on port ' + CONFIG.server.port + '!');
+    });
     app.use(bodyParser.json());
     app.use(i18nextMiddleware.handle(
       i18next, {
