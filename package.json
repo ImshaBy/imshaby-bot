@@ -8,7 +8,7 @@
   "license": "MIT",
   "scripts": {
     "start": "yarn serve",
-    "serve": "yarn build-ts && yarn start:prod",
+    "serve": "yarn tsc && yarn start:prod",
     "serve-qa": "NODE_ENV=qa node dist/index.js",
     "watch-node": "nodemon dist/index.js",
     "eslint": "eslint -c .eslintrc.json .",
@@ -16,13 +16,10 @@
     "start:prod": "node dist/index.js",
     "start:dev": "nodesrc/index.ts",
     "start:debug": "NODE_ENV=debug nodemon --inspect-rbk src/index.ts",
-    "build": "yarn build-ts && yarn eslint",
-    "build-ts": "tsc",
-    "watch-ts": "tsc -w",
-    "version-ts": "tsc -v",
+    "build": "yarn tsc && yarn eslint",
     "debug": "yarn build && yarn watch-debug",
-    "watch": "concurrently -k -p \"[{name}]\" -n \"TypeScript,Node\" -c \"cyan.bold,green.bold\"  \"yarn watch-ts\" \"yarn watch-node\"",
-    "watch-debug": "concurrently -k -p \"[{name}]\" -n \"TypeScript,Node\" -c \"cyan.bold,green.bold\" \"yarn watch-ts\" \"yarn serve-debug\""
+    "watch": "concurrently -k -p \"[{name}]\" -n \"TypeScript,Node\" -c \"cyan.bold,green.bold\"  \"yarn tsc -w\" \"yarn watch-node\"",
+    "watch-debug": "concurrently -k -p \"[{name}]\" -n \"TypeScript,Node\" -c \"cyan.bold,green.bold\" \"yarn tsc -w\" \"yarn serve-debug\""
   },
   "dependencies": {
     "@telegraf/session": "^2.0.0-beta.7",
