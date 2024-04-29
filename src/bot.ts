@@ -135,15 +135,18 @@ export function launchBot(env: string, bot: Telegraf<SessionContext>, app: Expre
     // Webhook no need to configure here, because it's established by API after build & deploy
     const botConfig: Telegraf.LaunchOptions = {
         dropPendingUpdates: CONFIG.bot.dropPending,
-        allowedUpdates: ['message', 'callback_query', 'chat_join_request'],
-        // webhook: {
-        //      hookPath: CONFIG.webhook.path,
-        //      domain: CONFIG.webhook.url,
-        //      maxConnections: 100
-        // } 
+        allowedUpdates: ['message', 'callback_query', 'chat_join_request']
     }
-
-    logger.info(bot.context, `Bot ID: ${CONFIG.bot.token}. Webhook for telegram: ${CONFIG.webhook.url}${CONFIG.webhook.path}, supported types : ${botConfig.allowedUpdates}`);
+    if ( CONFIG.server.env == 'production') {
+        //set webhook
+        botConfig.webhook = {
+            hookPath: CONFIG.webhook.path,
+            domain: CONFIG.webhook.url,
+            maxConnections: 100
+        }
+    }
+    
+    logger.info(bot.context, `Bot ID: ${CONFIG.bot.token}. Webhook for telegram: ${botConfig.webhook?.domain}${botConfig.webhook?.hookPath}, supported types : ${botConfig.allowedUpdates}`);
     // launch only development mode (polling updates)
     bot.launch(botConfig);
   }
