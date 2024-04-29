@@ -16,15 +16,25 @@
     "parishes": {
       "need_select_parish": "You have to choose parish below:",
       "single_parish": "You are administrating single parish.",
+      "parish_list": "Parish list:",
       "refresh_button": "🚀 Yes, it's correct!",
       "masses_actual": "There are  ${massCount} mass configuration found. All masses are update and actualized accordingly! God bless you!",
-      "change_button": "❌ No, I need to change mass schedule!",
+      "change_button": "⚙️ Change schedule!",
+      "cta_update": "\n Is schedule valid?",
       "hook_msg": "<b>${name}</b> applied changes to schedule!",
-
       "chosen_parish": "${title}",
       "list_of_parishes": "This is list of your parishes:",
       "back_button": "◀️ Back",
       "ask_for_details": "Please click on button above to expand on parish details!"
+    },
+    "parish": {
+      "title": "Parish name : ${title}",
+      "address": "<b>Parish address</b> : ${address}",
+      "broadcastUrl": "<b>Online broadcast url</b> : ${broadcastUrl}",
+      "phone": "<b>Parish phone</b> : ${phone}",
+      "email": "<b>Email</b> : ${email}",
+      "website": "<b>Web</b> : ${website}",
+      "updatePeriodInDays": "<b>Update frequency (in days)</b> : ${updatePeriodInDays}"
     },
 
     "settings": {

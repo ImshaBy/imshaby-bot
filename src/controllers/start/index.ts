@@ -9,6 +9,7 @@ import { Markup } from 'telegraf';
 import { match } from 'telegraf-i18n';
 import { SessionContext } from 'telegram-context';
 import { Message, Update } from 'telegraf/typings/core/types/typegram';
+import { CONFIG } from '../../config';
 
 // type SessionSceneContext = Scenes.SceneContext<SessionContext>;
 
@@ -90,16 +91,16 @@ async function saveOrUpdateUser(user: IUser, parishKey: string, ctx: any) {
             logger.info(ctx, 'New parish key: ' + parishKey + ' has been added to existing user: ' + user._id);
             await ctx.reply(ctx.i18n.t('scenes.start.new_parish_added'));
             deleteFromSession(ctx, 'parishes');
-            saveToSession(ctx, 'language', 'ru');
-            ctx.i18n.locale('ru');
+            saveToSession(ctx, 'language', CONFIG.bot.lang);
+            ctx.i18n.locale(CONFIG.bot.lang);
             saveToSession(ctx, 'user', user );
             await ctx.reply(ctx.i18n.t('scenes.start.welcome_back'),  Markup.removeKeyboard());
             ctx.scene.leave();
         }else if (!parishKey) {
-            ctx.i18n.locale('ru');
+            ctx.i18n.locale(CONFIG.bot.lang);
             await ctx.reply(ctx.i18n.t('scenes.start.no_parish_key'), Markup.removeKeyboard());
         } else {
-            ctx.i18n.locale('ru');
+            ctx.i18n.locale(CONFIG.bot.lang);
             await ctx.reply(ctx.i18n.t('scenes.start.no_valid_key'), Markup.removeKeyboard());
         }
         // await ctx.answerCbQuery();
@@ -113,22 +114,22 @@ async function saveOrUpdateUser(user: IUser, parishKey: string, ctx: any) {
             name: ctx.from.first_name + ' ' + ctx.from.last_name,
             observableParishKeys: [parishKey],
             lastActivity: now,
-            language: 'ru'
+            language: CONFIG.bot.lang
         });
         newUser.save();
         logger.debug(ctx, 'New user has been created with parish key: ' + parishKey);
         // await ctx.reply('New parish admin has been register with parish key : ' + parishKey);
         // await sleep(2);
         saveToSession(ctx, 'user', newUser );
-        saveToSession(ctx, 'language', 'ru');
-        ctx.i18n.locale('ru');
+        saveToSession(ctx, 'language', CONFIG.bot.lang);
+        ctx.i18n.locale(CONFIG.bot.lang);
 
         await ctx.reply(ctx.i18n.t('scenes.start.bot_description'), Markup.removeKeyboard());
         // await ctx.answerCbQuery();
         ctx.scene.leave();
     // await ctx.answerCbQuery();
     } else {
-        ctx.i18n.locale('ru');
+        ctx.i18n.locale(CONFIG.bot.lang);
         await ctx.reply(ctx.i18n.t('scenes.start.no_parish_key'), Markup.removeKeyboard());
     }
 }
