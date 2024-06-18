@@ -66,7 +66,7 @@ async function notifyAndUpdateUsersByParishKey(parishData: IExpiredParish, type:
     );
     const message =
       user.language === 'en'
-        ? `🎉 ${parishData.name} has to be updated!`
+        ? `🥁 ${parishData.name} has to be updated!`
         : type === EXPIRED_PARISHES.EXPIRED
         ? `🎉 ${parishData.name} мае патрэбу ў аднаўленні раскладу!`
         : `⌛️ Расклад Iмшаў парафii ${parishData.shortName}  стане неактуальным ${moment(
