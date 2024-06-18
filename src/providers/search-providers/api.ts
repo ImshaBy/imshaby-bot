@@ -1,4 +1,4 @@
-import { IMassDay, IParishResult } from './parish-lookup';
+import { IMassDay, IParishResult, IExpiredParish } from './parish-lookup';
 import logger from '../../util/logger';
 import axios from 'axios';
 
@@ -62,15 +62,18 @@ export async function parishLookup(parishId: string): Promise<IParishResult> {
 
 }
 
-export async function getAllNeedToUpdateParishKeys(): Promise<string[]> {
-    const url = 'parish/week/expired';
-    let response;
-    try {
-        response = await axiosInstance.get(url).then(res => res.data);
-        return Object.values(response).map((item: any) => item.key);
-    } catch (e) {
-        logger.error(undefined, 'Error during fetching expired masses. %O',  e);
-    }
+export async function getAllNeedToUpdateParishKeys(): Promise<{
+  expiredParishes: IExpiredParish[];
+  almostExpiredParishes: IExpiredParish[];
+}> {
+  const url = 'parish/expired';
+  let response;
+  try {
+    response = await axiosInstance.get(url).then((res) => res.data);
+    return response;
+  } catch (e) {
+    logger.error(undefined, 'Error during fetching expired masses. %O', e);
+  }
 }
 
 /**
