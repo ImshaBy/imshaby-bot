@@ -60,7 +60,7 @@ async function notifyAndUpdateUsersByParishKey(parishData: IExpiredParish, type:
     );
     // TODO: move text to translations
 
-    const expirationTime = moment(parishData.lastConfirmRelevance).add(
+    const expirationTime = moment(parishData.lastConfirmRelevance, 'DD-MM-YYYY HH:mm:ss').add(
       parishData.updatePeriodInDays,
       'days'
     );
