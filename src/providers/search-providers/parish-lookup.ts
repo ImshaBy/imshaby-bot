@@ -28,6 +28,19 @@ export interface IMassDay {
     massHours: string[];
 }
 
+export interface IExpiredParish {
+  name: string;
+  shortName: string;
+  id: string;
+  key: string;
+  updatePeriodInDays: number;
+  lastConfirmRelevance: string;
+}
+
+export enum EXPIRED_PARISHES {
+  EXPIRED = 'expired',
+  ALMOST_EXPIRED = 'almost_expired',
+}
 
 type Provider = (params: IParishLookupParameters) => Promise<IParishResult[]>;
 
