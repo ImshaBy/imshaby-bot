@@ -27,7 +27,7 @@ export async function main(env: string){
   cron.schedule(CONFIG.schedule.notify, () => checkNeeedToUpdateParishes());
   cron.schedule(CONFIG.schedule.build, checkNeeedToRebuildSite);
 
-  gracefullShutdown(bot);
+  // gracefullShutdown(bot);
 
 }
 
