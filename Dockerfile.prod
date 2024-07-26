@@ -15,5 +15,5 @@ WORKDIR /opt/app
 COPY --from=build /opt/app/node_modules ./node_modules
 ENV PATH /opt/app/node_modules/.bin:$PATH
 COPY --from=build /opt/app ./
-EXPOSE 8080
+EXPOSE 8182
 CMD ["yarn", "start:prod"]
