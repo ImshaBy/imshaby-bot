@@ -1,0 +1,62 @@
+name: Release QA
+
+on:
+  workflow_dispatch:
+
+jobs:
+  create_tag:
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.tag_version.outputs.new_tag }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Bump version and push tag
+        id: tag_version
+        uses: mathieudutour/github-tag-action@v6.2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+  
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+    needs: create_tag
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.create_tag.outputs.tag }}
+
+      # Runs a single command using the runners shell
+      - name: Yandex Cloud CR "Login" Action for GitHub Actions
+        uses: yc-actions/yc-cr-login@v0.1-alpha
+        with:
+          yc-sa-json-credentials: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
+
+
+      - name: Build, tag, and push image to Yandex Cloud Container Registry
+        env:
+          CR_REGISTRY: crp8o64j2cl644b4pjki
+          CR_REPOSITORY: imshaby-bot-qa
+          IMAGE_TAG: ${{ needs.create_tag.outputs.tag }}
+        run: |
+          docker build -t cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:$IMAGE_TAG -f ./Dockerfile.prod .
+          docker push cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:$IMAGE_TAG
+  
+  deploy_qa:
+    runs-on: ubuntu-latest
+    needs: [create_tag, build]
+    environment: QA
+    steps:
+      - name: start remote ansible file
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{vars.QA_SSH_HOST}}
+          username: ${{vars.QA_SSH_USER}}
+          password: ${{secrets.QA_SSH_PASSWORD}}
+          key: ${{secrets.QA_SSH_KEY}}
+          script: |
+            cd /root/imshaby-deploy
+            ansible-playbook ./staging.yaml --extra-vars "service_name=bot docker_image=cr.yandex/crp8o64j2cl644b4pjki/imshaby-bot-qa:${{ needs.create_tag.outputs.tag }} admin_password=${{ secrets.ADMIN_PASSWORD }} telegram_token=${{ secrets.TELEGRAM_TOKEN }} webhook_url=${{ vars.WEBHOOK_URL }} admin_bearer=${{ secrets.ADMIN_BEARER }} api_key=${{ secrets.API_KEY }} api_bearer=${{ secrets.API_BEARER }} default_password=${{ secrets.DEFAULT_PASSWORD }} github_token=${{ secrets.GIT_TOKEN }}"
+
