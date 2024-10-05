@@ -7,10 +7,12 @@ import { telegram } from '../../bot';
  * @param ctx - telegram context
  */
 export async function sendMessage(ctx: any) {
-    const msg = `From: ${JSON.stringify(ctx.from)}.\n\nMessage: ${ctx.message.text}`;
-    const adminIds = process.env.ADMIN_IDS;
-    const adminIdsArr = adminIds.split(',');
-    for await (const adminId of adminIdsArr) {
-        await sendMessageWithErrorHandling(adminId, msg);
-    }
+  const msg = `Валанцёр: ${ctx.from.first_name} ${
+    !!ctx.from.last_name ? ctx.from.last_name : ''
+  }\nUsername 🔎: @${ctx.from.username}\n\nПаведамленне 📨: ${ctx.message.text}`;
+  const adminIds = process.env.ADMIN_IDS;
+  const adminIdsArr = adminIds.split(',');
+  for await (const adminId of adminIdsArr) {
+    await sendMessageWithErrorHandling(adminId, msg);
+  }
 }
