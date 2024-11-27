@@ -2,14 +2,17 @@ import moment from 'moment';
 import logger from './logger';
 import { sleep } from './common';
 import User from '../models/User';
-import {telegram} from '../bot';
+import { telegram } from '../bot';
 import { parishesLookupByKey } from '../providers/search-providers';
 import { getAllNeedToUpdateParishKeys } from '../providers/search-providers/api';
-import { IParishResult, EXPIRED_PARISHES, IExpiredParish } from '../providers/search-providers/parish-lookup';
+import {
+  IParishResult,
+  EXPIRED_PARISHES,
+  IExpiredParish,
+} from '../providers/search-providers/parish-lookup';
 import { CONFIG } from '../config';
 import { FmtString } from 'telegraf/typings/format';
 import { ExtraReplyMessage } from 'telegraf/typings/telegram-types';
-
 
 export async function checkNeeedToUpdateParishes() {
   logger.debug(undefined, 'Starting to check need to updated parishes');
@@ -28,22 +31,26 @@ export async function checkNeeedToUpdateParishes() {
   });
 }
 
-export async function notifyGroupChatAboutParishChange(chatId: string, msg: string, msgThreadId: number) {
-    try {
-        if (chatId && msg) {
-            const options: any = { parse_mode: 'HTML' };
+export async function notifyGroupChatAboutParishChange(
+  chatId: string,
+  msg: string,
+  msgThreadId: number
+) {
+  try {
+    if (chatId && msg) {
+      const options: any = { parse_mode: 'HTML' };
 
-            if (CONFIG.bot.isTopicChannel) {
-                options.message_thread_id = msgThreadId;
-            }
+      if (CONFIG.bot.isTopicChannel) {
+        options.message_thread_id = msgThreadId;
+      }
 
-            await sendMessageWithErrorHandling(chatId, msg, options);
-        }
-    } catch (e) {
-        logger.error(undefined, "Can't notify user about  reason: %O", e);
-    } finally {
-    // TODO: check if user blocked the bot and delete him from the DB
+      await sendMessageWithErrorHandling(chatId, msg, options);
     }
+  } catch (e) {
+    logger.error(undefined, "Can't notify user about  reason: %O", e);
+  } finally {
+    // TODO: check if user blocked the bot and delete him from the DB
+  }
 }
 
 async function notifyAndUpdateUsersByParishKey(parishData: IExpiredParish, type: EXPIRED_PARISHES) {
@@ -68,7 +75,7 @@ async function notifyAndUpdateUsersByParishKey(parishData: IExpiredParish, type:
       user.language === 'en'
         ? `🥁 ${parishData.name} has to be updated!`
         : type === EXPIRED_PARISHES.EXPIRED
-        ? `🎉 ${parishData.name} мае патрэбу ў аднаўленні раскладу!`
+        ? `🎉 ${parishData.name} мае патрэбу ў абнаўленні раскладу!`
         : `⌛️ Расклад Iмшаў парафii ${parishData.shortName}  стане неактуальным ${moment(
             expirationTime
           ).format('DD.MM.YYYY')} ў ${moment(expirationTime).format(
@@ -87,12 +94,14 @@ async function notifyAndUpdateUsersByParishKey(parishData: IExpiredParish, type:
   }
 }
 
- export async function sendMessageWithErrorHandling (chatId: number | string,
-        text: string | FmtString,
-        extra?: ExtraReplyMessage) {
-        try {
-            return await telegram.sendMessage(chatId, text, extra);
-        } catch(error){
-            logger.error(null, 'telegram send message error, %O', error);
-        }
+export async function sendMessageWithErrorHandling(
+  chatId: number | string,
+  text: string | FmtString,
+  extra?: ExtraReplyMessage
+) {
+  try {
+    return await telegram.sendMessage(chatId, text, extra);
+  } catch (error) {
+    logger.error(null, 'telegram send message error, %O', error);
+  }
 }
