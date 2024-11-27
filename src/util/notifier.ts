@@ -76,7 +76,7 @@ async function notifyAndUpdateUsersByParishKey(parishData: IExpiredParish, type:
         ? `🥁 ${parishData.name} has to be updated!`
         : type === EXPIRED_PARISHES.EXPIRED
         ? `🎉 ${parishData.name} мае патрэбу ў абнаўленні раскладу!`
-        : `⌛️ Расклад Iмшаў парафii ${parishData.shortName}  стане неактуальным ${moment(
+        : `⌛️ Расклад Iмшаў парафii ${parishData.shortName} стане неактуальным ${moment(
             expirationTime
           ).format('DD.MM.YYYY')} ў ${moment(expirationTime).format(
             'HH:mm'
