@@ -30,6 +30,14 @@ jobs:
         run: |
           docker build -f ./Dockerfile.prod -t cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:$IMAGE_TAG .
           docker push cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:$IMAGE_TAG
+      
+      - name: Pulling and starting new image
+        env:
+          IMAGE_TAG: ${{ github.sha }}
+          PORTAINER_URL: ${{ vars.PORTAINER_URL }}
+          WEBHOOK_ID: ${{ secrets.WEBHOOK_ID }}
+        run: |
+          curl -k -XPOST $PORTAINER_URL/api/webhooks/$WEBHOOK_ID?tag=$IMAGE_TAG
   
   create_release:
     runs-on: ubuntu-latest
