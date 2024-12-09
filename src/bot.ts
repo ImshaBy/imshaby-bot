@@ -1,16 +1,15 @@
-
 import path from 'path';
-import { session, SessionStore, Telegraf } from "telegraf";
+import { session, SessionStore, Telegraf } from 'telegraf';
 
 import TelegrafI18n, { match } from 'telegraf-i18n';
-import { Scenes } from "telegraf";
+import { Scenes } from 'telegraf';
 import logger from './util/logger';
 import about from './controllers/about';
 import startScene from './controllers/start';
 import scheduleScene from './controllers/schedule';
 import menu from './controllers/menu';
 import axios from 'axios';
-import {Express} from 'express';
+import { Express } from 'express';
 import parishScene from './controllers/parish';
 import contactScene from './controllers/contact';
 import adminScene from './controllers/admin';
@@ -21,136 +20,158 @@ import { getUserInfo } from './middlewares/user-info';
 import { isAdmin } from './middlewares/is-admin';
 import { isSupportedChatType } from './middlewares/is-group-message';
 // import {session} from './redis';
-import {CONFIG} from './config';
+import { CONFIG } from './config';
 import { cleanUpMessages } from './util/session';
 import { Request, Response } from 'express';
 import { SessionContext, SessionData } from 'telegram-context';
-import { Redis } from "@telegraf/session/redis";
+import { Redis } from '@telegraf/session/redis';
+import { checkNeeedToUpdateParishes } from './util/notifier';
 
 export function createBot(token: string): Telegraf<SessionContext> {
+  const bot = new Telegraf<SessionContext>(token);
+  const store: SessionStore<SessionData> = Redis({
+    url: `redis://${CONFIG.redis.host}:${CONFIG.redis.port}`,
+  });
+  const stage = new Scenes.Stage([
+    startScene,
+    scheduleScene,
+    parishScene,
+    contactScene,
+    adminScene,
+  ]);
 
-    const bot = new Telegraf<SessionContext>(token);
-    const store: SessionStore<SessionData> = Redis({ url: `redis://${CONFIG.redis.host}:${CONFIG.redis.port}` });
-    const stage = new Scenes.Stage([
-        startScene,
-        scheduleScene,
-        parishScene,
-        contactScene,
-        adminScene
-    ]);
-    
-    const i18n = new TelegrafI18n({
-        defaultLanguage: CONFIG.bot.lang || 'ru',
-        directory: path.resolve(__dirname, 'locales'),
-        useSession: true,
-        allowMissing: false,
-        sessionName: 'session'
-    });
-    
-    bot.use(session({store}));
-    bot.use(i18n.middleware());
-    bot.use(stage.middleware());
-    bot.use(getUserInfo);
-    
-    
-    bot.start(asyncWrapper(async (ctx: any) => {
-        ctx.scene.enter('start')}));
-    
-    bot.hears(
-        match('keyboards.main_keyboard.start'),
-        asyncWrapper(async (ctx: any) => {
-            await ctx.scene.enter('start')})
-    );
+  const i18n = new TelegrafI18n({
+    defaultLanguage: CONFIG.bot.lang || 'ru',
+    directory: path.resolve(__dirname, 'locales'),
+    useSession: true,
+    allowMissing: false,
+    sessionName: 'session',
+  });
 
-        
-    bot.hears(
-        match('keyboards.main_keyboard.schedule'),
-        isSupportedChatType,
-        updateUserTimestamp,
-        asyncWrapper(async (ctx: any) => await ctx.scene.enter('schedule'))
-    );
+  bot.use(session({ store }));
+  bot.use(i18n.middleware());
+  bot.use(stage.middleware());
+  bot.use(getUserInfo);
 
-    bot.command('update',  isSupportedChatType, updateUserTimestamp, asyncWrapper(async (ctx: any) => await ctx.scene.enter('schedule')));
+  bot.start(
+    asyncWrapper(async (ctx: any) => {
+      ctx.scene.enter('start');
+    })
+  );
 
+  bot.hears(
+    match('keyboards.main_keyboard.start'),
+    asyncWrapper(async (ctx: any) => {
+      await ctx.scene.enter('start');
+    })
+  );
 
+  bot.hears(
+    match('keyboards.main_keyboard.schedule'),
+    isSupportedChatType,
+    updateUserTimestamp,
+    asyncWrapper(async (ctx: any) => await ctx.scene.enter('schedule'))
+  );
 
-    bot.hears(
-        match('keyboards.main_keyboard.parish'),
-        isSupportedChatType,
-        updateUserTimestamp,
-        asyncWrapper(async (ctx: any) => await ctx.scene.enter('parish'))
-    );
-    bot.command('parish',  isSupportedChatType, updateUserTimestamp, asyncWrapper(async (ctx: any) => await ctx.scene.enter('parish')));
+  bot.command(
+    'update',
+    isSupportedChatType,
+    updateUserTimestamp,
+    asyncWrapper(async (ctx: any) => await ctx.scene.enter('schedule'))
+  );
 
-    bot.hears(
-        match('keyboards.main_keyboard.contact'),
-        isSupportedChatType,
-        updateUserTimestamp,
-        asyncWrapper(async (ctx: any) => await ctx.scene.enter('contact'))
-    );
-    bot.command('contact',  isSupportedChatType, updateUserTimestamp, asyncWrapper(async (ctx: any) => await ctx.scene.enter('contact')));
+  bot.hears(
+    match('keyboards.main_keyboard.parish'),
+    isSupportedChatType,
+    updateUserTimestamp,
+    asyncWrapper(async (ctx: any) => await ctx.scene.enter('parish'))
+  );
+  bot.command(
+    'parish',
+    isSupportedChatType,
+    updateUserTimestamp,
+    asyncWrapper(async (ctx: any) => await ctx.scene.enter('parish'))
+  );
 
-    bot.hears(match('keyboards.main_keyboard.about'), updateUserTimestamp, asyncWrapper(about));
-    bot.command('info', updateUserTimestamp, asyncWrapper(about) );
+  bot.hears(
+    match('keyboards.main_keyboard.contact'),
+    isSupportedChatType,
+    updateUserTimestamp,
+    asyncWrapper(async (ctx: any) => await ctx.scene.enter('contact'))
+  );
+  bot.command(
+    'contact',
+    isSupportedChatType,
+    updateUserTimestamp,
+    asyncWrapper(async (ctx: any) => await ctx.scene.enter('contact'))
+  );
 
-    bot.command('menu', updateUserTimestamp, asyncWrapper(menu) );
+  bot.hears(match('keyboards.main_keyboard.about'), updateUserTimestamp, asyncWrapper(about));
+  bot.command('info', updateUserTimestamp, asyncWrapper(about));
 
-    bot.hears(
-        /(.*admin)/,
-        isSupportedChatType,
-        isAdmin,
-        asyncWrapper(async (ctx: any) => await ctx.scene.enter('admin'))
-    );
+  bot.command('menu', updateUserTimestamp, asyncWrapper(menu));
 
+  bot.command(
+    'expired',
+    updateUserTimestamp,
+    asyncWrapper(async () => await checkNeeedToUpdateParishes())
+  );
 
-    bot.hears(/(.*?)/, isSupportedChatType, async (ctx: any) => {
-        logger.debug(ctx, 'Default handler has fired');
+  bot.hears(
+    /(.*admin)/,
+    isSupportedChatType,
+    isAdmin,
+    asyncWrapper(async (ctx: any) => await ctx.scene.enter('admin'))
+  );
 
-        logger.info(ctx, `Incorrect message ${ctx.message.text}`);
+  bot.hears(/(.*?)/, isSupportedChatType, async (ctx: any) => {
+    logger.debug(ctx, 'Default handler has fired');
 
-        // const user = await User.findById(ctx.from.id);
-        // if (user) {
-        //   await updateLanguage(ctx, user.language);
-        // }
-        cleanUpMessages(ctx);
-        const { mainKeyboard } = getMainKeyboard(ctx);
-        return await ctx.reply(ctx.i18n.t('other.default_handler'), mainKeyboard);
-    });
+    logger.info(ctx, `Incorrect message ${ctx.message.text}`);
 
+    // const user = await User.findById(ctx.from.id);
+    // if (user) {
+    //   await updateLanguage(ctx, user.language);
+    // }
+    cleanUpMessages(ctx);
+    const { mainKeyboard } = getMainKeyboard(ctx);
+    return await ctx.reply(ctx.i18n.t('other.default_handler'), mainKeyboard);
+  });
 
-    bot.catch((error: any) => {
-        logger.error(undefined, 'Global error has happened, %O', error);
-    });
+  bot.catch((error: any) => {
+    logger.error(undefined, 'Global error has happened, %O', error);
+  });
 
-    return bot;
+  return bot;
 }
 
-export function launchBot(env: string, bot: Telegraf<SessionContext>, app: Express){
+export function launchBot(env: string, bot: Telegraf<SessionContext>, app: Express) {
+  // WEB HOOK how to set- up?
+  app.post(`${CONFIG.webhook.path}`, (req: Request, res: Response) => {
+    return bot.handleUpdate(req.body, res);
+  });
 
-    // WEB HOOK how to set- up?
-    app.post(`${CONFIG.webhook.path}`, (req: Request, res: Response) => {
-        return bot.handleUpdate(req.body, res)
-    });
-
-    // Webhook no need to configure here, because it's established by API after build & deploy
-    const botConfig: Telegraf.LaunchOptions = {
-        dropPendingUpdates: CONFIG.bot.dropPending,
-        allowedUpdates: ['message', 'callback_query', 'chat_join_request']
-    }
-    if ( CONFIG.server.env == 'production') {
-        //set webhook
-        botConfig.webhook = {
-            hookPath: CONFIG.webhook.path,
-            domain: CONFIG.webhook.url,
-            maxConnections: 100
-        }
-    }
-    
-    logger.info(bot.context, `Bot ID: ${CONFIG.bot.token}. Webhook for telegram: ${botConfig.webhook?.domain}${botConfig.webhook?.hookPath}, supported types : ${botConfig.allowedUpdates}`);
-    // launch only development mode (polling updates)
-    bot.launch(botConfig);
+  // Webhook no need to configure here, because it's established by API after build & deploy
+  const botConfig: Telegraf.LaunchOptions = {
+    dropPendingUpdates: CONFIG.bot.dropPending,
+    allowedUpdates: ['message', 'callback_query', 'chat_join_request'],
+  };
+  if (CONFIG.server.env == 'production') {
+    //set webhook
+    botConfig.webhook = {
+      hookPath: CONFIG.webhook.path,
+      domain: CONFIG.webhook.url,
+      maxConnections: 100,
+    };
   }
 
+  logger.info(
+    bot.context,
+    `Bot ID: ${CONFIG.bot.token}. Webhook for telegram: ${botConfig.webhook?.domain}${botConfig.webhook?.hookPath}, supported types : ${botConfig.allowedUpdates}`
+  );
+  // launch only development mode (polling updates)
+  bot.launch(botConfig);
+}
 
 // bot.on('new_chat_members', newChatMemberHandler);
 
@@ -177,4 +198,5 @@ export function launchBot(env: string, bot: Telegraf<SessionContext>, app: Expre
 //     );
 // };
 
-export const bot = createBot(CONFIG.bot.token), telegram = bot.telegram;
+export const bot = createBot(CONFIG.bot.token),
+  telegram = bot.telegram;
