@@ -1,0 +1,28 @@
+flowchart TD
+    A[Volunteer opens Aaron Telegram bot] --> B[Welcome message with CTA button displayed]
+    B --> C{Volunteer clicks<br/>'Get Access Code' button?}
+    C -->|Yes| D[Bot asks for email]
+    C -->|No| B
+    D --> E[Volunteer provides email]
+    E --> F[Submit email to backend]
+    F --> G{Email exists in<br/>Budybase system?}
+    
+    G -->|Yes| H[Send email with subject<br/>'ImshaBy Access Code to Aaron']
+    G -->|No| I[Bot displays: 'You are not yet<br/>registered in the backend system']
+    
+    H --> J[Bot displays: 'Please check your<br/>email for access code']
+    I --> K[Flow ends]
+    
+    J --> L[Volunteer checks email inbox]
+    L --> M[Volunteer gets access code]
+    M --> N[Volunteer enters code in bot]
+    N --> O{Code valid?}
+    
+    O -->|Yes| P[Volunteer registered in Telegram bot]
+    O -->|No| Q[Bot displays: 'Invalid code']
+    
+    Q --> N
+    P --> R[Bot shows 'Sign in to Admin Tool' button]
+    R --> S[Volunteer clicks button]
+    S --> T[Auto sign-in to admin tool in browser]
+    
