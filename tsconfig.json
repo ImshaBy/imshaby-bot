@@ -12,9 +12,17 @@
     "resolveJsonModule": true,
     "lib": ["es2017"],
     "forceConsistentCasingInFileNames": true,
+
     "paths": {
       "*": ["node_modules/*", "src/types/*"]
-    }
+    },
+
+    "inlineSources": true,
+
+    // Set `sourceRoot` to  "/" to strip the build path prefix
+    // from generated source code references.
+    // This improves issue grouping in Sentry.
+    "sourceRoot": "/"
   },
   "include": ["src/**/*", "src/locales/*.json", "handler.js"]
 }
