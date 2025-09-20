@@ -27,9 +27,8 @@ jobs:
           CR_REGISTRY: ${{secrets.CR_REGISTRY}}
           CR_REPOSITORY: ${{vars.CR_REPOSITORY}}
           IMAGE_TAG: ${{ github.sha }}
-          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
         run: |
-          docker build -f ./Dockerfile.prod -t cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:$IMAGE_TAG .
+          docker build -f ./Dockerfile.prod --build-arg SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }} -t cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:$IMAGE_TAG .
           docker push cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:$IMAGE_TAG
       
       - name: Pulling and starting new image
