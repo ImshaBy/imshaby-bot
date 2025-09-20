@@ -41,7 +41,7 @@ jobs:
           CR_REPOSITORY: imshaby-bot-qa
           IMAGE_TAG: ${{ needs.create_tag.outputs.tag }}
         run: |
-          docker build -t cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:$IMAGE_TAG -f ./Dockerfile.prod .
+          docker build -t cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:$IMAGE_TAG -f ./Dockerfile .
           docker push cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:$IMAGE_TAG
   
   deploy_qa:

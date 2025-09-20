@@ -17,6 +17,7 @@
     "start:dev": "nodesrc/index.ts",
     "start:debug": "NODE_ENV=debug nodemon --inspect-rbk src/index.ts",
     "build": "yarn tsc && yarn sentry:sourcemaps",
+    "build:qa": "yarn tsc",
     "debug": "yarn build && yarn watch-debug",
     "watch": "concurrently -k -p \"[{name}]\" -n \"TypeScript,Node\" -c \"cyan.bold,green.bold\"  \"yarn tsc -w\" \"yarn watch-node\"",
     "watch-debug": "concurrently -k -p \"[{name}]\" -n \"TypeScript,Node\" -c \"cyan.bold,green.bold\" \"yarn tsc -w\" \"yarn serve-debug\"",
