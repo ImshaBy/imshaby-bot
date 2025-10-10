@@ -1,6 +1,6 @@
 services:
   app:
-    container_name: nodeapp
+    container_name: app
     build:
       context: .
       dockerfile: Dockerfile
@@ -13,8 +13,8 @@ services:
       NODE_ENV: ${NODE_ENV}
       SENTRY_AUTH_TOKEN: ${SENTRY_AUTH_TOKEN}
       DATABASE_URI: ${DATABASE_URI}
-      REDIS_HOST: ${REDIS_HOST}
-      REDIS_PORT: ${REDIS_PORT}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
     restart: unless-stopped
     volumes:
       - .:/opt/app
@@ -32,7 +32,7 @@ services:
     restart: unless-stopped
 
   redis:
-    image: redis:7.2
+    image: redis:7
     container_name: redis
     ports:
       - "33379:6379"
