@@ -48,3 +48,6 @@ tf_*
 .hypothesis
 .terraform.lock.hcl
 key-terraform.json
+
+# Sentry Config File
+.sentryclirc

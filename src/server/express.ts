@@ -1,3 +1,5 @@
+import "../isntrument";
+
 import {expressjwt} from 'express-jwt';
 
 import i18next from 'i18next';
@@ -12,6 +14,7 @@ import { checkNeeedToUpdateParishes, notifyGroupChatAboutParishChange } from '..
 import { invokeGitHubAction, addBuildMessage, checkNeeedToRebuildSite, getBuildMessages, getParishUpdateMsg } from '../util/githooker';
 import { Telegram } from 'telegraf';
 import { CONFIG } from '../config';
+import * as Sentry from "@sentry/node";
 
 i18next
     .use(Backend)
@@ -77,6 +80,8 @@ export async function createExpressServer(telegram: Telegram): Promise<Express> 
     app.get('/build-site/messages',  function (req: any, res: any) {
       res.json({'count': getBuildMessages().length, 'messages': getBuildMessages()});
     });
+
+    Sentry.setupExpressErrorHandler(app);
   
     return app;
   }
