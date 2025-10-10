@@ -1,0 +1,68 @@
+sequenceDiagram
+    participant User as Volunteer
+    participant TB as Telegram Bot
+    participant NodeJS as NodeJS Bot Backend
+    participant Redis as Redis Cache
+    participant MongoDB as MongoDB
+    participant API as API Server
+    participant FA as FusionAuth Server
+    participant Email as Email Service
+
+    Note over User, Email: Initial Authentication Check
+    User->>TB: Opens Telegram bot
+    TB->>NodeJS: Check user authentication status
+    NodeJS->>Redis: Check telegramID -> email association
+    Redis-->>NodeJS: Association result
+    NodeJS->>MongoDB: Validate existing token (if found)
+    MongoDB-->>NodeJS: Token validation result
+    
+    alt No email associated or invalid token
+        NodeJS-->>TB: Request email from user
+        TB-->>User: "Please provide your email"
+        
+        Note over User, Email: Email Verification Phase
+        User->>TB: Provides email address
+        TB->>NodeJS: Submit email for verification
+        NodeJS->>API: Request access code email (POST /auth/request-code)
+        API->>FA: Check if email exists in system
+        FA-->>API: Email existence response
+        
+        alt Email exists in FusionAuth
+            API->>Email: Send access code email (async)
+            API-->>NodeJS: Email sent confirmation
+            NodeJS-->>TB: "Check your email for access code"
+            TB-->>User: "Please check your email for access code"
+            
+            Note over User, Email: Access Code Verification Phase
+            User->>TB: Enters access code
+            TB->>NodeJS: Submit access code for validation
+            NodeJS->>API: Validate access code (POST /auth/verify-code)
+            API->>FA: Exchange access code for tokens
+            FA-->>API: Return access & refresh tokens
+            
+            API->>MongoDB: Save telegramID with email mapping
+            MongoDB-->>API: Save confirmation
+            API-->>NodeJS: Return tokens and user data
+            NodeJS->>Redis: Cache telegramID -> email association
+            Redis-->>NodeJS: Cache confirmation
+            NodeJS-->>TB: Authentication successful
+            TB-->>User: "Authentication successful - Sign in to Admin Tool"
+            
+        else Email does not exist
+            API-->>NodeJS: Email not registered error
+            NodeJS-->>TB: "Email not registered in system"
+            TB-->>User: "You are not yet registered in the backend system"
+        end
+        
+    else Valid association exists
+        NodeJS-->>TB: User already authenticated
+        TB-->>User: "Welcome back - Sign in to Admin Tool"
+    end
+
+    Note over User, Email: Admin Tool Access
+    User->>TB: Clicks "Sign in to Admin Tool"
+    TB->>NodeJS: Request admin tool access
+    NodeJS->>Redis: Get cached tokens
+    Redis-->>NodeJS: Return tokens
+    NodeJS-->>TB: Provide auto sign-in URL with token
+    TB-->>User: Auto sign-in to admin tool in browser 
