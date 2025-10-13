@@ -1,5 +1,4 @@
 import * as dotenv from 'dotenv'
-import { env } from 'process';
 dotenv.config()
 
 export type IConfig = {
