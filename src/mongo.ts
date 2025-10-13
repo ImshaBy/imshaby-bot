@@ -13,6 +13,8 @@ export async function mongoConnection(hostingType: string) {
     if (hostingType === 'lambda') {
         mongoose.set('bufferCommands', false);
     }
+
+    mongoose.set('strictQuery', false);
 }
 
 mongoose.connection.on('error', err => {

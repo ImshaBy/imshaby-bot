@@ -1,21 +1,20 @@
-FROM node:18.19.0 AS build
-ARG NODE_ENV=production
-ARG SENTRY_AUTH_TOKEN
-ENV SENTRY_AUTH_TOKEN=${SENTRY_AUTH_TOKEN}
-ENV NODE_ENV=${NODE_ENV}
-WORKDIR /opt/app
-COPY ./package.json ./yarn.lock ./
-ENV PATH=/opt/app/node_modules/.bin:$PATH
-RUN yarn config set network-timeout 600000 -g && yarn install --frozen-lockfile
-COPY ./ .
-RUN yarn build:qa
+FROM node:18-alpine
 
-FROM node:18.19.0
-ARG NODE_ENV=production
-ENV NODE_ENV=${NODE_ENV}
-WORKDIR /opt/app
-COPY --from=build /opt/app/node_modules ./node_modules
-ENV PATH=/opt/app/node_modules/.bin:$PATH
-COPY --from=build /opt/app ./
-EXPOSE 80
-CMD ["yarn", "start:prod"]
+WORKDIR /app
+
+ARG BUILD_ENV=production
+ENV NODE_ENV=$BUILD_ENV
+ENV PATH=/app/node_modules/.bin:$PATH
+
+RUN apk add --no-cache python3 make g++ bash && \
+    corepack enable && \
+    yarn add typescript --dev
+
+COPY package.json yarn.lock ./
+RUN yarn config set network-timeout 600000 -g && \
+    yarn install --frozen-lockfile
+
+COPY . .
+
+EXPOSE 18080
+ENTRYPOINT ["/app/entrypoint.sh"]
