@@ -28,7 +28,7 @@ i18next
             order: ['querystring', 'cookie'],
             caches: ['cookie']
         },
-        fallbackLng: 'en',
+        fallbackLng: CONFIG.bot.lang || 'ru',
         preload: ['en', 'ru']
     });
 

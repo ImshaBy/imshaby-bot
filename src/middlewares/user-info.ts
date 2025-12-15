@@ -27,7 +27,8 @@ export const getUserInfo = async (ctx: any, next: () => void) => {
                 saveToSession(ctx, 'user', user );
             }
         } else {
-            logger.warn(ctx, "No user found")
+            logger.warn(ctx, "No user found, setting default lang")
+            ctx.i18n.locale(CONFIG.bot.lang);
         }
     }else {
         logger.warn(ctx, "No session language found, setting default lang")
