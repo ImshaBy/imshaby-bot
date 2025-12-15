@@ -9,6 +9,9 @@ export interface IUser extends Document {
     observableParishKeys: string[];
     lastActivity: number;
     language: 'en' | 'ru';
+    emailVerified: boolean;
+    accessToken: string;
+    tokenExpiresAt: number;
 }
 
 export const UserSchema = new mongoose.Schema(
@@ -22,7 +25,10 @@ export const UserSchema = new mongoose.Schema(
             String
         ],
         lastActivity: Number,
-        language: String
+        language: String,
+        emailVerified: Boolean,
+        accessToken: String,
+        tokenExpiresAt: Number
     },
     { _id: false }
 );

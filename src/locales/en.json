@@ -7,8 +7,25 @@
       "lets_go": "Let's go!",
       "new_parish_added": "New parish have been",
       "no_valid_key": "Invalid parish key, please ask appropriate parish key from administrator & send it to me:",
-      "no_menu_click": "We are not aware of your PARISH. Please ask for parish KEY before using Menu buttons. Please ask appropriate parish key from imsha.by administrator & send it to me:"
-
+      "no_menu_click": "We are not aware of your PARISH. Please ask for parish KEY before using Menu buttons. Please ask appropriate parish key from imsha.by administrator & send it to me:",
+      "ask_email": "Welcome! Please provide your email address to get started:",
+      "ask_email_again": "Please provide your email address:",
+      "email_sent": "A verification code has been sent to your email. Please check your inbox.",
+      "ask_code": "Please enter the verification code from your email:",
+      "invalid_email": "Invalid email format. Please provide a valid email address:",
+      "email_not_registered": "This email is not registered in the system. Please contact the administrator to get access.",
+      "invalid_code": "Invalid or expired verification code. Please try again:",
+      "resend_code_button": "🔄 Resend code",
+      "change_email_button": "✏️ Change email",
+      "code_resent": "A new code has been sent to your email.",
+      "verification_success": "✅ Email verified successfully! Welcome to the system!",
+      "verification_failed": "Verification failed. Please try again or contact support.",
+      "already_verified": "You are already verified and have access to the system!",
+      "session_expired_reauth": "⚠️ Your session has expired or is invalid. Please re-authenticate to continue.",
+      "token_retrieval_failed": "We apologize, but we're experiencing temporary technical difficulties on our end. Please try again in a moment. Thank you for your patience! 🙏",
+      "retry_button": "🔄 Retry",
+      "no_parishes_assigned": "Your account is verified, but you currently don't have any parishes assigned to manage. Please contact the administrator to get access to a parish.",
+      "contact_admin_button": "✍️ Contact Administrator"
     },
     "about": {
       "main": "Hey! My name is Aaron! I'm created to help you administrate masses in your parish to make it actual weekly on www.imsha.by! First of all, thanks for activating me!\n\n Have you ever had a moments when forgot to update you mass schedule? My main goal is to remind you to do it! I will send automatically notification each week (Friday at 08.00 AM) \n\n Bot is available only for parish administrators! \n\n Also you can view parish information. \n\n Last valuable capability I provide - contact to my creators-developers in case you need it!"
@@ -25,7 +42,9 @@
       "chosen_parish": "${title}",
       "list_of_parishes": "This is list of your parishes:",
       "back_button": "◀️ Back",
-      "ask_for_details": "Please click on button above to expand on parish details!"
+      "ask_for_details": "Please click on button above to expand on parish details!",
+      "no_parishes": "You currently don't have any parishes assigned to manage. Please contact the administrator to get access to a parish.",
+      "contact_admin_button": "✍️ Contact Administrator"
     },
     "parish": {
       "title": "Parish name : ${title}",

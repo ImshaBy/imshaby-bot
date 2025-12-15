@@ -1,16 +1,21 @@
 import { getParishControlMenu, getParishesMenu } from './helpers';
 import logger from '../../util/logger';
 import { getBackKeyboard } from '../../util/keyboards';
-import { saveToSession } from '../../util/session';
-import { parishesLookupByKey } from '../../providers/search-providers';
+import { getPasswordlessCode } from '../../providers/search-providers';
 import { IParishResult } from '../../providers/search-providers/parish-lookup';
 import { SessionContext } from 'telegram-context';
+import { refreshCurrentParish } from '../../util/parish-service';
 
 
 export const parishAction = async (ctx: SessionContext, noEdit: boolean) => {
 
-    const parishes = await parishesLookupByKey(ctx.session.parish.key);
-    saveToSession(ctx, 'parish', parishes[0]);
+    // Refresh parish data from API
+    const parish = await refreshCurrentParish(ctx);
+    if (!parish) {
+        logger.error(ctx, 'Failed to refresh parish for user: %s', ctx.session.user._id);
+        await ctx.reply('Error: Failed to load parish data');
+        return ctx;
+    }
 
     let text = ctx.i18n.t('scenes.parishes.chosen_parish', {
         title: ctx.session.parish.title
@@ -62,6 +67,13 @@ export const parishAction = async (ctx: SessionContext, noEdit: boolean) => {
     // ctx.reply(`${updatePeriodInDays}`);
     text += '\n' + updatePeriodInDays;
 
+    // Fetch passwordless code for admin panel access
+    const authCode = await getPasswordlessCode(ctx.session.user.email);
+    if (!authCode) {
+        logger.error(ctx, 'Failed to get passwordless code for user: %s', ctx.session.user._id);
+        await ctx.reply('Error: Failed to generate admin panel link');
+        return ctx;
+    }
 
     if (noEdit) {
 
@@ -69,12 +81,12 @@ export const parishAction = async (ctx: SessionContext, noEdit: boolean) => {
         const { backKeyboard } = getBackKeyboard(ctx);
         ctx.replyWithHTML(
             `${text} <a href="${ctx.session.parish.imgPath}">.</a>`,
-            getParishControlMenu(ctx)
+            getParishControlMenu(ctx, authCode)
         );
     } else {
         ctx.replyWithHTML(
             `${text} <a href="${ctx.session.parish.imgPath}">.</a>`,
-            getParishControlMenu(ctx)
+            getParishControlMenu(ctx, authCode)
         );
     // ctx.answerCbQuery();
     }

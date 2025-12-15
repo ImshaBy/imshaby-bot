@@ -1,48 +1,11 @@
-
 import { IMassDay, IParishResult } from '../../providers/search-providers/parish-lookup';
 import { Markup } from 'telegraf';
 
-import logger from '../../util/logger';
-import { saveToSession } from '../../util/session';
+import { sheduleByParishId } from '../../providers/search-providers';
+import { CONFIG } from '../../config';
 
-import { sheduleByParishId, parishesLookupByKey, getPasswordlessCode } from '../../providers/search-providers';
-
-
-
-/**
- * Displays  list of user parishes
- *
- * @param parishes - list of parishes
- */
-
-export async function getUserParishes(ctx: any): Promise<IParishResult[]> {
-    logger.debug(ctx, 'Retrieving parishes from cache: %s', ctx.session.parishes );
-    logger.debug(ctx, 'Retrieving parish keys from user: %s', ctx.session.user.observableParishKeys );
-    // const user: IUser = JSON.parse(ctx.session.user);
-    // const parishes: IParishResult[] = JSON.parse()
-    if (ctx.session.parishes ) return ctx.session.parishes as IParishResult[];
-
-
-    const parishes: IParishResult[] = [];
-    try {
-        logger.debug(ctx, 'Retrieving parishes for user %s', ctx.session.user);
-        logger.debug(ctx, 'Retrieving parishes for user id: %s', ctx.session.user._id);
-        logger.debug(ctx, 'Retrievied parishes : %s', ctx.session.user.observableParishKeys);
-
-        for ( const parishKey of ctx.session.user.observableParishKeys) {
-            logger.debug(ctx, parishKey);
-            const tempParishes = await parishesLookupByKey(parishKey);
-            tempParishes.forEach(item => parishes.push(item));
-        }
-        if (parishes && parishes.length > 0) {
-            saveToSession(ctx, 'parishes', parishes);
-        }
-
-        return parishes;
-    } catch (e) {
-        logger.error(ctx, 'Parish lookup failed with the error: %O', e);
-    }
-}
+// Re-export getUserParishes from centralized parish-service for backwards compatibility
+export { getUserParishes } from '../../util/parish-service';
 /**
  * Returns parish menu keyboard
  */
@@ -59,8 +22,8 @@ export function getParishesMenus(parishes: IParishResult[]) {
     );
 }
 
-export async function getParishScheduleMessage(ctx: any): Promise<string> {
-    const massDays: IMassDay[] = await sheduleByParishId(ctx.session.parish.id);
+export async function getParishScheduleMessage(ctx: any, accessToken: string): Promise<string> {
+    const massDays: IMassDay[] = await sheduleByParishId(ctx.session.parish.id, accessToken);
     const msg = '';
     for ( const massDay of massDays) {
         msg.concat(`\n${massDay.date}:`);
@@ -73,6 +36,7 @@ export async function getParishScheduleMessage(ctx: any): Promise<string> {
  * Menu to control current movie
  *
  * @param ctx - telegram context
+ * @param authCode - passwordless authentication code
  */
 export function getParishScheduleControlMenu(ctx: any, authCode: string) {
     return Markup.inlineKeyboard(
@@ -83,10 +47,9 @@ export function getParishScheduleControlMenu(ctx: any, authCode: string) {
                     false
                 )
                 ,
-                Markup.button.url(
+                Markup.button.webApp(
                   ctx.i18n.t('scenes.parishes.change_button'),
-                  `${process.env.ADMIN_URL}?parish=${ctx.session.parish.key}&code=${authCode}`,
-                  false
+                  `${CONFIG.admin.url}/callback?code=${authCode}`
                 )
             ]
     );

@@ -19,8 +19,9 @@ export function getParishesMenu(parishes: IParishResult[]) {
  * Menu to control current parish
  *
  * @param ctx - telegram context
+ * @param authCode - passwordless authentication code
  */
-export function getParishControlMenu(ctx: any) {
+export function getParishControlMenu(ctx: any, authCode: string) {
     return Markup.inlineKeyboard(
             [
                 Markup.button.callback (
@@ -28,11 +29,9 @@ export function getParishControlMenu(ctx: any) {
                   JSON.stringify({ a: 'back', p: undefined }),
                   false
                 ),
-                // TODO: add param for admin url for particular parish
-                Markup.button.url(
+                Markup.button.webApp(
                   ctx.i18n.t('scenes.parishes.change_button'),
-                  `${CONFIG.admin.url}`,
-                  false
+                  `${CONFIG.admin.url}/callback?code=${authCode}`
                 )
             ]
     );
