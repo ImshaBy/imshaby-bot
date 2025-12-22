@@ -323,7 +323,10 @@ async function attemptTokenRetrieval(ctx: any, user: IUser) {
 
     // Welcome message
     await ctx.reply(ctx.i18n.t('scenes.start.verification_success'), Markup.removeKeyboard());
-    await ctx.reply(ctx.i18n.t('scenes.start.bot_description'), Markup.removeKeyboard());
+    await ctx.reply(ctx.i18n.t('scenes.start.bot_description'), {
+        parse_mode: 'HTML',
+        ...Markup.removeKeyboard()
+    });
     
     // Leave the scene
     ctx.scene.leave();
