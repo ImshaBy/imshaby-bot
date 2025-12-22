@@ -2,7 +2,7 @@ import { IMassDay, IParishResult } from '../../providers/search-providers/parish
 import { Markup } from 'telegraf';
 
 import { sheduleByParishId } from '../../providers/search-providers';
-import { CONFIG } from '../../config';
+import { buildAdminPanelUrl } from '../../util/common';
 
 // Re-export getUserParishes from centralized parish-service for backwards compatibility
 export { getUserParishes } from '../../util/parish-service';
@@ -49,7 +49,7 @@ export function getParishScheduleControlMenu(ctx: any, authCode: string) {
                 ,
                 Markup.button.webApp(
                   ctx.i18n.t('scenes.parishes.change_button'),
-                  `${CONFIG.admin.url}/callback?code=${authCode}`
+                  buildAdminPanelUrl(authCode, ctx.session.parish.key)
                 )
             ]
     );

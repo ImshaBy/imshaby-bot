@@ -1,6 +1,6 @@
 import { IParishResult } from '../../providers/search-providers/parish-lookup';
 import { Markup, Context } from 'telegraf';
-import {CONFIG} from '../../config';
+import { buildAdminPanelUrl } from '../../util/common';
 /**
  * Displays menu with a list of parishes
  *
@@ -31,7 +31,7 @@ export function getParishControlMenu(ctx: any, authCode: string) {
                 ),
                 Markup.button.webApp(
                   ctx.i18n.t('scenes.parishes.change_button'),
-                  `${CONFIG.admin.url}/callback?code=${authCode}`
+                  buildAdminPanelUrl(authCode, ctx.session.parish.key)
                 )
             ]
     );
