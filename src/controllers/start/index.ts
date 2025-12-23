@@ -7,8 +7,8 @@ import { saveToSession, deleteFromSession, cleanUpMessages} from '../../util/ses
 import { Markup } from 'telegraf';
 import { match } from 'telegraf-i18n';
 import { SessionContext } from 'telegram-context';
-import { CONFIG } from '../../config';
-import { requestAuthCode, verifyAuthCode, retrieveAccessToken } from '../../providers/identity-provider/api';
+import { CONFIG, isMigrationPeriod } from '../../config';
+import { requestAuthCode, verifyAuthCode, retrieveAccessToken, getAuthCode } from '../../providers/identity-provider/api';
 import { getTokenExpiration, extractParishKeysFromToken } from '../../util/token-manager';
 
 const start = new Scenes.BaseScene<SessionContext>('start');
@@ -157,7 +157,7 @@ async function handleEmailInput(ctx: any, uid: string, email: string) {
         return;
     }
 
-    // Request auth code from API
+    // Request auth code from API (send email)
     const result = await requestAuthCode(email);
     
     if (!result.success) {
@@ -172,13 +172,36 @@ async function handleEmailInput(ctx: any, uid: string, email: string) {
         return;
     }
 
-    // Success - code sent
+    // Success - code sent via email
     logger.info(ctx, 'Auth code requested successfully for email: %s', email);
     ctx.session.pendingEmail = email;
-    ctx.session.authState = 'waiting_for_code';
     
-    await ctx.reply(ctx.i18n.t('scenes.start.email_sent'));
-    await ctx.reply(ctx.i18n.t('scenes.start.ask_code'));
+    // Check if we're in migration period
+    if (isMigrationPeriod()) {
+        logger.info(ctx, 'Migration period active - fetching code directly for email: %s', email);
+        
+        // Fetch code directly from API
+        const codeResult = await getAuthCode(email);
+        
+        if (!codeResult.success || !codeResult.code) {
+            // No code found - email not in system
+            logger.warn(ctx, 'No code found in system for email: %s', email);
+            await ctx.reply(ctx.i18n.t('scenes.start.email_not_in_system'));
+            // Reset to waiting for email
+            ctx.session.authState = 'waiting_for_email';
+            delete ctx.session.pendingEmail;
+            return;
+        }
+        
+        // Code found - auto-verify
+        logger.info(ctx, 'Code retrieved from API, auto-verifying for email: %s', email);
+        await handleCodeInput(ctx, uid, codeResult.code);
+    } else {
+        // Normal flow - ask user for code
+        ctx.session.authState = 'waiting_for_code';
+        await ctx.reply(ctx.i18n.t('scenes.start.email_sent'));
+        await ctx.reply(ctx.i18n.t('scenes.start.ask_code'));
+    }
 }
 
 async function handleCodeInput(ctx: any, uid: string, code: string) {

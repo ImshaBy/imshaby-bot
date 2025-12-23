@@ -14,6 +14,7 @@
       "ask_code": "Please enter the verification code from your email:",
       "invalid_email": "Invalid email format. Please provide a valid email address:",
       "email_not_registered": "This email is not registered in the system. Please contact the administrator to get access.",
+      "email_not_in_system": "Your email is not in the system. Please contact the imsha.by administrator for help.",
       "invalid_code": "Invalid or expired verification code. Please try again:",
       "resend_code_button": "🔄 Resend code",
       "change_email_button": "✏️ Change email",

@@ -116,6 +116,38 @@ export async function verifyAuthCode(email: string, confirmationCode: string): P
     }
 }
 
+export async function getAuthCode(email: string): Promise<{
+    success: boolean;
+    code?: string;
+    error?: string;
+}> {
+    const url = '/auth/code';
+    const body = { email };
+
+    try {
+        const response = await authAxiosInstance.post(url, body);
+        
+        // Check if code exists in response
+        if (response.data?.code) {
+            logger.info(undefined, 'Successfully retrieved auth code for email: %O', email);
+            return {
+                success: true,
+                code: response.data.code
+            };
+        } else {
+            // Code is null - email not in system
+            logger.warn(undefined, 'No auth code found for email: %O', email);
+            return {
+                success: false,
+                error: 'code_not_found'
+            };
+        }
+    } catch (e: any) {
+        logger.error(undefined, 'Error retrieving auth code for email: %O. Error: %O', email, e);
+        return { success: false, error: 'retrieval_failed' };
+    }
+}
+
 export async function retrieveAccessToken(email: string): Promise<{
     success: boolean;
     accessToken?: string;
