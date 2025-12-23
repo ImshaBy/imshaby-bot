@@ -7,9 +7,10 @@ import { saveToSession, deleteFromSession, cleanUpMessages} from '../../util/ses
 import { Markup } from 'telegraf';
 import { match } from 'telegraf-i18n';
 import { SessionContext } from 'telegram-context';
-import { CONFIG, isMigrationPeriod } from '../../config';
-import { requestAuthCode, verifyAuthCode, retrieveAccessToken, getAuthCode } from '../../providers/identity-provider/api';
+import { CONFIG } from '../../config';
+import { generatePasswordlessCode, retrieveAccessToken } from '../../providers/identity-provider/api';
 import { getTokenExpiration, extractParishKeysFromToken } from '../../util/token-manager';
+import { sendMessageWithErrorHandling } from '../../util/notifier';
 
 const start = new Scenes.BaseScene<SessionContext>('start');
 
@@ -65,15 +66,25 @@ start.on('message', async (ctx: SessionContext) => {
 
     // Handle /menu command
     if (messageText === '/menu') {
-        await ctx.reply(ctx.i18n.t('scenes.start.no_menu_click'), {reply_markup: { remove_keyboard: true}});
+        const user = await User.findById(uid);
+        
+        // If user is not verified, add inline button to continue with email entry
+        if (!user || !user.emailVerified) {
+            await ctx.reply(
+                ctx.i18n.t('scenes.start.no_menu_click'),
+                Markup.inlineKeyboard([
+                    [Markup.button.callback(ctx.i18n.t('scenes.start.ask_email'), 'start_email_entry')]
+                ])
+            );
+        } else {
+            await ctx.reply(ctx.i18n.t('scenes.start.no_menu_click'), {reply_markup: { remove_keyboard: true}});
+        }
         return;
     }
 
     // State machine for auth flow
     if (authState === 'waiting_for_email') {
         await handleEmailInput(ctx, uid, messageText);
-    } else if (authState === 'waiting_for_code') {
-        await handleCodeInput(ctx, uid, messageText);
     } else {
         // No auth state set, ask for email
         ctx.session.authState = 'waiting_for_email';
@@ -81,34 +92,14 @@ start.on('message', async (ctx: SessionContext) => {
     }
 });
 
-start.action('resend_code', async (ctx: any) => {
-    logger.debug(ctx, 'Resend code action triggered');
-    
-    const email = ctx.session.pendingEmail;
-    
-    if (!email) {
-        logger.error(ctx, 'No pending email found in session for resend code');
-        await ctx.answerCbQuery();
-        await ctx.reply(ctx.i18n.t('scenes.start.ask_email'));
-        ctx.session.authState = 'waiting_for_email';
-        return;
-    }
 
-    // Request new auth code from API
-    const result = await requestAuthCode(email);
-    
-    if (!result.success) {
-        logger.error(ctx, 'Failed to resend auth code for email: %s', email);
-        await ctx.answerCbQuery();
-        await ctx.reply(ctx.i18n.t('scenes.start.verification_failed'));
-        return;
-    }
-
-    // Success - code resent
-    logger.info(ctx, 'Auth code resent successfully for email: %s', email);
+start.action('start_email_entry', async (ctx: any) => {
+    logger.debug(ctx, 'Start email entry action triggered');
     await ctx.answerCbQuery();
-    await ctx.reply(ctx.i18n.t('scenes.start.code_resent'));
-    await ctx.reply(ctx.i18n.t('scenes.start.ask_code'));
+    
+    // Set auth state and ask for email
+    ctx.session.authState = 'waiting_for_email';
+    await ctx.reply(ctx.i18n.t('scenes.start.ask_email'));
 });
 
 start.action('retry_token_retrieval', async (ctx: any) => {
@@ -147,6 +138,73 @@ start.action('contact_admin_no_parishes', async (ctx: any) => {
     await ctx.scene.enter('contact');
 });
 
+start.action('change_email_token', async (ctx: any) => {
+    logger.debug(ctx, 'Change email action triggered - token retrieval failed');
+    await ctx.answerCbQuery();
+    
+    const uid = String(ctx.from.id);
+    const user = await User.findById(uid);
+    
+    if (!user) {
+        logger.error(ctx, 'User %s not found', uid);
+        await ctx.reply(ctx.i18n.t('scenes.start.verification_failed'));
+        return;
+    }
+    
+    // Reset email verification status and clear token
+    await User.findByIdAndUpdate(
+        uid,
+        {
+            emailVerified: false,
+            accessToken: undefined,
+            tokenExpiresAt: undefined
+        }
+    );
+    
+    // Reset auth state back to email input
+    ctx.session.authState = 'waiting_for_email';
+    delete ctx.session.pendingEmail;
+    
+    logger.info(ctx, 'User requested to change email after token retrieval failure, resetting auth flow');
+    await ctx.reply(ctx.i18n.t('scenes.start.ask_email_again'));
+});
+
+start.action('ask_admin_token', async (ctx: any) => {
+    logger.debug(ctx, 'Ask admin action triggered');
+    await ctx.answerCbQuery();
+    
+    const uid = String(ctx.from.id);
+    const user = await User.findById(uid);
+    const pendingEmail = ctx.session.pendingEmail;
+    
+    // Handle code generation failure (no user yet, but have email)
+    if (!user && pendingEmail) {
+        logger.info(ctx, 'Sending code generation error to admins for email: %s', pendingEmail);
+        await sendCodeGenerationErrorToAdmins(ctx, pendingEmail);
+        // Send specific message for code generation failure context
+        await ctx.reply(ctx.i18n.t('scenes.start.admin_notified_code_generation'));
+        return;
+    }
+    
+    // Handle case when user is not found in database
+    if (!user || !user.email) {
+        logger.error(ctx, 'User %s not found or no email in database', uid);
+        
+        // Send admin notification with context data
+        await sendUserNotFoundErrorToAdmins(ctx, pendingEmail);
+        
+        await ctx.reply(ctx.i18n.t('scenes.start.verification_failed'));
+        await ctx.reply(ctx.i18n.t('scenes.start.admin_notified'));
+        return;
+    }
+    
+    // Send message to admins
+    await sendTokenErrorToAdmins(ctx, user);
+    
+    // Send specific message for token retrieval failure context
+    await ctx.reply(ctx.i18n.t('scenes.start.admin_notified_token_retrieval'));
+});
+
 async function handleEmailInput(ctx: any, uid: string, email: string) {
     logger.info(ctx, 'Processing email input: %s for user %s', email, uid);
     
@@ -157,88 +215,30 @@ async function handleEmailInput(ctx: any, uid: string, email: string) {
         return;
     }
 
-    // Request auth code from API (send email)
-    const result = await requestAuthCode(email);
+    // Generate passwordless code (this serves as email verification)
+    const codeResult = await generatePasswordlessCode(email);
     
-    if (!result.success) {
-        if (result.error === 'email_not_registered') {
-            logger.warn(ctx, 'Email not registered: %s', email);
-            await ctx.reply(ctx.i18n.t('scenes.start.email_not_registered'));
-            // Stay in waiting_for_email state
-        } else {
-            logger.error(ctx, 'Failed to request auth code for email: %s', email);
-            await ctx.reply(ctx.i18n.t('scenes.start.verification_failed'));
-        }
+    if (!codeResult.success || !codeResult.code) {
+        logger.warn(ctx, 'Failed to generate passwordless code for email: %s, error: %s', email, codeResult.error);
+        
+        // Show error message with action buttons
+        await ctx.reply(
+            ctx.i18n.t('scenes.start.email_not_registered'),
+            Markup.inlineKeyboard([
+                [
+                    Markup.button.callback(ctx.i18n.t('scenes.start.change_email_button'), 'change_email'),
+                    Markup.button.callback(ctx.i18n.t('scenes.start.ask_admin_button'), 'ask_admin_token')
+                ]
+            ])
+        );
+        // Stay in waiting_for_email state
         return;
     }
 
-    // Success - code sent via email
-    logger.info(ctx, 'Auth code requested successfully for email: %s', email);
-    ctx.session.pendingEmail = email;
+    // Code generated successfully - email exists and is verified
+    logger.info(ctx, 'Passwordless code generated successfully for email: %s (email verified)', email);
     
-    // Check if we're in migration period
-    if (isMigrationPeriod()) {
-        logger.info(ctx, 'Migration period active - fetching code directly for email: %s', email);
-        
-        // Fetch code directly from API
-        const codeResult = await getAuthCode(email);
-        
-        if (!codeResult.success || !codeResult.code) {
-            // No code found - email not in system
-            logger.warn(ctx, 'No code found in system for email: %s', email);
-            await ctx.reply(ctx.i18n.t('scenes.start.email_not_in_system'));
-            // Reset to waiting for email
-            ctx.session.authState = 'waiting_for_email';
-            delete ctx.session.pendingEmail;
-            return;
-        }
-        
-        // Code found - auto-verify
-        logger.info(ctx, 'Code retrieved from API, auto-verifying for email: %s', email);
-        await handleCodeInput(ctx, uid, codeResult.code);
-    } else {
-        // Normal flow - ask user for code
-        ctx.session.authState = 'waiting_for_code';
-        await ctx.reply(ctx.i18n.t('scenes.start.email_sent'));
-        await ctx.reply(ctx.i18n.t('scenes.start.ask_code'));
-    }
-}
-
-async function handleCodeInput(ctx: any, uid: string, code: string) {
-    const email = ctx.session.pendingEmail;
-    
-    if (!email) {
-        logger.error(ctx, 'No pending email found in session for user %s', uid);
-        ctx.session.authState = 'waiting_for_email';
-        await ctx.reply(ctx.i18n.t('scenes.start.ask_email'));
-        return;
-    }
-
-    logger.info(ctx, 'Verifying code for email: %s, user: %s', email, uid);
-    
-    // Verify code with API
-    const result = await verifyAuthCode(email, code.trim());
-    if (!result.success) {
-        if (result.error === 'invalid_code') {
-            logger.warn(ctx, 'Invalid verification code for email: %s', email);
-            await ctx.reply(
-                ctx.i18n.t('scenes.start.invalid_code'),
-                Markup.inlineKeyboard([
-                    [Markup.button.callback(ctx.i18n.t('scenes.start.resend_code_button'), 'resend_code')],
-                    [Markup.button.callback(ctx.i18n.t('scenes.start.change_email_button'), 'change_email')]
-                ])
-            );
-        } else {
-            logger.error(ctx, 'Failed to verify code for email: %s', email);
-            await ctx.reply(ctx.i18n.t('scenes.start.verification_failed'));
-        }
-        return;
-    }
-
-    // Success - code is valid, mark email as verified PERMANENTLY
-    logger.info(ctx, 'Email verification successful for: %s', email);
-    
-    // Create or update user with verified email (token retrieval is next step)
+    // Create or update user with verified email
     const now = Date.now();
     let user = await User.findById(uid);
     
@@ -270,13 +270,14 @@ async function handleCodeInput(ctx: any, uid: string, code: string) {
         logger.info(ctx, 'Created new user %s with verified email', uid);
     }
 
-    // Clean up email verification session state
+    // Clean up session state
     delete ctx.session.authState;
     delete ctx.session.pendingEmail;
 
-    // Email verification is complete - now attempt token retrieval
+    // Email verification complete - now attempt token retrieval
     await attemptTokenRetrieval(ctx, user);
 }
+
 
 async function attemptTokenRetrieval(ctx: any, user: IUser) {
     const uid = user._id;
@@ -288,11 +289,15 @@ async function attemptTokenRetrieval(ctx: any, user: IUser) {
     if (!tokenResult.success || !tokenResult.accessToken) {
         logger.error(ctx, 'Failed to retrieve access token for user %s: %s', uid, tokenResult.error);
         
-        // Show polite error message with retry button
+        // Show polite error message with three action buttons
         await ctx.reply(
             ctx.i18n.t('scenes.start.token_retrieval_failed'),
             Markup.inlineKeyboard([
-                Markup.button.callback(ctx.i18n.t('scenes.start.retry_button'), 'retry_token_retrieval')
+                [Markup.button.callback(ctx.i18n.t('scenes.start.retry_button'), 'retry_token_retrieval')],
+                [
+                    Markup.button.callback(ctx.i18n.t('scenes.start.change_email_button'), 'change_email_token'),
+                    Markup.button.callback(ctx.i18n.t('scenes.start.ask_admin_button'), 'ask_admin_token')
+                ]
             ])
         );
         return;
@@ -365,5 +370,99 @@ start.leave(async (ctx: any) => {
 
 start.hears(match('keyboards.back_keyboard.back'), start.leave());
 start.command('saveme', start.leave());
+
+/**
+ * Sends user not found error details to all administrators
+ *
+ * @param ctx - telegram context
+ * @param email - optional email from session if available
+ */
+async function sendUserNotFoundErrorToAdmins(ctx: any, email?: string) {
+    const msg = `🔴 User Not Found Error\n\n` +
+        `Валанцёр: ${ctx.from.first_name} ${ctx.from.last_name || ''}\n` +
+        `Username 🔎: @${ctx.from.username || 'N/A'}\n` +
+        `UserID 🔑: ${ctx.from.id}\n` +
+        `Email 📧: ${email || 'Not provided'}\n\n` +
+        `📍 Этап памылкі: Запыт дапамогі адміністратара (карыстальнік не знойдзены ў базе даных)\n\n` +
+        `Праблема: Карыстальнік націснуў кнопку "Звярнуцца да адміністратара", але запіс карыстальніка не знойдзены ў базе даных. ` +
+        `Магчымыя прычыны: карыстальнік не завершыў рэгістрацыю, даныя былі выдалены, або памылка базы даных.\n\n` +
+        `Калі ласка, праверце статус карыстальніка і дапамажыце з даступам.`;
+    
+    const adminIds = process.env.ADMIN_IDS;
+    if (!adminIds) {
+        logger.error(ctx, 'ADMIN_IDS not configured');
+        return;
+    }
+    
+    const adminIdsArr = adminIds.split(',');
+    for await (const adminId of adminIdsArr) {
+        await sendMessageWithErrorHandling(adminId, msg);
+    }
+    
+    logger.info(ctx, 'User not found error notification sent to admins for user ID: %s', ctx.from.id);
+}
+
+/**
+ * Sends code generation error details to all administrators
+ *
+ * @param ctx - telegram context
+ * @param email - email address that failed code generation
+ */
+async function sendCodeGenerationErrorToAdmins(ctx: any, email: string) {
+    const msg = `🔴 Email Verification Error (Code Generation Step)\n\n` +
+        `Валанцёр: ${ctx.from.first_name} ${ctx.from.last_name || ''}\n` +
+        `Username 🔎: @${ctx.from.username || 'N/A'}\n` +
+        `UserID 🔑: ${ctx.from.id}\n` +
+        `Email 📧: ${email}\n\n` +
+        `📍 Этап памылкі: Генерацыя кода для passwordless аўтэнтыфікацыі (этап праверкі email)\n\n` +
+        `Праблема: Карыстальнік увёў няправільны email або email не існуе ў сістэме. ` +
+        `Код для passwordless аўтэнтыфікацыі не можа быць згенераваны, бо email не зарэгістраваны ў FusionAuth.\n\n` +
+        `Калі ласка, праверце ці існуе гэты email у сістэме і дапамажыце карыстальніку з рэгістрацыяй або даступам.`;
+    
+    const adminIds = process.env.ADMIN_IDS;
+    if (!adminIds) {
+        logger.error(ctx, 'ADMIN_IDS not configured');
+        return;
+    }
+    
+    const adminIdsArr = adminIds.split(',');
+    for await (const adminId of adminIdsArr) {
+        await sendMessageWithErrorHandling(adminId, msg);
+    }
+    
+    logger.info(ctx, 'Code generation error notification sent to admins for email: %s', email);
+}
+
+/**
+ * Sends token retrieval error details to all administrators
+ *
+ * @param ctx - telegram context
+ * @param user - user object with email and verification status
+ */
+async function sendTokenErrorToAdmins(ctx: any, user: IUser) {
+    const msg = `🔴 Token Retrieval Error (Token Exchange Step)\n\n` +
+        `Валанцёр: ${ctx.from.first_name} ${ctx.from.last_name || ''}\n` +
+        `Username 🔎: @${ctx.from.username || 'N/A'}\n` +
+        `UserID 🔑: ${ctx.from.id}\n` +
+        `Email 📧: ${user.email}\n` +
+        `Email Verified: ${user.emailVerified ? 'Yes' : 'No'}\n\n` +
+        `📍 Этап памылкі: Абмен кода на access token (пасля пацверджання email)\n\n` +
+        `Праблема: Карыстальнік пацвердзіў email, але не можа атрымаць access token. ` +
+        `Магчымыя прычыны: бэкэнд не адказвае, карыстальнік заблакаваны, або іншыя тэхнічныя праблемы.\n\n` +
+        `Калі ласка, праверце статус карыстальніка і дапамажыце з даступам.`;
+    
+    const adminIds = process.env.ADMIN_IDS;
+    if (!adminIds) {
+        logger.error(ctx, 'ADMIN_IDS not configured');
+        return;
+    }
+    
+    const adminIdsArr = adminIds.split(',');
+    for await (const adminId of adminIdsArr) {
+        await sendMessageWithErrorHandling(adminId, msg);
+    }
+    
+    logger.info(ctx, 'Token error notification sent to admins for user %s', user._id);
+}
 
 export default start;

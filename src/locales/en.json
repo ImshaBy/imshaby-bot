@@ -25,6 +25,10 @@
       "session_expired_reauth": "⚠️ Your session has expired or is invalid. Please re-authenticate to continue.",
       "token_retrieval_failed": "We apologize, but we're experiencing temporary technical difficulties on our end. Please try again in a moment. Thank you for your patience! 🙏",
       "retry_button": "🔄 Retry",
+      "ask_admin_button": "👨‍💼 Ask Administrator",
+      "admin_notified": "✅ Your request has been sent to the administrator. They will assist you shortly.",
+      "admin_notified_code_generation": "✅ Your request has been sent to the administrator. They will check your email and help you with registration or access shortly.",
+      "admin_notified_token_retrieval": "✅ Your email is verified, but we're experiencing issues retrieving your access. Your request has been sent to the administrator. They will assist you shortly.",
       "no_parishes_assigned": "Your account is verified, but you currently don't have any parishes assigned to manage. Please contact the administrator to get access to a parish.",
       "contact_admin_button": "✍️ Contact Administrator"
     },

@@ -68,83 +68,44 @@ export async function registerUser(email: string, defaultParish: string, parishe
     return user;
 }
 
-export async function requestAuthCode(email: string): Promise<{ success: boolean; error?: string }> {
-    const url = '/auth/request-code';
-    const body = { email };
-
-    try {
-        await authAxiosInstance.post(url, body);
-        return { success: true };
-    } catch (e: any) {
-        logger.error(undefined, 'Error requesting auth code for email: %O. Error: %O', email, e);
-        
-        if (e.response?.status === 404 || e.response?.data?.message?.includes('not found')) {
-            return { success: false, error: 'email_not_registered' };
-        }
-        
-        return { success: false, error: 'request_failed' };
-    }
-}
-
-export async function verifyAuthCode(email: string, confirmationCode: string): Promise<{ 
-    success: boolean; 
-    error?: string 
-}> {
-    const url = '/auth/verify-code';
-    const body = { email, confirmationCode };
-
-    try {
-        const response = await authAxiosInstance.post(url, body);
-        console.log('verifyAuthCode API response', response.data);
-        
-        // Check if backend returned valid=false
-        if (response.data.valid === false) {
-            return { success: false, error: 'invalid_code' };
-        }
-        
-        return {
-            success: true
-        };
-    } catch (e: any) {
-        logger.error(undefined, 'Error verifying auth code for email: %O. Error: %O', email, e);
-        
-        if (e.response?.status === 401 || e.response?.status === 400) {
-            return { success: false, error: 'invalid_code' };
-        }
-        
-        return { success: false, error: 'verification_failed' };
-    }
-}
-
-export async function getAuthCode(email: string): Promise<{
+export async function generatePasswordlessCode(email: string): Promise<{
     success: boolean;
     code?: string;
     error?: string;
 }> {
-    const url = '/auth/code';
+    const url = '/passwordless/code';
     const body = { email };
 
     try {
-        const response = await authAxiosInstance.post(url, body);
+        const response = await passwordlessAxiosInstance.post(url, body);
         
         // Check if code exists in response
         if (response.data?.code) {
-            logger.info(undefined, 'Successfully retrieved auth code for email: %O', email);
+            logger.info(undefined, 'Successfully generated passwordless code for email: %O', email);
             return {
                 success: true,
                 code: response.data.code
             };
         } else {
-            // Code is null - email not in system
-            logger.warn(undefined, 'No auth code found for email: %O', email);
+            // Empty response (200 OK with empty body) - user not found (security measure)
+            logger.warn(undefined, 'No code returned from passwordless/code API for email: %O (user not found)', email);
             return {
                 success: false,
-                error: 'code_not_found'
+                error: 'user_not_found'
             };
         }
     } catch (e: any) {
-        logger.error(undefined, 'Error retrieving auth code for email: %O. Error: %O', email, e);
-        return { success: false, error: 'retrieval_failed' };
+        logger.error(undefined, 'Error generating passwordless code for email: %O. Error: %O', email, e);
+        
+        // Handle specific error cases
+        if (e.response?.status === 400) {
+            return { success: false, error: 'validation_error' };
+        }
+        if (e.response?.status === 401 || e.response?.status === 403) {
+            return { success: false, error: 'authentication_error' };
+        }
+        
+        return { success: false, error: 'generation_failed' };
     }
 }
 
