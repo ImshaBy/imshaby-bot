@@ -111,7 +111,7 @@ async function notifyAndUpdateUsersByParishKey(parishData: IExpiredParish, type:
             expirationTime
           ).format('DD.MM.YYYY')} ў ${moment(expirationTime).format(
             'HH:mm'
-          )}. Абнавi яго, калi ласка!`;
+          )}. Абнавiце яго, калi ласка!`;
 
     await sleep(0.5);
     try {
