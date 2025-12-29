@@ -9,7 +9,7 @@ import { exposeParish } from '../../middlewares/expose-parish';
 import { IParishResult } from '../../providers/search-providers/parish-lookup';
 import { cleanUpMessages, saveToSession } from '../../util/session';
 import { SessionContext } from 'telegram-context';
-import {Scenes} from 'telegraf';
+import {Scenes, Markup} from 'telegraf';
 
 
 const parish = new Scenes.BaseScene<SessionContext>('parish');
@@ -32,7 +32,14 @@ parish.enter(async (ctx: SessionContext) => {
         saveToSession(ctx, 'parish', selectedParish);
         parishAction(ctx, true);
     } else {
-        await ctx.reply('Error', backKeyboard);
+        // No parishes assigned
+        logger.warn(ctx, 'User %s has no parishes to view', ctx.from.id);
+        await ctx.reply(
+            ctx.i18n.t('scenes.parishes.no_parishes'),
+            Markup.inlineKeyboard([
+                Markup.button.callback(ctx.i18n.t('scenes.parishes.contact_admin_button'), 'contact_admin_parish')
+            ])
+        );
     }
 });
 
@@ -48,6 +55,13 @@ parish.hears(match('keyboards.back_keyboard.back'), async (ctx: SessionContext) 
     cleanUpMessages(ctx);
     await ctx.scene.leave()
     await ctx.reply(ctx.i18n.t('shared.what_next'), mainKeyboard);
+});
+
+// Register specific actions BEFORE regex patterns to avoid conflicts
+parish.action('contact_admin_parish', async (ctx: any) => {
+    logger.debug(ctx, 'Contact admin action triggered from parish scene');
+    await ctx.answerCbQuery();
+    await ctx.scene.enter('contact');
 });
 
 parish.action(/parish/, exposeParish, async (ctx: SessionContext) => await parishAction(ctx, false));

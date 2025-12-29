@@ -44,6 +44,9 @@ export type IConfig = {
     applicationId: string,
     apiKey: string,
     defaultPass: string
+  },
+  migration: {
+    periodEnd: Date | null
   }
 
 };
@@ -77,7 +80,8 @@ function initConfig(): IConfig {
     APPLICATIONID: process.env.APPLICATIONID,
     API_KEY: process.env.API_KEY,
     DEFAULTPASSWORD: process.env.DEFAULTPASSWORD,
-    BOT_DROP_PENDING: process.env.BOT_DROP_PENDING
+    BOT_DROP_PENDING: process.env.BOT_DROP_PENDING,
+    MIGRATION_PERIOD_END: process.env.MIGRATION_PERIOD_END
   } as const;
 
   const requiredEnvsNames = ['TELEGRAM_TOKEN','BOT_DROP_PENDING', 'SCHEDULE', 'SCHEDULE_BUILD',
@@ -141,10 +145,21 @@ function initConfig(): IConfig {
       apiKey: envs.API_KEY,
       applicationId: envs.APPLICATIONID,
       defaultPass: envs.DEFAULTPASSWORD
+    },
+    migration: {
+      periodEnd: envs.MIGRATION_PERIOD_END ? new Date(envs.MIGRATION_PERIOD_END) : null
     }
   };
 
   return config;
+}
+
+export function isMigrationPeriod(): boolean {
+  const periodEnd = CONFIG.migration.periodEnd;
+  if (!periodEnd) {
+    return false;
+  }
+  return new Date() < periodEnd;
 }
 
 export const CONFIG: IConfig = initConfig();

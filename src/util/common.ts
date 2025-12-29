@@ -1,4 +1,5 @@
 import { compareTwoStrings } from 'string-similarity';
+import { CONFIG } from '../config';
 
 /**
  * Pauses execution for given amount of seconds
@@ -35,4 +36,13 @@ export function checkStringSimilarity(a: string, b: string) {
     if (first === second) return true;
 
     return compareTwoStrings(first, second) >= 0.75;
+}
+
+/**
+ * Constructs the admin panel callback URL with authentication code and parish key
+ * @param authCode - passwordless authentication code
+ * @param parishKey - the parish key identifier
+ */
+export function buildAdminPanelUrl(authCode: string, parishKey: string): string {
+    return `${CONFIG.admin.url}/callback?code=${authCode}&parish=${parishKey}`;
 }

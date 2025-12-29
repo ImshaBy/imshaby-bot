@@ -15,6 +15,8 @@ interface SessionData extends SceneSessionData{
     language: 'en' | 'ru' | any;
     counter: number;
     user: IUser;
+    authState?: 'waiting_for_email' | 'waiting_for_code';
+    pendingEmail?: string;
 }
    
 

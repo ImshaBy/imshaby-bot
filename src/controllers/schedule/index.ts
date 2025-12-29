@@ -1,5 +1,5 @@
 import { match } from 'telegraf-i18n';
-import {Scenes} from 'telegraf';
+import {Scenes, Markup} from 'telegraf';
 import logger from '../../util/logger';
 import { parishSelectAction, refreshScheduleAction } from './actions';
 import { getParishesMenus, getUserParishes } from './helpers';
@@ -26,7 +26,14 @@ schedule.enter(async (ctx: any) => {
         saveToSession(ctx, 'parish', parishes[0]);
         await parishSelectAction(ctx);
     } else {
-        await ctx.reply('no parishes');
+        // No parishes assigned
+        logger.warn(ctx, 'User %s has no parishes to manage', ctx.from.id);
+        await ctx.reply(
+            ctx.i18n.t('scenes.parishes.no_parishes'),
+            Markup.inlineKeyboard([
+                Markup.button.callback(ctx.i18n.t('scenes.parishes.contact_admin_button'), 'contact_admin_schedule')
+            ])
+        );
     }
 
 });
@@ -47,6 +54,13 @@ schedule.leave(async (ctx: any) => {
 });
 
 schedule.command('saveme', async (ctx) => await ctx.scene.leave());
+
+// Register specific actions BEFORE regex patterns to avoid conflicts
+schedule.action('contact_admin_schedule', async (ctx: any) => {
+    logger.debug(ctx, 'Contact admin action triggered from schedule scene');
+    await ctx.answerCbQuery();
+    await ctx.scene.enter('contact');
+});
 
 schedule.action(/parishSelect/, exposeParish, parishSelectAction);
 schedule.action(/refreshSchedule/, refreshScheduleAction);

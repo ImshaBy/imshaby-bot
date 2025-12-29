@@ -1,6 +1,8 @@
-import { sheduleByParishId, makeMassesActual} from '../../providers/search-providers';
+import { sheduleByParishId, makeMassesActual, getPasswordlessCode } from '../../providers/search-providers';
 
 import { getParishScheduleControlMenu} from './helpers';
+import { getValidAccessTokenFromContext } from '../../util/token-manager';
+import logger from '../../util/logger';
 
 const arrayOfWeekdays = ['Нд', 'Пн', 'Аў', 'Ср', 'Чц', 'Пт', 'Сб'];
 const arrayOfMonths = ['Студзеня', 'Лютага', 'Сакавіка', 'Красавіка', 'Мая', 'Чэрвеня', 'Ліпеня', 'Жніўня', 'Верасня', 'Кастрычніка', 'Лістапада', 'Снежня'];
@@ -8,7 +10,16 @@ const arrayOfMonths = ['Студзеня', 'Лютага', 'Сакавіка', '
 
 export const refreshScheduleAction = async (ctx: any) => {
 
-  const response = await makeMassesActual(ctx.session.parish.id);
+  // Get valid access token from context
+  const accessToken = await getValidAccessTokenFromContext(ctx);
+  if (!accessToken) {
+    logger.error(ctx, 'Failed to get valid access token for user: %s', ctx.session.user._id);
+    await ctx.editMessageText('Error: Authentication failed');
+    await ctx.answerCbQuery();
+    return;
+  }
+
+  const response = await makeMassesActual(ctx.session.parish.id, accessToken);
   if (response) {
     const updateMassesCount = Object.values(response.entities).length;
     const successMsg = ctx.i18n.t('scenes.parishes.masses_actual', {
@@ -35,7 +46,15 @@ export const parishSelectAction = async (ctx: any) => {
     let replyMsg = `\n ${parishName}`;
     // await ctx.reply(`\n ${parishName}`);
 
-    const massDays = await sheduleByParishId(ctx.session.parish.id);
+    // Get valid access token from context
+    const accessToken = await getValidAccessTokenFromContext(ctx);
+    if (!accessToken) {
+        logger.error(ctx, 'Failed to get valid access token for user: %s', ctx.session.user._id);
+        await ctx.reply('Error: Authentication failed');
+        return;
+    }
+
+    const massDays = await sheduleByParishId(ctx.session.parish.id, accessToken);
 
     for ( const massDay of massDays) {
         const parts = massDay.date.split('/');
@@ -53,9 +72,14 @@ export const parishSelectAction = async (ctx: any) => {
 
     // await ctx.editMessageText(replyMsg);
 
-    // const authCode = await await getPasswordlessCode(ctx.session.user.name);
+    // Fetch passwordless code for admin panel access
+    const authCode = await getPasswordlessCode(ctx.session.user.email);
+    if (!authCode) {
+        logger.error(ctx, 'Failed to get passwordless code for user: %s', ctx.session.user._id);
+        await ctx.reply('Error: Failed to generate admin panel link');
+        return;
+    }
 
-    const authCode = 'codeMock';
     const {message_id} = await ctx.reply(ctx.i18n.t('scenes.parishes.cta_update'), getParishScheduleControlMenu(ctx, authCode));
     await ctx.session.cleanUpMessages.push(message_id);
 

@@ -13,12 +13,43 @@ import {
 import { CONFIG } from '../config';
 import { FmtString } from 'telegraf/typings/format';
 import { ExtraReplyMessage } from 'telegraf/typings/telegram-types';
+import { getValidAccessToken } from './token-manager';
+
+/**
+ * Get a system-level access token for background tasks
+ * This uses the first available verified admin user's token
+ */
+async function getSystemAccessToken(): Promise<string | null> {
+  try {
+    // Get any verified user to use their token for system operations
+    const user = await User.findOne({ emailVerified: true, accessToken: { $exists: true } });
+    
+    if (!user) {
+      logger.error(undefined, 'No verified users found to get system access token');
+      return null;
+    }
+
+    const accessToken = await getValidAccessToken(user);
+    return accessToken;
+  } catch (e) {
+    logger.error(undefined, 'Error getting system access token: %O', e);
+    return null;
+  }
+}
 
 export async function checkNeeedToUpdateParishes() {
   logger.debug(undefined, 'Starting to check need to updated parishes');
+  
+  // Get system access token for API calls
+  const accessToken = await getSystemAccessToken();
+  if (!accessToken) {
+    logger.error(undefined, 'Failed to get system access token, aborting parish check');
+    return;
+  }
+
   // run every friday, get masses for week & check needToUpdate (all not-..). If there is any unupdated mass ->
   // fetch parish IDs -> get parish details & collect parish keys -> get users by parish keys
-  const neededParishes = await getAllNeedToUpdateParishKeys();
+  const neededParishes = await getAllNeedToUpdateParishKeys(accessToken);
   neededParishes.expiredParishes.forEach(async (parish) => {
     await sleep(0.5);
     logger.debug(undefined, 'User is gonna to be notified for  , %O', parish.key);

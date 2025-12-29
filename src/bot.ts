@@ -20,6 +20,7 @@ import { updateUserTimestamp } from './middlewares/update-user-timestamp';
 import { getUserInfo } from './middlewares/user-info';
 import { isAdmin } from './middlewares/is-admin';
 import { isSupportedChatType } from './middlewares/is-group-message';
+import { requireValidToken } from './middlewares/require-valid-token';
 // import {session} from './redis';
 import {CONFIG} from './config';
 import { cleanUpMessages } from './util/session';
@@ -66,38 +67,42 @@ export function createBot(token: string): Telegraf<SessionContext> {
     bot.hears(
         match('keyboards.main_keyboard.schedule'),
         isSupportedChatType,
+        requireValidToken,
         updateUserTimestamp,
         asyncWrapper(async (ctx: any) => await ctx.scene.enter('schedule'))
     );
 
-    bot.command('update',  isSupportedChatType, updateUserTimestamp, asyncWrapper(async (ctx: any) => await ctx.scene.enter('schedule')));
+    bot.command('update',  isSupportedChatType, requireValidToken, updateUserTimestamp, asyncWrapper(async (ctx: any) => await ctx.scene.enter('schedule')));
 
 
 
     bot.hears(
         match('keyboards.main_keyboard.parish'),
         isSupportedChatType,
+        requireValidToken,
         updateUserTimestamp,
         asyncWrapper(async (ctx: any) => await ctx.scene.enter('parish'))
     );
-    bot.command('parish',  isSupportedChatType, updateUserTimestamp, asyncWrapper(async (ctx: any) => await ctx.scene.enter('parish')));
+    bot.command('parish',  isSupportedChatType, requireValidToken, updateUserTimestamp, asyncWrapper(async (ctx: any) => await ctx.scene.enter('parish')));
 
     bot.hears(
         match('keyboards.main_keyboard.contact'),
         isSupportedChatType,
+        requireValidToken,
         updateUserTimestamp,
         asyncWrapper(async (ctx: any) => await ctx.scene.enter('contact'))
     );
-    bot.command('contact',  isSupportedChatType, updateUserTimestamp, asyncWrapper(async (ctx: any) => await ctx.scene.enter('contact')));
+    bot.command('contact',  isSupportedChatType, requireValidToken, updateUserTimestamp, asyncWrapper(async (ctx: any) => await ctx.scene.enter('contact')));
 
     bot.hears(match('keyboards.main_keyboard.about'), updateUserTimestamp, asyncWrapper(about));
     bot.command('info', updateUserTimestamp, asyncWrapper(about) );
 
-    bot.command('menu', updateUserTimestamp, asyncWrapper(menu) );
+    bot.command('menu', updateUserTimestamp,requireValidToken, asyncWrapper(menu) );
 
     bot.hears(
         /(.*admin)/,
         isSupportedChatType,
+        requireValidToken,
         isAdmin,
         asyncWrapper(async (ctx: any) => await ctx.scene.enter('admin'))
     );
