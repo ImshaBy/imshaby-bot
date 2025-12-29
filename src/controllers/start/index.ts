@@ -304,6 +304,7 @@ async function attemptTokenRetrieval(ctx: any, user: IUser) {
     }
 
     const accessToken = tokenResult.accessToken;
+    logger.info(ctx, 'Access token %s for user %s', accessToken, email);
     const tokenExpiresAt = getTokenExpiration(accessToken);
     const parishKeys = extractParishKeysFromToken(accessToken);
     
