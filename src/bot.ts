@@ -53,9 +53,11 @@ export function createBot(token: string): Telegraf<SessionContext> {
     bot.use(stage.middleware());
     bot.use(getUserInfo);
     
+
+    
     
     bot.start(asyncWrapper(async (ctx: any) => {
-        ctx.scene.enter('start')}));
+        await ctx.scene.enter('start')}));
     
     bot.hears(
         match('keyboards.main_keyboard.start'),
@@ -110,6 +112,12 @@ export function createBot(token: string): Telegraf<SessionContext> {
 
     bot.hears(/(.*?)/, isSupportedChatType, async (ctx: any) => {
         logger.debug(ctx, 'Default handler has fired');
+
+        // Check if user has pending auth state - redirect to start scene
+        if (ctx.session?.authState === 'waiting_for_email') {
+            logger.info(ctx, 'User has pending auth state, re-entering start scene to capture email');
+            return await ctx.scene.enter('start');
+        }
 
         logger.info(ctx, `Incorrect message ${ctx.message.text}`);
 

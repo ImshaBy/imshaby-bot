@@ -44,6 +44,13 @@ start.enter(async (ctx: any) => {
         return;
     }
 
+    // Check if authState already exists (scene re-entry after session loss)
+    if (ctx.session.authState === 'waiting_for_email') {
+        logger.info(ctx, 'User %s re-entering start scene with existing authState, resuming email wait', uid);
+        await ctx.reply(ctx.i18n.t('scenes.start.ask_email'), Markup.removeKeyboard());
+        return;
+    }
+
     // User not verified, start auth flow
     logger.info(ctx, 'User %s not verified, starting auth flow', uid);
     ctx.session.authState = 'waiting_for_email';
