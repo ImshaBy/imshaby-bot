@@ -31,7 +31,10 @@ import { Redis } from "@telegraf/session/redis";
 export function createBot(token: string): Telegraf<SessionContext> {
 
     const bot = new Telegraf<SessionContext>(token);
-    const store: SessionStore<SessionData> = Redis({ url: `redis://${CONFIG.redis.host}:${CONFIG.redis.port}` });
+    const redisUrl = CONFIG.redis.password 
+        ? `redis://:${CONFIG.redis.password}@${CONFIG.redis.host}:${CONFIG.redis.port}`
+        : `redis://${CONFIG.redis.host}:${CONFIG.redis.port}`;
+    const store: SessionStore<SessionData> = Redis({ url: redisUrl });
     const stage = new Scenes.Stage([
         startScene,
         scheduleScene,
