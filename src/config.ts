@@ -165,4 +165,10 @@ export function isMigrationPeriod(): boolean {
   return new Date() < periodEnd;
 }
 
+export function getRedisUrl(): string {
+  return CONFIG.redis.password 
+    ? `redis://:${CONFIG.redis.password}@${CONFIG.redis.host}:${CONFIG.redis.port}`
+    : `redis://${CONFIG.redis.host}:${CONFIG.redis.port}`;
+}
+
 export const CONFIG: IConfig = initConfig();

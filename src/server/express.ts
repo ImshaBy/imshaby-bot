@@ -15,6 +15,7 @@ import { invokeGitHubAction, addBuildMessage, checkNeeedToRebuildSite, getBuildM
 import { Telegram } from 'telegraf';
 import { CONFIG } from '../config';
 import * as Sentry from "@sentry/node";
+import { getHealthStatus } from '../util/health-check';
 
 i18next
     .use(Backend)
@@ -54,6 +55,22 @@ export async function createExpressServer(telegram: Telegram): Promise<Express> 
     app.get('/',  function (req: any, res: any) {
       logger.debug(undefined, `Public root url is triggered `);
       res.json({'status': 'ok'});
+    });
+
+    app.get('/health', async function (req: any, res: any) {
+      try {
+        const health = await getHealthStatus();
+        const httpStatus = health.status === 'ok' ? 200 : health.status === 'degraded' ? 200 : 503;
+        res.status(httpStatus).json(health);
+      } catch (error) {
+        logger.error(undefined, 'Health check error: %O', error);
+        res.status(503).json({
+          status: 'error',
+          message: 'Health check failed',
+          mongodb: { status: 'unknown', healthy: false },
+          redis: { connected: false, role: null, isMaster: false, canWrite: false, error: 'Health check error' }
+        });
+      }
     });
   
     app.post('/chat/parish',  function (req: any, res: any) {
