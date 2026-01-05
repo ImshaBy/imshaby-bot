@@ -51,8 +51,6 @@ export function extractParishKeysFromToken(token: string): string[] {
             // If parishes is an object, extract values
             if (typeof payload.parishes === 'object') {
                 logger.debug(undefined, 'extractParishKeysFromToken -> parishes is an object: %O', payload.parishes);
-                logger.info(undefined, 'parishes %O', payload.parishes);
-                logger.info(undefined, 'extractParishKeysFromToken -> parishes is an object: %O', Object.values(payload.parishes).filter((val): val is string => typeof val === 'string'));
                 return Object.values(payload.parishes).filter((val): val is string => typeof val === 'string');
             }
         }
