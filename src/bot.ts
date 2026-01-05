@@ -31,7 +31,10 @@ import { Redis } from "@telegraf/session/redis";
 export function createBot(token: string): Telegraf<SessionContext> {
 
     const bot = new Telegraf<SessionContext>(token);
-    const store: SessionStore<SessionData> = Redis({ url: `redis://${CONFIG.redis.host}:${CONFIG.redis.port}` });
+    const redisUrl = CONFIG.redis.password 
+        ? `redis://:${CONFIG.redis.password}@${CONFIG.redis.host}:${CONFIG.redis.port}`
+        : `redis://${CONFIG.redis.host}:${CONFIG.redis.port}`;
+    const store: SessionStore<SessionData> = Redis({ url: redisUrl });
     const stage = new Scenes.Stage([
         startScene,
         scheduleScene,
@@ -53,9 +56,11 @@ export function createBot(token: string): Telegraf<SessionContext> {
     bot.use(stage.middleware());
     bot.use(getUserInfo);
     
+
+    
     
     bot.start(asyncWrapper(async (ctx: any) => {
-        ctx.scene.enter('start')}));
+        await ctx.scene.enter('start')}));
     
     bot.hears(
         match('keyboards.main_keyboard.start'),
@@ -110,6 +115,12 @@ export function createBot(token: string): Telegraf<SessionContext> {
 
     bot.hears(/(.*?)/, isSupportedChatType, async (ctx: any) => {
         logger.debug(ctx, 'Default handler has fired');
+
+        // Check if user has pending auth state - redirect to start scene
+        if (ctx.session?.authState === 'waiting_for_email') {
+            logger.info(ctx, 'User has pending auth state, re-entering start scene to capture email');
+            return await ctx.scene.enter('start');
+        }
 
         logger.info(ctx, `Incorrect message ${ctx.message.text}`);
 

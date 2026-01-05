@@ -33,7 +33,8 @@ export type IConfig = {
   },
   redis: {
     host: string,
-    port: string
+    port: string,
+    password?: string
   },
   build: {
     repoOwner: string,
@@ -68,6 +69,7 @@ function initConfig(): IConfig {
     APIBEARER: process.env.APIBEARER,
     REDIS_HOST: process.env.REDIS_HOST,
     REDIS_PORT: process.env.REDIS_PORT,
+    REDIS_PASSWORD: process.env.REDIS_PASSWORD,
     INTERNAL_APIHOST: process.env.INTERNAL_APIHOST,
     DEFAULT_LANG: process.env.DEFAULT_LANG || 'ru',
     CHAT_TYPES: process.env.CHAT_TYPES,
@@ -135,7 +137,8 @@ function initConfig(): IConfig {
     },
     redis: {
       host: envs.REDIS_HOST || '127.0.0.1',
-      port: envs.REDIS_PORT || '6379'
+      port: envs.REDIS_PORT || '6379',
+      password: envs.REDIS_PASSWORD
     },
     schedule: {
       build: envs.SCHEDULE_BUILD,
