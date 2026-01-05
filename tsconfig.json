@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
+    "module": "CommonJS",
     "esModuleInterop": true,
     "target": "es6",
     "noImplicitAny": true,
@@ -10,6 +10,7 @@
     "outDir": "dist",
     "baseUrl": ".",
     "resolveJsonModule": true,
+    "skipLibCheck": true,
     "lib": ["es2017"],
     "forceConsistentCasingInFileNames": true,
 

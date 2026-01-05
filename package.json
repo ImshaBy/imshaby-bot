@@ -14,7 +14,7 @@
     "eslint": "eslint -c .eslintrc.json .",
     "serve-debug": "nodemon --inspect dist/index.js",
     "start:prod": "node dist/index.js",
-    "start:dev": "nodesrc/index.ts",
+    "start:dev": "node src/index.ts",
     "start:debug": "NODE_ENV=debug nodemon --inspect-rbk src/index.ts",
     "build": "yarn tsc && yarn sentry:sourcemaps",
     "build:qa": "yarn tsc",
