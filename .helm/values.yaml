@@ -45,8 +45,8 @@ config:
   logLevel: "info"
 
 secrets:
-  enabled: false
-  existingSecret: ""
+  enabled: true
+  existingSecret: "bot-secrets"
 
 # ========== Ресурсы и лимиты ==========
 resources:
