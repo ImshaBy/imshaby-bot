@@ -1,0 +1,56 @@
+{{- /* Primary Service - ALWAYS rendered when service.enabled (FR-010) */ -}}
+{{- if .Values.service.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "my-app.fullname" . }}
+  labels:
+    {{- include "my-app.labels" . | nindent 4 }}
+  annotations:
+    {{- with .Values.service.annotations }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: {{ .Values.service.targetPort }}
+      protocol: TCP
+      name: http
+    {{- with .Values.service.additionalPorts }}
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+  selector:
+    {{- include "my-app.selectorLabels" . | nindent 4 }}
+{{- end }}
+{{- /* Additional workloads - when workloads map is non-empty (FR-010) */ -}}
+{{- if .Values.workloads }}
+{{- range $wName, $w := .Values.workloads }}
+{{- if (($w.service | default dict).enabled | default true) }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "workload.fullname" (dict "ctx" $ "name" $wName) }}
+  labels:
+    {{- include "workload.labels" (dict "ctx" $ "name" $wName) | nindent 4 }}
+  annotations:
+    {{- with ($w.service | default dict).annotations }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  type: {{ ($w.service | default dict).type | default (($.Values.service | default dict).type) | default "ClusterIP" }}
+  ports:
+    - port: {{ ($w.service | default dict).port | default (($.Values.service | default dict).port) | default 80 }}
+      targetPort: {{ ($w.service | default dict).targetPort | default (($.Values.service | default dict).targetPort) | default 8080 }}
+      protocol: TCP
+      name: http
+    {{- with ($w.service | default dict).additionalPorts }}
+    {{- toYaml . | nindent 6 }}
+    {{- end }}
+  selector:
+    {{- include "workload.selectorLabels" (dict "ctx" $ "name" $wName) | nindent 4 }}
+{{- end }}
+{{- end }}
+{{- end }}

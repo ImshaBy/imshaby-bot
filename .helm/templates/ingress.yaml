@@ -1,0 +1,89 @@
+{{- /* Primary Ingress - ALWAYS rendered when ingress.enabled (FR-010) */ -}}
+{{- if .Values.ingress.enabled }}
+{{- $fullName := include "my-app.fullname" . -}}
+{{- $svcPort := .Values.service.port -}}
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ $fullName }}
+  labels:
+    {{- include "my-app.labels" . | nindent 4 }}
+  annotations:
+    {{- with .Values.ingress.annotations }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+    {{- if eq .Values.deployType "preview" }}
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      more_set_headers "X-Robots-Tag: noindex, nofollow";
+    {{- end }}
+spec:
+  {{- if .Values.ingress.className }}
+  ingressClassName: {{ .Values.ingress.className }}
+  {{- end }}
+  rules:
+  {{- range .Values.ingress.hosts }}
+    - host: {{ .host | quote }}
+      http:
+        paths:
+        {{- range .paths }}
+          - path: {{ .path }}
+            pathType: {{ .pathType }}
+            backend:
+              service:
+                name: {{ $fullName }}
+                port:
+                  number: {{ $svcPort }}
+        {{- end }}
+  {{- end }}
+  {{- with .Values.ingress.tls }}
+  tls:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+{{- end }}
+{{- /* Additional workloads - when workloads map is non-empty (FR-010) */ -}}
+{{- if .Values.workloads }}
+{{- range $wName, $w := .Values.workloads }}
+{{- if (($w.ingress | default dict).enabled) }}
+---
+{{- $fullName := include "workload.fullname" (dict "ctx" $ "name" $wName) -}}
+{{- $svcPort := ($w.service | default dict).port | default (($.Values.service | default dict).port) | default 80 -}}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ $fullName }}
+  labels:
+    {{- include "workload.labels" (dict "ctx" $ "name" $wName) | nindent 4 }}
+  annotations:
+    {{- with ($w.ingress | default dict).annotations }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+    {{- with ($.Values.ingress | default dict).annotations }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  {{- if ((($w.ingress | default dict).className) | default (($.Values.ingress | default dict).className)) }}
+  ingressClassName: {{ ($w.ingress | default dict).className | default (($.Values.ingress | default dict).className) }}
+  {{- end }}
+  rules:
+  {{- range (($w.ingress | default dict).hosts | default list) }}
+    - host: {{ .host | quote }}
+      http:
+        paths:
+        {{- range .paths }}
+          - path: {{ .path }}
+            pathType: {{ .pathType }}
+            backend:
+              service:
+                name: {{ $fullName }}
+                port:
+                  number: {{ $svcPort }}
+        {{- end }}
+  {{- end }}
+  {{- with ((($w.ingress | default dict).tls) | default (($.Values.ingress | default dict).tls)) }}
+  tls:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+{{- end }}
+{{- end }}
+{{- end }}

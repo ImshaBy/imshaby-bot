@@ -1,0 +1,47 @@
+{{- /* Primary ConfigMap - ALWAYS rendered when config exists (FR-010) */ -}}
+{{- if .Values.config }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "my-app.configMapName" . }}
+  labels:
+    {{- include "my-app.labels" . | nindent 4 }}
+data:
+  {{- range $key, $value := .Values.config }}
+  {{- if not (kindIs "map" $value) }}
+  {{ $key }}: {{ $value | quote }}
+  {{- end }}
+  {{- end }}
+  {{- with .Values.config.additionalVars }}
+    {{- range $key, $value := . }}
+  {{ $key }}: {{ $value | quote }}
+    {{- end }}
+  {{- end }}
+{{- end }}
+{{- /* Additional workloads - when workloads map is non-empty (FR-010) */ -}}
+{{- if .Values.workloads }}
+{{- range $wName, $w := .Values.workloads }}
+{{- $config := $w.config | default $.Values.config -}}
+{{- if $config }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "workload.fullname" (dict "ctx" $ "name" $wName) }}-config
+  labels:
+    {{- include "workload.labels" (dict "ctx" $ "name" $wName) | nindent 4 }}
+data:
+  {{- range $key, $value := $config }}
+  {{- if not (kindIs "map" $value) }}
+  {{ $key }}: {{ $value | quote }}
+  {{- end }}
+  {{- end }}
+  {{- with $config.additionalVars }}
+  {{- range $key, $value := . }}
+  {{ $key }}: {{ $value | quote }}
+  {{- end }}
+  {{- end }}
+{{- end }}
+{{- end }}
+{{- end }}

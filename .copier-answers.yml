@@ -1,0 +1,7 @@
+# Changes here will be overwritten by Copier; NEVER EDIT MANUALLY
+_commit: ce39bc8
+_src_path: https://github.com/ImshaBy/ci_cd_template
+build_args: false
+domain: hook.imsha.by
+namespace: bot
+project_name: imshaby-bot

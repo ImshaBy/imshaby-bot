@@ -1,0 +1,55 @@
+# Primary + additional workloads test values for helm template (FR-010).
+# Primary deployment from top-level; workloads add additional (e.g. worker).
+namespace: production
+image:
+  repository: example.com/my-app
+  tag: latest
+  pullPolicy: IfNotPresent
+replicaCount: 2
+service:
+  enabled: true
+  type: ClusterIP
+  port: 80
+  targetPort: 8080
+ingress:
+  enabled: true
+  hosts:
+    - host: api.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+config:
+  env: production
+  logLevel: info
+resources:
+  requests:
+    memory: "64Mi"
+    cpu: "25m"
+  limits:
+    memory: "128Mi"
+    cpu: "50m"
+securityContext:
+  pod: {}
+  container: {}
+serviceAccount:
+  create: false
+  name: ""
+autoscaling:
+  enabled: false
+  minReplicas: 2
+  maxReplicas: 10
+# Additional workloads - inherit top-level; override as needed
+workloads:
+  worker:
+    # image inherited from top-level
+    replicaCount: 1
+    service:
+      enabled: true
+      port: 8081
+      targetPort: 8081
+    ingress:
+      enabled: false
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "100m"
