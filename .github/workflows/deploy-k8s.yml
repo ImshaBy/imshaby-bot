@@ -1,0 +1,90 @@
+name: Deploy to Production
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    env:
+      TARGET: production
+    
+    steps:
+    - name: Checkout with tag
+      uses: actions/checkout@v4
+      with:
+          ref: ${{ github.ref_name }}
+
+    - name: Yandex Cloud CR "Login" Action for GitHub Actions
+      uses: yc-actions/yc-cr-login@v0.1-alpha
+      with:
+        yc-sa-json-credentials: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
+
+    - name: Build and push Docker image
+      env:
+        CR_REGISTRY: ${{ secrets.CR_REGISTRY }}
+        CR_REPOSITORY: ${{ vars.CR_REPOSITORY }}
+        IMAGE_TAG: ${{ github.sha }}
+      run: |
+
+        docker build -f ./Dockerfile.prod \
+          --build-arg SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }} \
+          -t cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:$IMAGE_TAG .
+
+        
+        docker push cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:$IMAGE_TAG
+        
+        # Tag and push as latest for convenience
+        docker tag cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:$IMAGE_TAG cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:latest
+        docker push cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:latest
+
+    - name: Setup Kubernetes tools
+      run: |
+        # Install kubectl
+        curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+        sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+        
+        # Install helm
+        curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+        
+        # Verify installation
+        kubectl version --client
+        helm version
+
+    - name: Deploy to Production Cluster
+      env:
+        CR_REGISTRY: ${{ secrets.CR_REGISTRY }}
+        CR_REPOSITORY: ${{ vars.CR_REPOSITORY }}
+        IMAGE_TAG: ${{ github.sha }}
+        K8S_SERVER: ${{ secrets.K8S_SERVER }}
+      run: |
+        mkdir -p ~/.kube
+        
+        # Configure kubectl for Yandex Managed Kubernetes
+        # 1. Set cluster configuration
+        kubectl config set-cluster production \
+          --server=$K8S_SERVER \
+          --insecure-skip-tls-verify=true
+        
+        # 2. Set credentials
+        kubectl config set-credentials prod-user --token="${{ secrets.PROD_K8S_TOKEN }}"
+        
+        # 3. Create context
+        kubectl config set-context prod-context --cluster=production --user=prod-user --namespace=bot
+        
+        # 4. Use context
+        kubectl config use-context prod-context
+        
+        # Deploy using Helm
+        helm upgrade --install imshaby-bot ./.helm \
+          --set image.tag=$IMAGE_TAG \
+          --set image.repository=cr.yandex/$CR_REGISTRY/$CR_REPOSITORY \
+          --debug \
+          --atomic \
+          --timeout 8m \
+          --namespace bot \
+          -f ./.helm/values.yaml
+        
+        # Verify deployment
+        kubectl rollout status deployment/imshaby-bot -n bot --timeout=300s

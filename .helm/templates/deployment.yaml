@@ -1,0 +1,246 @@
+{{- /* Primary deployment - ALWAYS rendered from top-level values (FR-010) */ -}}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "my-app.fullname" . }}
+  labels:
+    {{- include "my-app.labels" . | nindent 4 }}
+  annotations:
+    {{- with .Values.annotations }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+    reloader.stakater.com/auto: "true"
+    {{- with .Values.podAnnotations }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "my-app.selectorLabels" . | nindent 6 }}
+  strategy:
+    {{- $strat := .Values.strategy | default dict }}
+    {{- if $strat }}
+    {{- toYaml $strat | nindent 4 }}
+    {{- else }}
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 0
+    {{- end }}
+  template:
+    metadata:
+      labels:
+        {{- include "my-app.selectorLabels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "my-app.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.securityContext.pod | nindent 8 }}
+      containers:
+      - name: {{ .Chart.Name }}
+        securityContext:
+          {{- toYaml .Values.securityContext.container | nindent 12 }}
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+        - name: http
+          containerPort: {{ .Values.service.targetPort }}
+          protocol: TCP
+        env:
+          {{- include "my-app.envVars" . | nindent 10 }}
+          {{- with .Values.extraEnv }}
+          {{- toYaml . | nindent 10 }}
+          {{- end }}
+        {{- if (.Values.secrets | default dict).enabled }}
+        envFrom:
+        - secretRef:
+            name: {{ (.Values.secrets | default dict).existingSecret | default (printf "%s-secrets" (include "my-app.fullname" .)) }}
+        {{- end }}
+        {{- with .Values.extraEnvFrom }}
+        envFrom:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        resources:
+          {{- toYaml .Values.resources | nindent 12 }}
+        {{- with .Values.livenessProbe }}
+        livenessProbe:
+          {{- toYaml . | nindent 12 }}
+        {{- end }}
+        {{- with .Values.readinessProbe }}
+        readinessProbe:
+          {{- toYaml . | nindent 12 }}
+        {{- end }}
+        {{- with .Values.startupProbe }}
+        startupProbe:
+          {{- toYaml . | nindent 12 }}
+        {{- end }}
+        {{- with .Values.volumeMounts }}
+        volumeMounts:
+          {{- toYaml . | nindent 12 }}
+        {{- end }}
+      {{- with .Values.sidecars }}
+        {{- toYaml . | nindent 6 }}
+      {{- end }}
+      {{- with .Values.initContainers }}
+      initContainers:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.volumes }}
+      volumes:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- /* Additional workloads - when workloads map is non-empty (FR-010) */ -}}
+{{- if .Values.workloads }}
+{{- range $wName, $w := .Values.workloads }}
+{{- $sa := $w.serviceAccount | default dict }}
+{{- $img := $w.image | default $.Values.image | default dict }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "workload.fullname" (dict "ctx" $ "name" $wName) }}
+  labels:
+    {{- include "workload.labels" (dict "ctx" $ "name" $wName) | nindent 4 }}
+  annotations:
+    reloader.stakater.com/auto: "true"
+    {{- with $w.annotations }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+    {{- with $w.podAnnotations }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  replicas: {{ $w.replicaCount | default $.Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "workload.selectorLabels" (dict "ctx" $ "name" $wName) | nindent 6 }}
+  strategy:
+    {{- $strat := $w.strategy | default ($.Values.strategy | default dict) }}
+    {{- if $strat }}
+    {{- toYaml $strat | nindent 4 }}
+    {{- else }}
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 0
+    {{- end }}
+  template:
+    metadata:
+      labels:
+        {{- include "workload.selectorLabels" (dict "ctx" $ "name" $wName) | nindent 8 }}
+        {{- with $w.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") $ | sha256sum }}
+        {{- with $w.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with $.Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ if $sa.create }}{{ include "workload.fullname" (dict "ctx" $ "name" $wName) }}{{ else }}{{ $sa.name | default "default" }}{{ end }}
+      securityContext:
+        {{- $podSc := (($w.securityContext | default dict).pod | default (($.Values.securityContext | default dict).pod)) | default dict }}
+        {{- toYaml $podSc | nindent 8 }}
+      containers:
+      - name: {{ $.Chart.Name }}
+        securityContext:
+          {{- $conSc := (($w.securityContext | default dict).container | default (($.Values.securityContext | default dict).container)) | default dict }}
+          {{- toYaml $conSc | nindent 12 }}
+        image: "{{ $img.repository }}:{{ $img.tag | default "latest" }}"
+        imagePullPolicy: {{ $img.pullPolicy | default (($.Values.image | default dict).pullPolicy) | default "IfNotPresent" }}
+        ports:
+        - name: http
+          containerPort: {{ (($w.service | default dict).targetPort | default (($.Values.service | default dict).targetPort)) | default 8080 }}
+          protocol: TCP
+        env:
+          {{- include "workload.envVars" (dict "ctx" $ "w" $w) | nindent 10 }}
+          {{- with $w.extraEnv }}
+          {{- toYaml . | nindent 10 }}
+          {{- end }}
+        {{- if ($w.secrets | default dict).enabled }}
+        envFrom:
+        - secretRef:
+            name: {{ ($w.secrets | default dict).existingSecret | default (printf "%s-secrets" (include "workload.fullname" (dict "ctx" $ "name" $wName))) }}
+        {{- end }}
+        {{- with $w.extraEnvFrom }}
+        envFrom:
+        - {{ toYaml . }}
+        {{- end }}
+        resources:
+          {{- $res := $w.resources | default ($.Values.resources | default dict) }}
+          {{- if $res }}
+          {{- toYaml $res | nindent 12 }}
+          {{- else }}
+          requests: {}
+          limits: {}
+          {{- end }}
+        {{- with $w.livenessProbe }}
+        livenessProbe:
+          {{- toYaml . | nindent 12 }}
+        {{- end }}
+        {{- with $w.readinessProbe }}
+        readinessProbe:
+          {{- toYaml . | nindent 12 }}
+        {{- end }}
+        {{- with $w.startupProbe }}
+        startupProbe:
+          {{- toYaml . | nindent 12 }}
+        {{- end }}
+        {{- with ($w.volumeMounts | default ($.Values.volumeMounts | default list)) }}
+        volumeMounts:
+          {{- toYaml . | nindent 12 }}
+        {{- end }}
+      {{- with $w.sidecars }}
+      {{- toYaml . | nindent 6 }}
+      {{- end }}
+      {{- with $w.initContainers }}
+      initContainers:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with ($w.volumes | default ($.Values.volumes | default list)) }}
+      volumes:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with ($w.nodeSelector | default ($.Values.nodeSelector | default dict)) }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with ($w.affinity | default ($.Values.affinity | default dict)) }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with ($w.tolerations | default ($.Values.tolerations | default list)) }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}
+{{- end }}

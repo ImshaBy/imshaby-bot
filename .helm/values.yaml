@@ -1,0 +1,139 @@
+# ========== Образ контейнера ==========
+image:
+  repository: "cr.yandex/crp8o64j2cl644b4pjki/imshaby-bot"
+  tag: "latest"
+  pullPolicy: IfNotPresent
+
+imagePullSecrets:
+  - name: yandex-cr-secret
+
+# ========== Namespace ==========
+namespace: "bot"
+
+# ========== Реплики и стратегия развертывания ==========
+replicaCount: 1
+
+strategy:
+  type: RollingUpdate
+  rollingUpdate:
+    maxSurge: 25%
+    maxUnavailable: 0
+
+# ========== Сервис ==========
+service:
+  enabled: true
+  type: ClusterIP
+  port: 80
+  targetPort: 80
+
+# ========== Ingress ==========
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+  hosts:
+    - host: "hook.imsha.by"
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+# ========== Конфигурация приложения ==========
+config:
+  env: "production"
+  logLevel: "info"
+
+secrets:
+  enabled: false
+  existingSecret: ""
+
+# ========== Ресурсы и лимиты ==========
+resources:
+  requests:
+    memory: "64Mi"
+    cpu: "25m"
+  limits:
+    memory: "128Mi"
+    cpu: "50m"
+
+# ========== Health Checks ==========
+livenessProbe: []
+
+readinessProbe: []
+
+startupProbe: []
+
+# ========== Безопасность ==========
+securityContext:
+  pod:
+    runAsNonRoot: true
+    runAsUser: 1000
+    fsGroup: 1000
+  container:
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: true
+    capabilities:
+      drop:
+        - ALL
+    seccompProfile:
+      type: RuntimeDefault
+
+# ========== ServiceAccount ==========
+serviceAccount:
+  create: false
+  name: ""
+  annotations: {}
+
+# ========== Autoscaling ==========
+autoscaling:
+  enabled: false
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 80
+
+# ========== Толеранции и affinity ==========
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+# ========== Дополнительные volume mounts ==========
+volumes:
+  - name: nginx-cache
+    emptyDir: {}
+  - name: nginx-run
+    emptyDir: {}
+  - name: tmp
+    emptyDir: {}
+
+volumeMounts:
+  - name: nginx-cache
+    mountPath: /var/cache/nginx
+  - name: nginx-run
+    mountPath: /var/run
+  - name: tmp
+    mountPath: /tmp
+
+# ========== Дополнительные containers (sidecars) ==========
+sidecars: []
+
+# ========== Init containers ==========
+initContainers: []
+
+# ========== Метки и аннотации ==========
+labels: {}
+annotations: {}
+podLabels: {}
+podAnnotations: {}
+
+# ========== Дополнительные параметры ==========
+extraEnv: []
+extraEnvFrom: []
+
+# ========== Multiple workloads (optional) ==========
+# When present and non-empty, chart renders primary (from top-level) ALWAYS plus additional workloads per entry.
+# Each key is the workload name (e.g. worker). Additional workloads inherit top-level as defaults.
+# Omit or leave empty for legacy single-deployment (primary only).
+# See docs: specs/003-multi-deploy-namespace/contracts/helm-values-workloads.md
+workloads: {}
