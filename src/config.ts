@@ -108,7 +108,7 @@ function initConfig(): IConfig {
       isTopicChannel: Boolean(envs.IS_TOPIC_MESSAGE)
     },
     server:{
-      port: Number(envs.PORT) || 3000,
+      port: Number(envs.PORT) || 18080,
       env: envs.NODE_ENV,
     },
     log: {
