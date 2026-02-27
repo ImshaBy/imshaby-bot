@@ -22,7 +22,7 @@ import { isAdmin } from './middlewares/is-admin';
 import { isSupportedChatType } from './middlewares/is-group-message';
 import { requireValidToken } from './middlewares/require-valid-token';
 // import {session} from './redis';
-import {CONFIG} from './config';
+import {CONFIG, getRedisUrl} from './config';
 import { cleanUpMessages } from './util/session';
 import { Request, Response } from 'express';
 import { SessionContext, SessionData } from 'telegram-context';
@@ -31,10 +31,7 @@ import { Redis } from "@telegraf/session/redis";
 export function createBot(token: string): Telegraf<SessionContext> {
 
     const bot = new Telegraf<SessionContext>(token);
-    const redisUrl = CONFIG.redis.password 
-        ? `redis://:${CONFIG.redis.password}@${CONFIG.redis.host}:${CONFIG.redis.port}`
-        : `redis://${CONFIG.redis.host}:${CONFIG.redis.port}`;
-    const store: SessionStore<SessionData> = Redis({ url: redisUrl });
+    const store: SessionStore<SessionData> = Redis({ url: getRedisUrl() });
     const stage = new Scenes.Stage([
         startScene,
         scheduleScene,
