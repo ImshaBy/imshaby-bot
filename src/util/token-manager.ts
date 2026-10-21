@@ -2,6 +2,7 @@ import { IUser } from '../models/User';
 import User from '../models/User';
 import { retrieveAccessToken } from '../providers/identity-provider/api';
 import logger from './logger';
+import { sameParishKeySet } from './parish-cache';
 
 /**
  * Decode JWT token and extract expiration time
@@ -202,10 +203,14 @@ export async function getValidAccessTokenFromContext(ctx: any): Promise<string |
             });
             
             // Update session user with new tokens and parish keys
+            const previousParishKeys = ctx.session.user.observableParishKeys;
             ctx.session.user.accessToken = tokenData.accessToken;
             ctx.session.user.tokenExpiresAt = tokenData.tokenExpiresAt;
             ctx.session.user.observableParishKeys = tokenData.observableParishKeys;
-            
+            if (!sameParishKeySet(previousParishKeys, tokenData.observableParishKeys)) {
+                delete ctx.session.parishes;
+            }
+
             logger.info(ctx, 'Successfully updated token for user %s', sessionUser._id);
         } catch (e) {
             logger.error(ctx, 'Error updating user tokens in DB: %O', e);
