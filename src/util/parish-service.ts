@@ -1,45 +1,48 @@
 import { IParishResult } from '../providers/search-providers/parish-lookup';
 import { parishesLookupByKey } from '../providers/search-providers';
 import { getValidAccessTokenFromContext } from './token-manager';
+import { parishCacheIsCurrent } from './parish-cache';
 import { saveToSession } from './session';
 import logger from './logger';
 
 /**
- * Get all parishes for the current user from their observableParishKeys
- * Results are cached in session for subsequent calls
- * 
+ * Get all parishes for the current user from their observableParishKeys.
+ * A cached list is reused only when it still matches those keys. Login and
+ * token refresh can change the keys without deleting the Telegram chat, and
+ * the Redis session survives reinstalling the bot.
+ *
  * @param ctx - Telegram context with session
  * @returns Array of parish results
  */
 export async function getUserParishes(ctx: any): Promise<IParishResult[]> {
-    // Return cached parishes if available
-    if (ctx.session.parishes) {
-        logger.debug(ctx, 'Returning cached parishes from session');
-        return ctx.session.parishes as IParishResult[];
-    }
-
-    // Get valid access token FIRST - this may update observableParishKeys in session
+    // Token refresh may replace observableParishKeys, so compare the cache after it.
     const accessToken = await getValidAccessTokenFromContext(ctx);
     if (!accessToken) {
         logger.error(ctx, 'Failed to get valid access token for user: %s', ctx.session.user?._id);
         return [];
     }
 
-    // Get parish keys AFTER token refresh to ensure we have the latest keys
     const parishKeys = ctx.session.user?.observableParishKeys;
-    
+
     if (!parishKeys || parishKeys.length === 0) {
+        clearParishCache(ctx);
         logger.debug(ctx, 'No parish keys found for user');
         return [];
     }
 
+    if (parishCacheIsCurrent(ctx.session.parishes, parishKeys)) {
+        logger.debug(ctx, 'Returning cached parishes from session');
+        return ctx.session.parishes as IParishResult[];
+    }
+
+    clearParishCache(ctx);
     logger.debug(ctx, 'Fetching parishes for keys: %O', parishKeys);
 
     try {
         const parishes = await fetchParishesByKeys(parishKeys, accessToken, ctx);
-        
-        // Cache parishes in session
-        if (parishes.length > 0) {
+
+        // Keep a partial result out of the cache so the next open tries again.
+        if (parishCacheIsCurrent(parishes, parishKeys)) {
             saveToSession(ctx, 'parishes', parishes);
         }
 

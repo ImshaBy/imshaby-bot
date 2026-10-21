@@ -1,6 +1,8 @@
 import User from '../models/User';
 import { getValidAccessToken } from '../util/token-manager';
 import { saveToSession } from '../util/session';
+import { clearParishCache } from '../util/parish-service';
+import { sameParishKeySet } from '../util/parish-cache';
 import logger from '../util/logger';
 
 /**
@@ -15,7 +17,10 @@ export const requireValidToken = async (ctx: any, next: () => void) => {
     
     // Try to get user from session first, then from DB
     let user = ctx.session.user;
-    
+    const previousParishKeys = user?.observableParishKeys
+        ? [...user.observableParishKeys]
+        : undefined;
+
     if (!user) {
         user = await User.findById(uid);
         
@@ -47,7 +52,10 @@ export const requireValidToken = async (ctx: any, next: () => void) => {
 
     // Update session with latest user data (including refreshed tokens if any)
     saveToSession(ctx, 'user', user);
-    
+    if (!sameParishKeySet(previousParishKeys, user.observableParishKeys)) {
+        clearParishCache(ctx);
+    }
+
     // Token is valid, proceed
     return next();
 };

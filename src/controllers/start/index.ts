@@ -10,6 +10,7 @@ import { SessionContext } from 'telegram-context';
 import { CONFIG } from '../../config';
 import { generatePasswordlessCode, retrieveAccessToken } from '../../providers/identity-provider/api';
 import { getTokenExpiration, extractParishKeysFromToken } from '../../util/token-manager';
+import { clearParishCache } from '../../util/parish-service';
 import { sendMessageWithErrorHandling } from '../../util/notifier';
 
 const start = new Scenes.BaseScene<SessionContext>('start');
@@ -329,7 +330,11 @@ async function attemptTokenRetrieval(ctx: any, user: IUser) {
                 observableParishKeys: []
             }
         );
-        
+        if (ctx.session.user) {
+            ctx.session.user.observableParishKeys = [];
+        }
+        clearParishCache(ctx);
+
         // Show message about no parishes with contact button
         await ctx.reply(
             ctx.i18n.t('scenes.start.no_parishes_assigned'),
@@ -351,8 +356,10 @@ async function attemptTokenRetrieval(ctx: any, user: IUser) {
         { new: true }
     );
 
-    // Save user to session
+    // Save user to session. Drop a parish list cached for the previous key set:
+    // reinstalling the bot does not delete the Redis session.
     saveToSession(ctx, 'user', updatedUser);
+    clearParishCache(ctx);
     saveToSession(ctx, 'language', updatedUser.language || CONFIG.bot.lang);
     ctx.i18n.locale(updatedUser.language || CONFIG.bot.lang);
 
